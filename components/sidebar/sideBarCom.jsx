@@ -87,22 +87,22 @@ const SideBarMenu = () => {
               className="group/collapsible"
             >
               <SidebarMenuItem>
-                <CollapsibleTrigger asChild>
-                  <SidebarMenuButton
-                    asChild
-                    tooltip={item.name}
-                    className={`${
-                      item?.name === currentMenu?.name
-                        ? "bg-neutral-200 text-neutral-900"
-                        : "hover:bg-gray-100"
-                    } text-sm text-gray-800 font-normal rounded-lg flex items-center p-2 group`}
-                  >
-                    <Link href={item?.path}>
-                      {item.icon}
-                      <span>{item?.name}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </CollapsibleTrigger>
+                {/* <CollapsibleTrigger asChild> */}
+                <SidebarMenuButton
+                  asChild
+                  tooltip={item?.name}
+                  className={`${
+                    item?.name === currentMenu?.name
+                      ? "bg-neutral-200 text-neutral-900"
+                      : "hover:bg-gray-100"
+                  } text-sm text-gray-800 font-normal rounded-lg flex items-center p-2 group`}
+                >
+                  <Link href={item?.path} className="flex gap-2 items-center">
+                    {item?.icon}
+                    <span>{item?.name}</span>
+                  </Link>
+                </SidebarMenuButton>
+                {/* </CollapsibleTrigger> */}
               </SidebarMenuItem>
             </Collapsible>
           ))}
