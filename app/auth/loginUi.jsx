@@ -1,7 +1,7 @@
 "use client";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import ReactHookForm from "@/components/form/reactHookForm";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
@@ -42,31 +42,41 @@ export const LOGINFIELD = [
 export const LoginUi = () => {
   const [resetFlag, setResetFlag] = useState(false);
   const [initialValues, setInitialValues] = useState({});
+  const [formError, setFormError] = useState(""); // State to hold form-specific errors
 
   const searchParams = useSearchParams();
   const callback = searchParams.get("callbackUrl");
-  const callBackcheck = callback ? callback : process.env.NEXTAUTH_URL || "/";
   const { status } = useSession();
-  // if (status === "authenticated") {
-  // window.location.href = callBackcheck;
-  // }
+
+  const callBackcheck = callback || process.env.NEXTAUTH_URL || "/";
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      if (window.location.href !== callBackcheck) {
+        window.location.href = callBackcheck;
+      }
+    }
+  }, [status, callBackcheck]);
 
   const handleSubmit = async (data) => {
+    setFormError(""); // Reset form error before submission
     try {
       const res = await signIn("credentials", {
-        // redirect: false,
-        // callbackUrl: callBackcheck,
+        redirect: false, // Prevent automatic page reload
         email: data.email,
         password: data.password,
       });
+
       if (res?.error) {
-        toast.error(res?.error || "Error signing in");
+        setFormError(res.error); // Set the error to display below the form
+        toast.error(res.error); // Optionally show a toast notification
       } else {
         window.location.href = res.url || callBackcheck || "/";
       }
     } catch (err) {
       console.error("Error during login:", err);
-      toast.error("An error occurred during login. Please try again.");
+      setFormError("An unexpected error occurred. Please try again.");
+      toast.error("An unexpected error occurred. Please try again.");
     }
   };
 

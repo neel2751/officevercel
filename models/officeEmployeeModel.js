@@ -12,6 +12,13 @@ const officeEmployeSchema = new mongoose.Schema(
       ref: "RoleType",
       required: true,
     },
+
+    company: {
+      type: mongoose.Types.ObjectId,
+      ref: "Company",
+      required: true,
+    },
+    immigrationStatus: { type: String, required: true },
     isActive: { type: Boolean, default: true },
     isAdmin: { type: Boolean, default: false },
     isSuperAdmin: { type: Boolean, default: false },

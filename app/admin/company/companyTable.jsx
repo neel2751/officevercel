@@ -17,13 +17,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { format, formatDistanceStrict, isPast } from "date-fns";
+import { format } from "date-fns";
 import { Edit, Trash2 } from "lucide-react";
 import React from "react";
-import EmployeeForm from "./employeeForm";
 import { useCommonContext } from "@/context/commonContext";
+import EmployeeForm from "../officeEmployee/employeeForm";
 
-const EmployeTabel = () => {
+const CompanyTable = () => {
   const {
     officeEmployeeData: data,
     handleEdit,
@@ -36,23 +36,13 @@ const EmployeTabel = () => {
       <Table>
         <TableHeader>
           <TableRow>
-            {[
-              "id",
-              "name",
-              "email",
-              "contactNo",
-              "Department",
-              "roletype",
-              "status",
-              "joindate",
-              "visa",
-              "endDate",
-              "Actions",
-            ].map((item, index) => (
-              <TableHead className="uppercase text-xs" key={index}>
-                {item}
-              </TableHead>
-            ))}
+            {["id", "Role name", "description", "status", "Actions"].map(
+              (item, index) => (
+                <TableHead className="uppercase text-xs" key={index}>
+                  {item}
+                </TableHead>
+              )
+            )}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -60,10 +50,7 @@ const EmployeTabel = () => {
             <TableRow key={index}>
               <TableCell>{index + 1}</TableCell>
               <TableCell>{item?.name}</TableCell>
-              <TableCell>{item?.email}</TableCell>
-              <TableCell>{item?.phoneNumber}</TableCell>
-              <TableCell>{item?.department}</TableCell>
-              <TableCell>{item?.roleType?.roleTitle}</TableCell>
+              <TableCell>{item?.description}</TableCell>
               <TableCell>
                 {item?.isActive ? (
                   <Badge
@@ -81,27 +68,7 @@ const EmployeTabel = () => {
                   </Badge>
                 )}
               </TableCell>
-              <TableCell>{format(new Date(item?.startDate), "PPP")}</TableCell>
-              <TableCell>
-                {item?.endDate
-                  ? isPast(new Date(item.endDate))
-                    ? "Visa expired"
-                    : `in ${formatDistanceStrict(
-                        new Date(),
-                        new Date(item.endDate)
-                      )}`
-                  : "No end date available"}
-              </TableCell>
-
-              <TableCell
-                className={`${
-                  isPast(new Date(item?.endDate), new Date())
-                    ? "text-rose-600"
-                    : "text-neutral-600"
-                }`}
-              >
-                {format(new Date(item.endDate), "PPP")}
-              </TableCell>
+              <TableCell>{format(new Date(item?.createdAt), "PPP")}</TableCell>
 
               <TableCell>
                 <div className="flex gap-2">
@@ -115,9 +82,9 @@ const EmployeTabel = () => {
                         <Edit className="text-indigo-600" />
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-2xl max-h-max">
+                    <DialogContent className="sm:max-w-xl max-h-max">
                       <DialogHeader>
-                        <DialogTitle>Edit New Role</DialogTitle>
+                        <DialogTitle>Edit Role Type</DialogTitle>
                         <DialogDescription>
                           Make changes to here. Click update when you're done.
                         </DialogDescription>
@@ -138,4 +105,4 @@ const EmployeTabel = () => {
   );
 };
 
-export default EmployeTabel;
+export default CompanyTable;

@@ -2,6 +2,7 @@
 
 import { connect } from "@/db/db";
 import AttendanceModel from "@/models/attendanceModel";
+import CompanyModel from "@/models/companyModel";
 import EmployeModel from "@/models/employeModel";
 import OfficeEmployeeModel from "@/models/officeEmployeeModel";
 import RoleTypesModel from "@/models/roleTypeModel";
@@ -144,5 +145,36 @@ export const getSelectEmployee = async () => {
   } catch (error) {
     console.log(error);
     return { status: false, message: "Error Occured" };
+  }
+};
+
+export const getSelectCompanies = async () => {
+  try {
+    await connect();
+    const company = await CompanyModel.aggregate([
+      {
+        $match: { delete: false }, // Filters documents where delete is false
+      },
+      {
+        $project: {
+          _id: 0,
+          value: "$_id", // Renames `_id` to `value`
+          label: "$name", // Renames `roleTitle` to `name`
+        },
+      },
+    ]).exec();
+    if (!company || company?.length === 0) {
+      return { success: false, message: "No Data Found" };
+    } else {
+      const roleData = JSON.stringify(company);
+      const data = {
+        success: true,
+        data: roleData,
+      };
+      return data;
+    }
+  } catch (err) {
+    console.log(err);
+    return { success: false, message: "Error Occured" };
   }
 };

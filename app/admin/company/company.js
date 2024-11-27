@@ -1,6 +1,8 @@
 "use client";
+
 import SearchDebounce from "@/components/search/searchDebounce";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -8,40 +10,28 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  getOfficeEmployee,
-  handleOfficeEmployee,
-} from "@/server/officeServer/officeServer";
-import { isFuture } from "date-fns";
-import { Plus } from "lucide-react";
-import React, { useState } from "react";
-import EmployeTabel from "./employeTabel";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { SelectFilter } from "@/components/selectFilter/selectFilter";
-import { toast } from "sonner";
-import EmployeeForm from "./employeeForm";
-import Pagination from "@/lib/pagination";
-import { useFetchQuery, useFetchSelectQuery } from "@/hooks/use-query";
-import {
-  getSelectCompanies,
-  getSelectRoleType,
-} from "@/server/selectServer/selectServer";
-import { useSubmitMutation } from "@/hooks/use-mutate";
 import { CommonContext } from "@/context/commonContext";
-import { OFFICEFIELD } from "@/data/fields/fields";
+import { COMPANYFIELD } from "@/data/fields/fields";
+import { useSubmitMutation } from "@/hooks/use-mutate";
+import { useFetchQuery } from "@/hooks/use-query";
+import Pagination from "@/lib/pagination";
+import { Plus } from "lucide-react";
+import { useState } from "react";
+import EmployeeForm from "../officeEmployee/employeeForm";
+import {
+  getCompanies,
+  handleCompany,
+} from "@/server/companyServer/companyServer";
+import CompanyTable from "./companyTable";
 
-const OfficeEmplyee = ({ searchParams }) => {
-  const currentPage = parseInt(searchParams.page || "1");
-  const pagePerData = parseInt(searchParams.pageSize || "10");
-  const query = searchParams.query;
+const Company = ({ searchParams }) => {
+  const currentPage = parseInt(searchParams?.page || "1");
+  const pagePerData = parseInt(searchParams?.pageSize || "10");
+  const query = searchParams?.query;
   const [initialValues, setInitialValues] = useState({});
   const [open, setOpen] = useState(false);
-  const [filter, setFilter] = useState("");
   const [isEdit, setIsEdit] = useState(false);
-  const queryKey = [
-    "officeEmployee",
-    { query, currentPage, pagePerData, filter },
-  ];
+  const queryKey = ["companies", { query, currentPage, pagePerData }];
 
   const {
     data: queryResult,
@@ -52,39 +42,13 @@ const OfficeEmplyee = ({ searchParams }) => {
       page: currentPage,
       pageSize: pagePerData,
       query: query,
-      filter: filter,
     },
     queryKey,
-    fetchFn: getOfficeEmployee,
+    fetchFn: getCompanies,
   });
   const { newData: officeEmployeeData = [], totalCount = 0 } =
     queryResult || {};
 
-  const { data: selectRoleType = [] } = useFetchSelectQuery({
-    queryKey: ["selectRoleType"],
-    fetchFn: getSelectRoleType,
-  });
-
-  const { data: selectCompany = [] } = useFetchSelectQuery({
-    queryKey: ["selectCompany"],
-    fetchFn: getSelectCompanies,
-  });
-
-  const field = OFFICEFIELD.map((item) => {
-    if (item.name === "roleType") {
-      return {
-        ...item,
-        options: selectRoleType,
-      };
-    }
-    if (item.name === "company") {
-      return {
-        ...item,
-        options: selectCompany,
-      };
-    }
-    return item;
-  });
   const handleClose = () => {
     setInitialValues({});
     setOpen(false);
@@ -95,21 +59,18 @@ const OfficeEmplyee = ({ searchParams }) => {
   };
 
   const { mutate: handleSubmit } = useSubmitMutation({
-    mutationFn: async (data) => await handleOfficeEmployee(data),
+    mutationFn: async (data) => await handleCompany(data),
     invalidateKey: queryKey,
     onSuccessMessage: (response) =>
-      `Employee ${initialValues._id ? "Updated" : "Created"} successfully`,
+      `Role Type ${initialValues._id ? "Updated" : "Created"} successfully`,
     onClose: initialValues?._id ? handleEditClose : handleClose,
   });
   const onSubmit = (data) => {
-    if (!isFuture(new Date(data.endDate))) {
-      return toast.error("End date should be greater than start date");
-    }
     handleSubmit(data);
   };
 
   const handleEdit = (item) => {
-    setInitialValues({ ...item, roleType: item.roleType._id });
+    setInitialValues(item);
     setIsEdit(true);
   };
 
@@ -117,7 +78,6 @@ const OfficeEmplyee = ({ searchParams }) => {
     setInitialValues({});
     setOpen(true);
   };
-
   return (
     <div className="p-4">
       <CommonContext.Provider
@@ -125,7 +85,7 @@ const OfficeEmplyee = ({ searchParams }) => {
           officeEmployeeData,
           handleSubmit,
           onSubmit,
-          field,
+          field: COMPANYFIELD,
           setInitialValues,
           initialValues,
           handleEdit,
@@ -141,27 +101,17 @@ const OfficeEmplyee = ({ searchParams }) => {
           <Card>
             <CardHeader>
               <div className="mb-4">
-                <CardTitle>Office Employee</CardTitle>
+                <CardTitle>Role Types</CardTitle>
               </div>
               <div className="flex items-center justify-between">
                 <SearchDebounce />
                 <div className="flex gap-2">
-                  <SelectFilter
-                    value={filter}
-                    frameworks={[
-                      { label: "All", value: "" },
-                      ...selectRoleType,
-                    ]}
-                    placeholder={filter === "" ? "All" : "Select Role"}
-                    onChange={(e) => setFilter(e)}
-                    noData="No Data found"
-                  />
                   <Button onClick={handleOpen}>
                     <Plus />
                     Add
                   </Button>
                   <Dialog open={open} onOpenChange={handleClose}>
-                    <DialogContent className="sm:max-w-2xl max-h-max">
+                    <DialogContent className="sm:max-w-xl max-h-max">
                       <DialogHeader>
                         <DialogTitle>Add New Role</DialogTitle>
                         <DialogDescription>
@@ -177,11 +127,10 @@ const OfficeEmplyee = ({ searchParams }) => {
             <CardContent>
               {isLoading && <div>Loading.....</div>}
               {isError && <div> Something went wrong</div>}
-
               {officeEmployeeData.length <= 0 ? (
                 <div className="text-center text-gray-500">No Data found</div>
               ) : (
-                <EmployeTabel />
+                <CompanyTable />
               )}
 
               {totalCount > 10 && (
@@ -197,4 +146,4 @@ const OfficeEmplyee = ({ searchParams }) => {
   );
 };
 
-export default OfficeEmplyee;
+export default Company;

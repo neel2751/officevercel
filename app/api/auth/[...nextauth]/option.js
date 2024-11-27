@@ -14,29 +14,43 @@ export const options = {
         const browser = req.headers["sec-ch-ua"];
 
         try {
-          if (!credentials || !credentials.email || !credentials.password) {
-            return null; // Return null if credentials are invalid
+          if (!credentials?.email || !credentials?.password) {
+            throw new Error("Please provide both email and password.");
           }
+
           const { email, password } = credentials;
           const response = await LoginData(email, password);
-          if (response.status) {
-            const newip = await axios.get("http://ip-api.com/json/");
-            if (newip.status === 200) {
-              const data = await storeSession({
-                ...newip.data,
-                ...response.data,
-                platform,
-                browser,
-                device: isMobile ? "Mobile" : "Desktop",
-              });
-              if (!data.status) throw new Error(data.message);
-              return { ...response.data };
-            }
-          } else {
-            throw new Error(response.message);
+
+          if (!response?.status) {
+            throw new Error(response?.message || "Invalid login attempt.");
           }
+
+          // Optional: Fetch and store session details
+          const newip = await axios
+            .get("http://ip-api.com/json/")
+            .catch((err) => {
+              console.error("IP API error:", err.message);
+              return { status: 500, data: {} }; // Fallback if API fails
+            });
+
+          if (newip.status === 200) {
+            await storeSession({
+              ...newip.data,
+              ...response.data,
+              platform,
+              browser,
+              device: isMobile ? "Mobile" : "Desktop",
+            });
+
+            // if (!data.status) {
+            //   throw new Error(data?.message);
+            // }
+          }
+
+          return { ...response?.data };
         } catch (error) {
-          throw new Error(error.message);
+          console.error("Authorize error:", error.message);
+          throw new Error(error.message); // Propagate error to sign-in page
         }
       },
     }),
@@ -48,19 +62,21 @@ export const options = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user._id;
-        (token.name = user.name),
-          (token.email = user.email),
-          (token.role = user.role);
+        token.name = user.name;
+        token.email = user.email;
+        token.role = user.role;
       }
       return token;
     },
     async session({ session, token }) {
-      if (session?.user) session.user._id = token.id;
-      session.user.role = token.role;
+      if (session?.user) {
+        session.user._id = token.id;
+        session.user.role = token.role;
+      }
       return session;
     },
   },
   pages: {
-    signIn: "/auth",
+    signIn: "/auth", // Sign-in page
   },
 };

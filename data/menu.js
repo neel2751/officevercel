@@ -1,5 +1,6 @@
 import {
   Briefcase,
+  Building2,
   Captions,
   ClipboardIcon,
   Filter,
@@ -93,6 +94,12 @@ export const MENU = [
     path: "/admin/roleType",
     role: ["superAdmin"],
     icon: <Captions className="h-5 w-5" />,
+  },
+  {
+    name: "Company",
+    path: "/admin/company",
+    role: ["superAdmin"],
+    icon: <Building2 className="h-5 w-5" />,
   },
 ];
 

@@ -389,17 +389,32 @@ export const OFFICEFIELD = [
     type: "select",
     validationOptions: { required: "Role Type is required" },
   },
-  // {
-  //   name: "paymentType",
-  //   labelText: "Payment Type",
-  //   options: [
-  //     { label: "Monthly", value: "Monthly" },
-  //     { label: "CIS", value: "Weekly" },
-  //   ],
-  //   defaultValue: "Monthly",
-  //   type: "radio",
-  //   validationOptions: { required: "Payment Type is required" },
-  // },
+  {
+    name: "company",
+    labelText: "Company",
+    type: "select",
+    placeholder: "Select  a company",
+    validationOptions: {
+      required: "password is required",
+    },
+  },
+  {
+    name: "immigrationStatus",
+    labelText: " Immigration Status",
+    type: "text",
+    placeholder: "Enter Immigration Status",
+    validationOptions: {
+      required: "Immigration Status is required",
+      minLength: {
+        value: 3,
+        message: "Minimum length should be 3 characters",
+      },
+      pattern: {
+        value: /^(?! )[a-zA-Z0-9]+(?: [a-zA-Z0-9]+)*(?<! )$/,
+        message: "Invalid immigration status format",
+      },
+    },
+  },
   {
     name: "password",
     labelText: "Password",
@@ -492,5 +507,27 @@ export const ROLETYPEFIELD = [
     type: "textarea",
     helperText: "*Describe Our Role Types",
     placeholder: "On this site we will be doing like loft conversion...",
+  },
+];
+
+export const COMPANYFIELD = [
+  {
+    name: "name",
+    labelText: "Company Name",
+    type: "text",
+    helperText: "*This Name will appear be on employee table.",
+    placeholder: "Enter  Company Name",
+    size: true,
+    validationOptions: {
+      required: " Company Name is required",
+    },
+  },
+  {
+    name: "description",
+    labelText: " Company Description",
+    size: true,
+    type: "textarea",
+    helperText: "*Describe company",
+    placeholder: " Company for construction and building",
   },
 ];
