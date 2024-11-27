@@ -6,6 +6,11 @@ function checkRoleMiddleware(req) {
   const userRole = req.nextauth.token?.role;
   const requestedPath = req.nextUrl.pathname;
 
+  // If no token is found (i.e., user is not authenticated), redirect to login
+  if (!userRole) {
+    return NextResponse.redirect(new URL("/api/auth/signin", req.url));
+  }
+
   // Allow superAdmin role to access everything
   if (userRole === "superAdmin") {
     return NextResponse.next();
@@ -14,7 +19,7 @@ function checkRoleMiddleware(req) {
   // Find the exact menu item matching the requested path
   const menuItem = MENU.find(
     (item) =>
-      (requestedPath.startsWith(item.path) && requestedPath === item?.path) ||
+      (requestedPath.startsWith(item?.path) && requestedPath === item?.path) ||
       requestedPath.startsWith(`${item?.path}/`)
   );
 

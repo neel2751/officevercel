@@ -1,4 +1,3 @@
-"use client";
 import Dash from "./dash";
 
 const page = () => {
