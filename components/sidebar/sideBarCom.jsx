@@ -72,11 +72,14 @@ const SideBarMenu = () => {
   // if our path is dynamic , we need to get the menu item that matches the path
   const path = pathName.split("/", 3).join("/");
   const currentMenu = getMenu(path);
+
+  const { data } = useSession();
+  const menuItems = MENU.filter((item) => item.role.includes(data?.user?.role));
   return (
     <SidebarContent>
       <SidebarGroup>
         <SidebarMenu className="gap-4">
-          {MENU?.map((item) => (
+          {menuItems?.map((item) => (
             <Collapsible
               key={item.name}
               asChild

@@ -13,7 +13,13 @@ export const MENU = [
   {
     name: "Dashboard",
     path: "/admin/dashboard",
-    role: ["superAdmin", "admin"], // admin, manager, user
+    role: ["superAdmin"], // admin, manager, user
+    icon: <LayoutDashboard className="h-5 w-5" />,
+  },
+  {
+    name: "Dashboard",
+    path: "/",
+    role: ["admin", "user"], // admin, manager, user
     icon: <LayoutDashboard className="h-5 w-5" />,
   },
   {

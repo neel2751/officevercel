@@ -35,9 +35,9 @@ export const LoginData = async (email, password) => {
         status: false,
         message: "Invalid Password! Try  Again...",
       };
-    if (foundData.isSuperAdmin) {
+    if (foundData?.isSuperAdmin) {
       foundData["role"] = "superAdmin";
-    } else if (foundData.isAdmin) {
+    } else if (foundData?.isAdmin) {
       foundData["role"] = "admin";
     } else {
       foundData["role"] = "user";

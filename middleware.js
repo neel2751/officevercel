@@ -48,7 +48,7 @@ export default withAuth(checkRoleMiddleware, {
   callbacks: {
     authorized: ({ token }) =>
       // Authorize if the user's role is present in any of the roles in MENU
-      MENU.some((item) => item.role.includes(token?.role)),
+      MENU.some((item) => item?.role?.includes(token?.role)),
   },
 });
 
