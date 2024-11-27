@@ -1,4 +1,10 @@
+import { getServerSideProps } from "@/server/session/session";
 import Admin from "./admin/layout";
-export default function Home() {
+import { redirect } from "next/navigation";
+export default async function Home() {
+  const { props } = await getServerSideProps();
+  if (!props) {
+    redirect("/auth");
+  }
   return <Admin />;
 }
