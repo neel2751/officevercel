@@ -17,6 +17,7 @@ function checkRoleMiddleware(req) {
       (requestedPath.startsWith(item.path) && requestedPath === item?.path) ||
       requestedPath.startsWith(`${item?.path}/`)
   );
+
   // If no menu item is found for the requested path, return 401 Unauthorized response
   if (!menuItem) {
     return NextResponse.json(
@@ -29,7 +30,6 @@ function checkRoleMiddleware(req) {
   }
 
   // If the user's role is not authorized for the menu item, return 401 Unauthorized response
-
   if (!menuItem?.role?.includes(userRole)) {
     return NextResponse.json(
       {
@@ -52,4 +52,7 @@ export default withAuth(checkRoleMiddleware, {
   },
 });
 
-export const config = { matcher: ["/admin/:path*"] };
+// Ensure the matcher array starts with a valid path, like "/admin/:path*" for all admin routes
+export const config = {
+  matcher: ["/admin/:path*"], // Match all paths starting with "/admin/"
+};
