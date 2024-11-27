@@ -1,0 +1,207 @@
+"use server";
+
+import { connect } from "@/db/db";
+import EmployeModel from "@/models/employeModel";
+
+export const getAllEmployees = async (filterData) => {
+  const sanitizedSearch = filterData?.query?.trim() || ""; // Ensure search is a string
+  // const searchRegex = new RegExp(sanitizedSearch, "i"); // Create a case-ins ensitive regex
+  const validPage = parseInt(filterData?.page || 1);
+  const validLimit = parseInt(filterData?.pageSize || 10);
+  const skip = (validPage - 1) * validLimit;
+  const query = { delete: false };
+  if (sanitizedSearch) {
+    query.$or = [
+      { firstName: { $regex: sanitizedSearch, $options: "i" } },
+      { lastName: { $regex: sanitizedSearch, $options: "i" } },
+      { email: { $regex: sanitizedSearch, $options: "i" } },
+      // { phoneNumber: { $regex: sanitizedSearch, $options: "i" } },
+    ];
+  }
+  try {
+    const totalEmployees = await EmployeModel.countDocuments(query);
+    const filterData = await EmployeModel.find(query)
+      .skip(skip)
+      .limit(validLimit)
+      .sort({ createdAt: -1 })
+      .lean()
+      .exec();
+    // RangeError handling  for empty array
+    if (!filterData || !Array.isArray(filterData))
+      return { success: false, message: "No employees found" };
+    const data = {
+      success: true,
+      totalCount: totalEmployees,
+      data: JSON.stringify(filterData),
+    };
+
+    return data;
+  } catch (err) {
+    return {
+      success: false,
+      message: "Error fetching employees!, Refresh Page",
+    };
+  }
+};
+export const handleEmploye = async (data, isChecked) => {
+  if (!data) return { status: false, message: "Please Provide Informations" };
+  // if (!images) return { status: true, message: "success" };
+  const id = data?._id;
+  const payRateValidation = /^([1-9][\d]{0,7})(\.\d{0,2})?$/; // 1.5 or 15.68 or .34 only
+  const Payrate = payRateValidation.test(String(Number(data?.payRate)));
+  if (Payrate === false) return { status: false, message: "Invalid Pay Rate" };
+  try {
+    const employeType = data?.paymentType === "Monthly" ? "Payroll" : "CIS";
+    await connect(); //connect to the database
+    const {
+      address,
+      streetAddress,
+      city,
+      zipCode,
+      country,
+      accountName,
+      accountNumber,
+      sortCode,
+      payRate,
+    } = data;
+    const eAddress = {
+      address: address || "",
+      streetAddress: streetAddress || "",
+      city: city || "",
+      zipCode: zipCode || "",
+      country: country || "",
+    };
+    const bankDetail = {
+      accountName: accountName || "",
+      accountNumber: accountNumber || "",
+      sortCode: sortCode || "",
+    };
+    if (id) {
+      // We have to check email and phone  before updating the Employee's information because they are required fields in MongoDB
+      const isExists = await EmployePhoneAndEmailExists(
+        id,
+        data.phone,
+        data.email
+      );
+      if (!isExists.status)
+        return { success: isExists.status, message: isExists.message };
+      let res = await EmployeModel.findByIdAndUpdate(
+        id,
+        {
+          $set: {
+            ...data,
+            eAddress: eAddress,
+            bankDetail: bankDetail,
+            employeType,
+          },
+        },
+        { new: true }
+      );
+      if (!res) return { success: false, message: "Somthing Went Wrong..." };
+      if (isChecked) {
+        const attendanceRecords = await AttendanceModel.find({
+          "employeAttendance.employeeId": id,
+        });
+        for (const record of attendanceRecords) {
+          for (const attendee of record.employeAttendance) {
+            if (attendee.employeeId.toString() === id) {
+              attendee.aPayRate = payRate; // Update aPayRate
+              attendee.totalPay = attendee.totalHours * payRate;
+            }
+          }
+          // Save the updated attendance record
+          await record.save();
+        }
+      }
+      return { success: true, message: "Employee Record Update..." };
+    } else {
+      //create new employee
+      const isExists = await EmployePhoneAndEmailExists(
+        id,
+        data.phone,
+        data.email
+      );
+
+      if (!isExists.status) return isExists;
+      const addEmploye = await EmployeModel.create({
+        ...data,
+        eAddress: eAddress,
+        bankDetail: bankDetail,
+        employeType,
+      }); // create new employee
+      if (!addEmploye)
+        return { success: false, message: "Somthing Went Wrong..." }; // if the employee is not created
+      if (addEmploye) {
+        const data = {
+          success: true,
+          message: `Employee added successfully`,
+        };
+        return data;
+      }
+    }
+  } catch (error) {
+    console.log(error);
+    return { success: false, message: "Somthing Went Wrong..." }; // if the employee is not created
+  }
+};
+
+const EmployePhoneAndEmailExists = async (id, phone, email) => {
+  try {
+    if (id) {
+      if (email === "") {
+        const phoneExist = await EmployeModel.findOne({
+          phone,
+          _id: { $ne: id },
+        });
+        if (phoneExist)
+          return { status: false, message: "Phone number already exist" };
+        return { status: true, message: "Phone number is available" };
+      } else {
+        const phoneExist = await EmployeModel.findOne({
+          phone,
+          _id: { $ne: id },
+        });
+        const emailExist = await EmployeModel.findOne({
+          email,
+          _id: { $ne: id },
+        });
+        if (phoneExist || emailExist) {
+          return {
+            status: false,
+            message: "This Phone  or Email is already in use.",
+          };
+        } else {
+          return { status: true, message: "Both fields are available" };
+        }
+      }
+    } else {
+      // if email is empty  then only check for the phone otherwise both should be checked $or operator
+      if (email === "") {
+        const phoneCheck = await EmployeModel.findOne({ phone: phone });
+        if (phoneCheck) {
+          return {
+            status: false,
+            message: "The provided phone number is already registered.",
+          };
+        } else {
+          return { status: true };
+        }
+      } else {
+        const combinedCheck = await EmployeModel.findOne({
+          $or: [{ email }, { phone }],
+        });
+        if (combinedCheck) {
+          return {
+            status: false,
+            message:
+              "The provided email or phone number is already registered.",
+          };
+        } else {
+          return { status: true };
+        }
+      }
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
