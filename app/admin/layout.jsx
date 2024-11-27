@@ -10,7 +10,7 @@ const layout = ({ children }) => {
     <SessionProvider>
       <QueryClientProvider client={queryClient}>
         <SidebarWrapper>{children}</SidebarWrapper>
-        <ReactQueryDevtools initialIsOpen={false} />
+        {/* <ReactQueryDevtools initialIsOpen={false} /> */}
       </QueryClientProvider>
     </SessionProvider>
   );
