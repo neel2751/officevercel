@@ -47,15 +47,15 @@ export const LoginUi = () => {
   const callback = searchParams.get("callbackUrl");
   const callBackcheck = callback ? callback : process.env.NEXTAUTH_URL || "/";
   const { status } = useSession();
-  if (status === "authenticated") {
-    window.location.href = callBackcheck;
-  }
+  // if (status === "authenticated") {
+  // window.location.href = callBackcheck;
+  // }
 
   const handleSubmit = async (data) => {
     try {
       const res = await signIn("credentials", {
-        redirect: false,
-        callbackUrl: callBackcheck,
+        // redirect: false,
+        // callbackUrl: callBackcheck,
         email: data.email,
         password: data.password,
       });
