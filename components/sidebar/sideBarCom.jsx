@@ -1,3 +1,4 @@
+"use client";
 import {
   SidebarContent,
   SidebarFooter,
@@ -30,8 +31,7 @@ import Image from "next/image";
 import { getMenu, MENU } from "@/data/menu";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Collapsible, CollapsibleTrigger } from "../ui/collapsible";
-import { Badge } from "../ui/badge";
+import { Collapsible } from "../ui/collapsible";
 
 const SideBarHeaderCom = () => {
   return (

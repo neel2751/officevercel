@@ -16,7 +16,7 @@ import { useSubmitMutation } from "@/hooks/use-mutate";
 import { useFetchQuery } from "@/hooks/use-query";
 import Pagination from "@/lib/pagination";
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import EmployeeForm from "../officeEmployee/employeeForm";
 import {
   getCompanies,
@@ -32,6 +32,20 @@ const Company = ({ searchParams }) => {
   const [open, setOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const queryKey = ["companies", { query, currentPage, pagePerData }];
+  const [oldData, setOldData] = useState([]);
+
+  const oldTypeData = async () => {
+    try {
+      const res = await getCompanies();
+      setOldData(JSON.parse(res?.data));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    oldTypeData();
+  }, [query]);
 
   const {
     data: queryResult,
@@ -82,7 +96,7 @@ const Company = ({ searchParams }) => {
     <div className="p-4">
       <CommonContext.Provider
         value={{
-          officeEmployeeData,
+          officeEmployeeData: oldData,
           handleSubmit,
           onSubmit,
           field: COMPANYFIELD,
