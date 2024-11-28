@@ -90,11 +90,15 @@ export const getOfficeEmployee = async (filterData) => {
     // const searchRegex = new RegExp(sanitizedSearch, "i"); // Create a case-ins ensitive regex
     const validPage = parseInt(filterData?.page || 1);
     const validLimit = parseInt(filterData?.pageSize || 10);
-    const roleTypeFilter = filterData.filter;
+    const roleTypeFilter = filterData?.filter?.role;
+    const companyFilter = filterData?.filter?.company;
     const skip = (validPage - 1) * validLimit;
     const query = { delete: false };
     if (roleTypeFilter) {
-      query.roleType = roleTypeFilter;
+      query.department = roleTypeFilter;
+    }
+    if (companyFilter) {
+      query.company = companyFilter;
     }
     if (sanitizedSearch) {
       query.$or = [
@@ -105,7 +109,7 @@ export const getOfficeEmployee = async (filterData) => {
     }
     const totalCountDocuments = await OfficeEmployeeModel.countDocuments(query);
     const result = await OfficeEmployeeModel.find(query)
-      .populate("roleType", "roleTitle")
+      .populate("department", "roleTitle")
       .skip(skip)
       .limit(validLimit)
       .sort({ createdAt: -1 })

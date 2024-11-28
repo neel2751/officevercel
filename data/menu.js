@@ -1,4 +1,5 @@
 import {
+  AlertTriangle,
   Briefcase,
   Building2,
   Captions,
@@ -102,6 +103,19 @@ export const MENU = [
     icon: <Building2 className="h-5 w-5" />,
   },
 ];
+
+export const REPORT = [
+  {
+    name: "Report Issue",
+    path: "/admin/reportIssue",
+    icon: <AlertTriangle className="w-5 h-5" />,
+    role: ["superAdmin"],
+  },
+];
+
+export function getReportMenu(path) {
+  return REPORT.find((item) => item?.path === path);
+}
 
 export function getMenu(path) {
   return MENU.find((item) => item?.path === path);

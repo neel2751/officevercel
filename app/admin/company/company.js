@@ -32,20 +32,6 @@ const Company = ({ searchParams }) => {
   const [open, setOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const queryKey = ["companies", { query, currentPage, pagePerData }];
-  const [oldData, setOldData] = useState([]);
-
-  const oldTypeData = async () => {
-    try {
-      const res = await getCompanies();
-      setOldData(JSON.parse(res?.data));
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  useEffect(() => {
-    oldTypeData();
-  }, [query]);
 
   const {
     data: queryResult,
@@ -96,7 +82,7 @@ const Company = ({ searchParams }) => {
     <div className="p-4">
       <CommonContext.Provider
         value={{
-          officeEmployeeData: oldData,
+          officeEmployeeData,
           handleSubmit,
           onSubmit,
           field: COMPANYFIELD,

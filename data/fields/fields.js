@@ -1,3 +1,5 @@
+import { MENU } from "../menu";
+
 const { COUNTRIES } = require("../countries");
 
 export const EMPLOYEFIELD = [
@@ -26,6 +28,7 @@ export const EMPLOYEFIELD = [
     helperText: "*Please enter a valid email address.",
     placeholder: "Enter your email",
     validationOptions: {
+      required: "Email is required",
       pattern: {
         value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
         message: "Invalid email format. Please check and try again.",
@@ -93,9 +96,9 @@ export const EMPLOYEFIELD = [
       { label: "Monthly", value: "Monthly" },
       { label: "Weekly", value: "Weekly" },
     ],
-    defaultValue: "Monthly",
+    // defaultValue: "Monthly",
     type: "radio",
-    validationOptions: { required: "employe Type is required" },
+    validationOptions: { required: "Employee Type is required" },
   },
   {
     name: "accountName",
@@ -142,7 +145,7 @@ export const EMPLOYEFIELD = [
     inputMode: "numeric",
     placeholder: "Enter UTR number",
     validationOptions: {
-      required: " UTR  number is required",
+      // required: " UTR  number is required",
       pattern: {
         value: /^\d{10}$/i,
         message: "Must be exactly 10 digits",
@@ -238,11 +241,26 @@ export const EMPLOYEFIELD = [
   //   },
   {
     name: "startDate",
-    labelText: "Start Date",
+    labelText: "Join Date",
     type: "date",
-    placeholder: "Start Date",
+    placeholder: "Join Date",
     validationOptions: {
-      required: "Start Date is required",
+      required: "Join Date is required",
+    },
+  },
+  {
+    name: "endDate",
+    labelText: "End Date",
+    type: "date",
+    placeholder: "End Date",
+  },
+  {
+    name: "visaStartDate",
+    labelText: "Visa Start Date",
+    type: "date",
+    placeholder: "Visa Start Date",
+    validationOptions: {
+      required: "Visa Start Date is required",
     },
   },
   {
@@ -281,7 +299,7 @@ export const SITEFIELD = [
     labelText: "Site Status",
     type: "select",
     options: [
-      { value: "active", label: "Active" },
+      { value: "Active", label: "Active" },
       { value: "On Hold", label: "On Hold" },
       { value: "Completed", label: "Completed" },
       { value: "No Status", label: "No Status" },
@@ -371,23 +389,23 @@ export const OFFICEFIELD = [
     },
   },
   {
-    name: "department",
-    labelText: "Role Department",
+    name: "roleType",
+    labelText: "Role Type",
     type: "text",
     placeholder: "operation, office,business...",
     validationOptions: {
-      required: "Role Department is required",
+      required: "Role Type is required",
     },
   },
   {
-    name: "roleType",
-    labelText: "Role Type",
+    name: "department",
+    labelText: "Role  Department",
     options: [
       { label: "test", value: "1" },
       { label: "test2", value: "2" },
     ],
     type: "select",
-    validationOptions: { required: "Role Type is required" },
+    validationOptions: { required: "Role  Department is required" },
   },
   {
     name: "company",
@@ -432,22 +450,35 @@ export const OFFICEFIELD = [
     },
   },
   {
-    name: "startDate",
-    labelText: "Start Date",
+    name: "joinDate",
+    labelText: "Join Date",
     type: "date",
     placeholder: "Start Date",
     validationOptions: {
-      required: "Start Date is required",
+      required: "Join Date is required",
     },
   },
   {
     name: "endDate",
     labelText: "End Date",
     type: "date",
-    placeholder: "Visa End Date",
+    placeholder: "End Date",
+  },
+  {
+    name: "visaStartDate",
+    labelText: "Visa Start Date",
+    type: "date",
+    placeholder: "Select Date",
     validationOptions: {
-      required: "End Date is required",
+      required: "Visa Start Date is required",
     },
+  },
+
+  {
+    name: "visaEndDate",
+    labelText: "Visa End Date",
+    type: "date",
+    placeholder: "Visa End Date",
   },
 ];
 
@@ -529,5 +560,52 @@ export const COMPANYFIELD = [
     type: "textarea",
     helperText: "*Describe company",
     placeholder: " Company for construction and building",
+  },
+];
+
+export const ISSUEREPORTFIELD = [
+  {
+    name: "issueTitle",
+    labelText: "Issue Title",
+    type: "text",
+    placeholder: "Enter Issue Type",
+    size: true,
+    validationOptions: {
+      required: "Issue Title is required",
+    },
+  },
+  {
+    name: "issue",
+    labelText: "Issue",
+    type: "select",
+    options: Array.from(new Set(MENU.map((item) => item.name))).map((it) => ({
+      label: it,
+      value: it,
+    })),
+  },
+  {
+    name: "issueType",
+    labelText: "Issue Type",
+    type: "select",
+    options: [
+      { label: "Bug", value: "Bug" },
+      { label: "Feature", value: "Feature" },
+      { label: "Improvement", value: "Improvement" },
+      { label: "Security", value: "Security" },
+      { label: "Other", value: "Other" },
+    ],
+    validationOptions: {
+      required: "Issue is required",
+    },
+  },
+  {
+    name: "description",
+    labelText: "Description",
+    size: true,
+    type: "textarea",
+    placeholder: "Describe the issue you are facing",
+    validationOptions: {
+      required: "Description is required",
+    },
   },
 ];

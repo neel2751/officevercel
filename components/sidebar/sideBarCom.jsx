@@ -3,6 +3,7 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -19,19 +20,33 @@ import {
 } from "../ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
+  AlertTriangle,
   BadgeCheck,
   Bell,
   ChevronsUpDown,
   CreditCard,
   LogOut,
+  Plus,
   Sparkles,
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
-import { getMenu, MENU } from "@/data/menu";
+import { getMenu, getReportMenu, MENU, REPORT } from "@/data/menu";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Collapsible } from "../ui/collapsible";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
+import { Button } from "../ui/button";
+import ReactHookForm from "../form/reactHookForm";
+import { ISSUEREPORTFIELD } from "@/data/fields/fields";
+import { generateTicket } from "@/server/dev/generateTicket";
 
 const SideBarHeaderCom = () => {
   return (
@@ -69,19 +84,21 @@ const SideBarHeaderCom = () => {
 
 const SideBarMenu = () => {
   const pathName = usePathname();
-  // if our path is dynamic , we need to get the menu item that matches the path
   const path = pathName.split("/", 3).join("/");
   const currentMenu = getMenu(path);
-
   const { data } = useSession();
-  const menuItems = MENU.filter((item) => item.role.includes(data?.user?.role));
+  const menuItems = MENU.filter((item) =>
+    item?.role?.includes(data?.user?.role)
+  );
+  const currentReport = getReportMenu(path);
+
   return (
     <SidebarContent>
       <SidebarGroup>
         <SidebarMenu className="gap-4">
           {menuItems?.map((item) => (
             <Collapsible
-              key={item.name}
+              key={item?.name}
               asChild
               defaultOpen={item?.name === currentMenu?.name}
               className="group/collapsible"
@@ -108,6 +125,45 @@ const SideBarMenu = () => {
           ))}
         </SidebarMenu>
       </SidebarGroup>
+      {/* {(data?.user?.role === "superAdmin" || data?.user?.role === "admin") && (
+        <SidebarGroup>
+          <SidebarGroupLabel>Report</SidebarGroupLabel>
+          <SidebarMenu className="gap-4">
+            {REPORT?.map((item) => (
+              <Collapsible
+                key={item?.name}
+                asChild
+                defaultOpen={item?.name === currentMenu?.name}
+                className="group/collapsible"
+              >
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    asChild
+                    tooltip={item?.name}
+                    className={`${
+                      item?.name === currentReport?.name
+                        ? "bg-neutral-200 text-neutral-900"
+                        : "hover:bg-gray-100"
+                    } text-sm text-gray-800 font-normal rounded-lg flex items-center p-2 group`}
+                  >
+                    <Link href={item?.path} className="flex gap-2 items-center">
+                      {item?.icon}
+                      <span>{item?.name}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </Collapsible>
+            ))}
+          </SidebarMenu>
+        </SidebarGroup>
+      )} */}
+      {/* <SidebarMenu className="gap-4">
+          <Collapsible asChild className="group/collapsible">
+            <SidebarMenuItem>
+              <IssueForm />
+            </SidebarMenuItem>
+          </Collapsible>
+        </SidebarMenu> */}
     </SidebarContent>
   );
 };
@@ -205,6 +261,33 @@ const SideBarFooterCom = () => {
         </SidebarMenuItem>
       </SidebarMenu>
     </SidebarFooter>
+  );
+};
+
+const IssueForm = () => {
+  const onSubmit = async (data) => {
+    try {
+      const res = await generateTicket(data);
+    } catch (error) {}
+  };
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <SidebarMenuButton>
+          <AlertTriangle className="size-4" />
+          Report Issue
+        </SidebarMenuButton>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Generate Ticket</DialogTitle>
+          <DialogDescription>
+            Please fill in the form below to generate a ticket.
+          </DialogDescription>
+        </DialogHeader>
+        <ReactHookForm fields={ISSUEREPORTFIELD} onSubmit={onSubmit} />
+      </DialogContent>
+    </Dialog>
   );
 };
 

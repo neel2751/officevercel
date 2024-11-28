@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
+import Image from "next/image";
 
 export const LOGINFIELD = [
   {
@@ -81,13 +82,19 @@ export const LoginUi = () => {
   };
 
   return (
-    <div className="max-w-sm mx-auto mt-36">
+    <div className="max-w-sm mx-auto px-4 mt-36">
       <Card>
         <CardHeader>
-          <div className="flex  items-center gap-3">
-            <img className="h-10 w-10" src="/images/cdc.svg" />
+          <div className="flex items-center gap-3">
+            <Image
+              height={20}
+              width={20}
+              className="h-10 w-10"
+              src="/images/cdc.svg"
+              alt="CDC"
+            />
             <span className="text-gray-800 font-semibold text-lg">
-              Creative Design & Construction.
+              Creative Design & Construction
             </span>
           </div>
           <div className=" flex items-center text-xs text-gray-400 uppercase before:flex-[1_1_0%] before:border-t before:border-gray-200 before:me-6 after:flex-[1_1_0%] after:border-t after:border-gray-200 after:ms-6">

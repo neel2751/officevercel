@@ -43,14 +43,15 @@ const EmployeTabel = () => {
               "id",
               "name",
               "contact",
-              "country",
+              // "country",
               "Payrate",
               "E.type",
               "P.type",
               "status",
               "joindate",
+              "Visastart",
+              "visaend",
               "visa",
-              "enddate",
               "Actions",
             ].map((item, index) => (
               <TableHead className="uppercase text-xs" key={index}>
@@ -65,7 +66,7 @@ const EmployeTabel = () => {
               <TableCell>{index + 1}</TableCell>
               <TableCell>{item?.firstName + " " + item?.lastName}</TableCell>
               <TableCell>{item?.phone}</TableCell>
-              <TableCell>{item?.eAddress?.country}</TableCell>
+              {/* <TableCell>{item?.eAddress?.country}</TableCell> */}
               <TableCell>£{item?.payRate.toFixed(2)}</TableCell>
               <TableCell>{item?.employeType}</TableCell>
               <TableCell>{item?.paymentType}</TableCell>
@@ -86,16 +87,13 @@ const EmployeTabel = () => {
                   </Badge>
                 )}
               </TableCell>
-              <TableCell>{format(new Date(item?.startDate), "PPP")}</TableCell>
               <TableCell>
-                {item?.eVisaExp
-                  ? isPast(new Date(item?.eVisaExp))
-                    ? "Visa expired"
-                    : `in ${formatDistanceStrict(
-                        new Date(),
-                        new Date(item?.eVisaExp)
-                      )}`
-                  : "No end date available"}
+                {item?.startDate && format(new Date(item?.startDate), "PPP")}
+              </TableCell>
+              <TableCell>
+                {(item?.visaStartDate &&
+                  format(new Date(item?.startDate), "PPP")) ||
+                  "-"}
               </TableCell>
 
               <TableCell
@@ -106,6 +104,16 @@ const EmployeTabel = () => {
                 }`}
               >
                 {format(new Date(item?.eVisaExp), "PPP")}
+              </TableCell>
+              <TableCell>
+                {item.eVisaExp && item?.eVisaExp
+                  ? isPast(new Date(item?.eVisaExp))
+                    ? "Visa expired"
+                    : `${formatDistanceStrict(
+                        new Date(),
+                        new Date(item?.eVisaExp)
+                      )}`
+                  : "-"}
               </TableCell>
 
               <TableCell>
@@ -120,7 +128,7 @@ const EmployeTabel = () => {
                         <Edit className="text-indigo-600" />
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-xl max-h-max h-screen overflow-scroll">
+                    <DialogContent className="w-full max-w-2xl max-h-screen overflow-y-auto bg-white rounded-lg shadow-lg p-6 sm:max-w-md md:max-w-lg lg:max-w-2xl">
                       <DialogHeader>
                         <DialogTitle>Edit New Role</DialogTitle>
                         <DialogDescription>

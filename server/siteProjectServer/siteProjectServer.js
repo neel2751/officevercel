@@ -53,7 +53,10 @@ export const updateSiteProjectById = async (data) => {
         message: "Site Project updated successfully",
       };
     } else {
-      await ProjectSiteModel.create(data);
+      await ProjectSiteModel.create(data).catch((error) => {
+        console.error("Error creating ProjectSite:", error);
+        // throw new Error("Database operation failed");
+      });
       return {
         success: true,
         message: "Site Project created successfully",

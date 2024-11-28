@@ -26,6 +26,7 @@ import {
 } from "../ui/select";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { Checkbox } from "../ui/checkbox";
+import { ScrollArea } from "../ui/scroll-area";
 
 export const TextFormInput = memo(
   forwardRef(function TextFormInput(
@@ -191,7 +192,7 @@ export const SearchSelect = memo(
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
-                role="combobox"
+                // role="combobox"
                 aria-expanded={open}
                 className={`w-full justify-between ${
                   value ? "text-neutral-900" : "text-neutral-500"
@@ -220,6 +221,7 @@ export const SearchSelect = memo(
                 />
                 <CommandList>
                   <CommandEmpty>{"No Data found."}</CommandEmpty>
+                  {/* <ScrollArea className="h-72"> */}
                   <CommandGroup>
                     {options &&
                       options?.map((framework) => (
@@ -243,6 +245,7 @@ export const SearchSelect = memo(
                         </CommandItem>
                       ))}
                   </CommandGroup>
+                  {/* </ScrollArea> */}
                 </CommandList>
               </Command>
             </PopoverContent>

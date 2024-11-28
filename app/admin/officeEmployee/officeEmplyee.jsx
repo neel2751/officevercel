@@ -36,7 +36,10 @@ const OfficeEmplyee = ({ searchParams }) => {
   const query = searchParams.query;
   const [initialValues, setInitialValues] = useState({});
   const [open, setOpen] = useState(false);
-  const [filter, setFilter] = useState("");
+  const [filter, setFilter] = useState({
+    company: "",
+    role: "",
+  });
   const [isEdit, setIsEdit] = useState(false);
   const queryKey = [
     "officeEmployee",
@@ -71,7 +74,7 @@ const OfficeEmplyee = ({ searchParams }) => {
   });
 
   const field = OFFICEFIELD.map((item) => {
-    if (item.name === "roleType") {
+    if (item.name === "department") {
       return {
         ...item,
         options: selectRoleType,
@@ -102,14 +105,14 @@ const OfficeEmplyee = ({ searchParams }) => {
     onClose: initialValues?._id ? handleEditClose : handleClose,
   });
   const onSubmit = (data) => {
-    if (!isFuture(new Date(data.endDate))) {
-      return toast.error("End date should be greater than start date");
+    if (!isFuture(new Date(data.visaEndDate))) {
+      return toast.error("Visa End date should be greater than today");
     }
     handleSubmit(data);
   };
 
   const handleEdit = (item) => {
-    setInitialValues({ ...item, roleType: item.roleType._id });
+    setInitialValues({ ...item, department: item.department._id });
     setIsEdit(true);
   };
 
@@ -147,21 +150,34 @@ const OfficeEmplyee = ({ searchParams }) => {
                 <SearchDebounce />
                 <div className="flex gap-2">
                   <SelectFilter
-                    value={filter}
+                    value={filter?.role}
                     frameworks={[
                       { label: "All", value: "" },
                       ...selectRoleType,
                     ]}
-                    placeholder={filter === "" ? "All" : "Select Role"}
-                    onChange={(e) => setFilter(e)}
+                    placeholder={filter?.role === "" ? "All" : "Select Role"}
+                    onChange={(e) => setFilter({ ...filter, role: e })}
+                    noData="No Data found"
+                  />
+                  <SelectFilter
+                    value={filter.company}
+                    frameworks={[{ label: "All", value: "" }, ...selectCompany]}
+                    placeholder={
+                      filter.company === "" ? "All" : "Select Company"
+                    }
+                    onChange={(e) => setFilter({ ...filter, company: e })}
                     noData="No Data found"
                   />
                   <Button onClick={handleOpen}>
                     <Plus />
                     Add
                   </Button>
-                  <Dialog open={open} onOpenChange={handleClose}>
-                    <DialogContent className="sm:max-w-2xl max-h-max">
+                  <Dialog
+                    open={open}
+                    onOpenChange={handleClose}
+                    className="fixed inset-0 flex items-center justify-center p-4"
+                  >
+                    <DialogContent className="w-full max-w-2xl max-h-screen overflow-y-auto bg-white rounded-lg shadow-lg p-6 sm:max-w-md md:max-w-lg lg:max-w-2xl">
                       <DialogHeader>
                         <DialogTitle>Add New Role</DialogTitle>
                         <DialogDescription>

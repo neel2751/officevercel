@@ -51,7 +51,7 @@ const employeSchema = new mongoose.Schema(
     },
     email: {
       type: String,
-      required: false,
+      required: true,
     },
     ePassword: {
       type: String,
@@ -105,10 +105,14 @@ const employeSchema = new mongoose.Schema(
     },
     utr: {
       type: String,
-      required: true,
+      required: false,
     },
     employeNI: {
       type: String,
+      required: false,
+    },
+    visaStartDate: {
+      type: Date,
       required: true,
     },
     eVisaExp: {

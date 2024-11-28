@@ -128,7 +128,6 @@ const Emplyee = ({ searchParams }) => {
   };
   const handleEdit = (item) => {
     const { eAddress, bankDetail } = item;
-    console.log(item);
     const newItem = {
       ...item,
       address: eAddress?.address,
@@ -186,7 +185,7 @@ const Emplyee = ({ searchParams }) => {
                     Add
                   </Button>
                   <Dialog open={open} onOpenChange={handleClose}>
-                    <DialogContent className="sm:max-w-2xl max-h-max h-screen overflow-scroll">
+                    <DialogContent className="w-full max-w-2xl max-h-screen overflow-y-auto bg-white rounded-lg shadow-lg p-6 sm:max-w-md md:max-w-lg lg:max-w-2xl">
                       <DialogHeader>
                         <DialogTitle>Add New Role</DialogTitle>
                         <DialogDescription>

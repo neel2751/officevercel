@@ -6,8 +6,10 @@ const officeEmployeSchema = new mongoose.Schema(
     email: { type: String, required: true },
     phoneNumber: { type: Number, required: true },
     password: { type: String, required: true },
-    department: { type: String, required: true },
-    roleType: {
+    roleType: { type: String, required: true },
+
+    // department: { type: String, required: true },
+    department: {
       type: mongoose.Types.ObjectId,
       ref: "RoleType",
       required: true,
@@ -22,7 +24,9 @@ const officeEmployeSchema = new mongoose.Schema(
     isActive: { type: Boolean, default: true },
     isAdmin: { type: Boolean, default: false },
     isSuperAdmin: { type: Boolean, default: false },
-    startDate: { type: Date, required: true },
+    visaStartDate: { type: Date, required: true },
+    visaEndDate: { type: Date, required: true },
+    joinDate: { type: Date, required: true },
     endDate: { type: Date, required: false },
     delete: { type: Boolean, default: false },
   },

@@ -16,12 +16,12 @@ const projectSiteSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["Completed", "Active", "On Hold"],
+      enum: ["Completed", "Active", "On Hold", "No Status"],
       default: "Active",
     },
     siteType: {
       type: String,
-      enum: ["Residential", "Commercial"],
+      enum: ["Residential", "Commercial", "Industrial", "Other"],
       default: "Residential",
     },
     siteDescription: {
