@@ -1,18 +1,16 @@
-import ReactHookForm from "@/components/form/reactHookForm";
+import { GlobalForm } from "@/components/form/form";
 import { useCommonContext } from "@/context/commonContext";
 import React from "react";
 
 const EmployeeForm = () => {
-  const { field, handleSubmit, onSubmit, initialValues } = useCommonContext();
+  const { field, isPending, onSubmit, initialValues } = useCommonContext();
 
   return (
-    <ReactHookForm
+    <GlobalForm
       fields={field}
-      onSubmit={onSubmit}
-      btnName={"Save"}
-      editBtnName={"Submit"}
-      isLoading={handleSubmit?.isPending}
       initialValues={initialValues}
+      isLoading={isPending}
+      onSubmit={onSubmit}
     />
   );
 };

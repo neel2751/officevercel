@@ -2,62 +2,62 @@ import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 import { MENU } from "./data/menu";
 
-function checkRoleMiddleware(req) {
+async function checkRoleMiddleware(req) {
   const userRole = req.nextauth.token?.role;
   const requestedPath = req.nextUrl.pathname;
+  // const id = req.nextauth.token?.id;
+  // const loginToken = req.nextauth.token?.loginToken;
 
-  // If no token is found (i.e., user is not authenticated), redirect to login
+  // If no token is found, redirect to login
   if (!userRole) {
     return NextResponse.redirect(new URL("/api/auth/signin", req.url));
   }
 
-  // Allow superAdmin role to access everything
+  // Allow `superAdmin` role unrestricted access
   if (userRole === "superAdmin") {
     return NextResponse.next();
   }
 
-  // Find the exact menu item matching the requested path
+  // Check if the requested path matches any MENU item
   const menuItem = MENU.find(
     (item) =>
-      (requestedPath.startsWith(item?.path) && requestedPath === item?.path) ||
-      requestedPath.startsWith(`${item?.path}/`)
+      requestedPath === item?.path || requestedPath.startsWith(`${item?.path}/`)
   );
 
-  // If no menu item is found for the requested path, return 401 Unauthorized response
+  // If no matching menu item is found, deny access
   if (!menuItem) {
     return NextResponse.json(
       {
         status: 401,
-        message: "Not Allow - Path not found",
+        message: "Not Allowed - Path not found",
       },
       { status: 401 }
     );
   }
 
-  // If the user's role is not authorized for the menu item, return 401 Unauthorized response
+  // Check if the user's role is authorized for the menu item
   if (!menuItem?.role?.includes(userRole)) {
     return NextResponse.json(
       {
         status: 401,
-        message: "Not Allow - Unauthorized role",
+        message: "Not Allowed - Unauthorized role",
       },
       { status: 401 }
     );
   }
 
-  // If the user is authorized, allow the request to continue
+  // Allow the request to continue
   return NextResponse.next();
 }
 
 export default withAuth(checkRoleMiddleware, {
   callbacks: {
-    authorized: ({ token }) =>
-      // Authorize if the user's role is present in any of the roles in MENU
-      MENU.some((item) => item?.role?.includes(token?.role)),
+    // Only check if the user is authenticated; role validation happens in the middleware
+    authorized: ({ token }) => !!token,
   },
 });
 
-// Ensure the matcher array starts with a valid path, like "/admin/:path*" for all admin routes
+// Exclude auth routes and public paths from the middleware
 export const config = {
-  matcher: ["/admin/:path*"], // Match all paths starting with "/admin/"
+  matcher: ["/admin/:path*"], // Only match admin routes
 };

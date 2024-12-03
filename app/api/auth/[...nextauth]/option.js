@@ -12,6 +12,8 @@ export const options = {
         const platform = req.headers["sec-ch-ua-platform"] || "";
         const isMobile = req.headers["sec-ch-ua-mobile"] === '"?1"';
         const browser = req.headers["sec-ch-ua"];
+        const ip =
+          req.headers["x-forwarded-for"] || req.connection.remoteAddress;
 
         try {
           if (!credentials?.email || !credentials?.password) {
@@ -40,6 +42,7 @@ export const options = {
               platform,
               browser,
               device: isMobile ? "Mobile" : "Desktop",
+              ip,
             });
 
             // if (!data.status) {

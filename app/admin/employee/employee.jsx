@@ -25,6 +25,7 @@ import Pagination from "@/lib/pagination";
 import { getSelectProjects } from "@/server/selectServer/selectServer";
 import { useFetchSelectQuery } from "@/hooks/use-query";
 import { CommonContext } from "@/context/commonContext";
+import { GlobalForm } from "@/components/form/form";
 
 const Emplyee = ({ searchParams }) => {
   const currentPage = parseInt(searchParams.page || "1");
@@ -192,7 +193,10 @@ const Emplyee = ({ searchParams }) => {
                           Please fill the form to add new role
                         </DialogDescription>
                       </DialogHeader>
-                      <EmployeeForm />
+                      <GlobalForm
+                        fields={EMPLOYEFIELD}
+                        initialValues={initialValues}
+                      />
                     </DialogContent>
                   </Dialog>
                 </div>

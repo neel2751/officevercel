@@ -1,7 +1,6 @@
-import React from "react";
+import ReportIssue from "./reportIssue";
 
-const Page = () => {
-  return <div>Report Issue Page</div>;
-};
-
-export default Page;
+export default async function Home({ searchParams }) {
+  const param = await searchParams;
+  return <ReportIssue searchParams={param} />;
+}

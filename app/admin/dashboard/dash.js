@@ -35,7 +35,7 @@ const Dash = () => {
           value: JSON.parse([NumbertotalFullSiteData?.data]),
         },
       ]; // merge data
-      console.log(mergeData);
+
       setToday({
         ...CurrentDayTotalPay,
         employees: JSON.parse(CurrentDayTotalPay?.employees),

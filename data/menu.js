@@ -19,15 +19,9 @@ export const MENU = [
     icon: <LayoutDashboard className="h-5 w-5" />,
   },
   {
-    name: "Dashboard",
-    path: "/",
-    role: ["admin", "user"], // admin, manager, user
-    icon: <LayoutDashboard className="h-5 w-5" />,
-  },
-  {
     name: "Office Management",
     path: "/admin/officeEmployee",
-    role: ["superAdmin"], // admin, manager, user
+    role: ["superAdmin", "admin"], // admin, manager, user
     icon: <Briefcase className="w-5 h-5" />,
   },
   {

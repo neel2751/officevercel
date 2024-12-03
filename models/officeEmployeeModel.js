@@ -17,17 +17,19 @@ const officeEmployeSchema = new mongoose.Schema(
 
     company: {
       type: mongoose.Types.ObjectId,
-      ref: "Company",
+      ref: "Companie",
       required: true,
     },
-    immigrationStatus: { type: String, required: true },
+    immigrationType: { type: String, required: true },
+    immigrationCategory: { type: String, required: false },
     isActive: { type: Boolean, default: true },
     isAdmin: { type: Boolean, default: false },
     isSuperAdmin: { type: Boolean, default: false },
-    visaStartDate: { type: Date, required: true },
-    visaEndDate: { type: Date, required: true },
+    visaStartDate: { type: Date, required: false },
+    visaEndDate: { type: Date, required: false },
     joinDate: { type: Date, required: true },
     endDate: { type: Date, required: false },
+    statusDate: { type: Date, required: false },
     delete: { type: Boolean, default: false },
   },
   { timestamps: true }

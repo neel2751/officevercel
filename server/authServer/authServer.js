@@ -23,7 +23,7 @@ export const LoginData = async (email, password) => {
         status: false,
         message: "Email  Not Found",
       };
-    if (foundData.isActive === false)
+    if (foundData.isActive === false || foundData.delete === true)
       return {
         status: false,
         message: "Your account is Inactive! Please contact Admin...",
@@ -44,10 +44,19 @@ export const LoginData = async (email, password) => {
     }
     delete foundData["password"];
     foundData["employeType"] = "OfficeEmploye";
+    // store the login Token in to DB
+    // const token = await storeToken(foundData);
+    // if (token.success) {
+    // foundData["loginToken"] = token.token;
     return {
       status: true,
       data: foundData,
     };
+    // }
+    // return {
+    //   status: fal,
+    //   data: foundData,
+    // };
   } catch (error) {
     console.log(error);
     return {
@@ -126,3 +135,50 @@ export const getSessionData = async () => {
     return { status: true, data: JSON.stringify(user) };
   } catch (error) {}
 };
+
+// const storeToken = async (data) => {
+//   try {
+//     const loginToken = crypto.randomUUID();
+//     const user = await OfficeEmployeeModel.findOne({ email: data.email });
+//     if (!user) return { success: false, message: "User not found" };
+//     const userId = await LoginTokenModel.findOne({ userId: user._id });
+//     if (!userId) {
+//       const token = await LoginTokenModel.create({
+//         loginToken,
+//         userId: user._id,
+//       });
+//       if (token) {
+//         return { success: true, token: loginToken };
+//       }
+//     } else {
+//       const update = await LoginTokenModel.updateOne(
+//         { userId: user._id },
+//         { loginToken }
+//       );
+//       if (update) {
+//         return { success: true, token: loginToken };
+//       }
+//     }
+//   } catch (error) {
+//     console.log(`Error in Storing Token ${error}`);
+//     return { success: false, message: "Failed to store token" };
+//   }
+// };
+
+// export const handleSignOut = async () => {
+//   try {
+//     const { props } = await getServerSideProps();
+//     const userId = props.session.user._id;
+//     const loginToken = "";
+//     const update = await LoginTokenModel.updateOne({ userId }, { loginToken });
+//   } catch (error) {
+//     console.log(`Error in SignOut ${error}`);
+//   }
+// };
+
+// export function getClientFingerprint(req) {
+//   const userAgent = req.headers["user-agent"] || "";
+//   const ip =
+//     req.headers["x-forwarded-for"] || req.connection.remoteAddress || "";
+//   return `${userAgent}-${ip}`; // Simple fingerprint example
+// }

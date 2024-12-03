@@ -99,9 +99,13 @@ const employeSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    immigrationStatus: {
+    immigrationType: {
       type: String,
       required: true,
+    },
+    immigrationCategory: {
+      type: String,
+      required: false,
     },
     utr: {
       type: String,
@@ -113,11 +117,11 @@ const employeSchema = new mongoose.Schema(
     },
     visaStartDate: {
       type: Date,
-      required: true,
+      required: false,
     },
     eVisaExp: {
       type: Date,
-      required: true,
+      required: false,
     },
     isActive: {
       type: Boolean,
