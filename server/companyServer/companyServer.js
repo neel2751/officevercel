@@ -38,16 +38,20 @@ export const handleCompany = async (data) => {
     if (id) {
       let company = await CompanyModel.findById(id);
       if (!company)
-        return { success: false, message: `Id not found please try  again` };
+        return {
+          success: false,
+          message: `company not found please try  again`,
+        };
       const roleType = await CompanyModel.updateOne({ _id: id }, data);
+
       if (!roleType)
         return { success: false, message: "Failed to Update  the Record" };
       // revalidatePath("/"); // revalidate the path
-      const data = {
+      const datas = {
         success: true,
         message: `Successfully Upadted Information`,
       };
-      return data;
+      return datas;
     } else {
       const addRoleType = new CompanyModel(data);
       const saveSite = await addRoleType.save();

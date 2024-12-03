@@ -43,7 +43,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
-import { Button } from "../ui/button";
 import ReactHookForm from "../form/reactHookForm";
 import { ISSUEREPORTFIELD } from "@/data/fields/fields";
 import { generateTicket } from "@/server/dev/generateTicket";
@@ -125,7 +124,7 @@ const SideBarMenu = () => {
           ))}
         </SidebarMenu>
       </SidebarGroup>
-      {/* {(data?.user?.role === "superAdmin" || data?.user?.role === "admin") && (
+      {(data?.user?.role === "superAdmin" || data?.user?.role === "admin") && (
         <SidebarGroup>
           <SidebarGroupLabel>Report</SidebarGroupLabel>
           <SidebarMenu className="gap-4">
@@ -156,7 +155,7 @@ const SideBarMenu = () => {
             ))}
           </SidebarMenu>
         </SidebarGroup>
-      )} */}
+      )}
       {/* <SidebarMenu className="gap-4">
           <Collapsible asChild className="group/collapsible">
             <SidebarMenuItem>
@@ -261,33 +260,6 @@ const SideBarFooterCom = () => {
         </SidebarMenuItem>
       </SidebarMenu>
     </SidebarFooter>
-  );
-};
-
-const IssueForm = () => {
-  const onSubmit = async (data) => {
-    try {
-      const res = await generateTicket(data);
-    } catch (error) {}
-  };
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <SidebarMenuButton>
-          <AlertTriangle className="size-4" />
-          Report Issue
-        </SidebarMenuButton>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>Generate Ticket</DialogTitle>
-          <DialogDescription>
-            Please fill in the form below to generate a ticket.
-          </DialogDescription>
-        </DialogHeader>
-        <ReactHookForm fields={ISSUEREPORTFIELD} onSubmit={onSubmit} />
-      </DialogContent>
-    </Dialog>
   );
 };
 

@@ -22,6 +22,7 @@ import React from "react";
 import EmployeeForm from "../officeEmployee/employeeForm";
 import { CheckBoxNormal } from "@/components/form/formFields";
 import { useCommonContext } from "@/context/commonContext";
+import { GlobalForm } from "@/components/form/form";
 // import EmployeeForm from "./employeeForm";
 
 const EmployeTabel = () => {
@@ -29,6 +30,8 @@ const EmployeTabel = () => {
     officeEmployeeData: data,
     handleEdit,
     isEdit,
+    field,
+    initialValues,
     setIsEdit,
     isChecked,
     setIsChecked,
@@ -135,7 +138,10 @@ const EmployeTabel = () => {
                           Make changes to here. Click update when you're done.
                         </DialogDescription>
                       </DialogHeader>
-                      <EmployeeForm />
+                      <GlobalForm
+                        fields={field}
+                        initialValues={initialValues}
+                      />
                       <CheckBoxNormal
                         isChecked={isChecked}
                         setIsChecked={setIsChecked}

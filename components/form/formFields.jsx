@@ -16,7 +16,14 @@ import {
 } from "../ui/command";
 import { useController } from "react-hook-form";
 import { Calendar } from "../ui/calendar";
-import { addDays, format } from "date-fns";
+import {
+  addDays,
+  format,
+  getMonth,
+  getYear,
+  setMonth,
+  setYear,
+} from "date-fns";
 import {
   Select,
   SelectContent,
@@ -26,7 +33,6 @@ import {
 } from "../ui/select";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { Checkbox } from "../ui/checkbox";
-import { ScrollArea } from "../ui/scroll-area";
 
 export const TextFormInput = memo(
   forwardRef(function TextFormInput(
@@ -280,6 +286,29 @@ export const DateSelect = memo(
     },
     ref
   ) {
+    const startYear = getYear(new Date()) - 100;
+    const endYear = getYear(new Date()) + 100;
+
+    const months = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+
+    const years = Array.from(
+      { length: endYear - startYear + 1 },
+      (_, i) => startYear + i
+    );
+
     const {
       field: {
         onChange: controllerOnChange,
@@ -290,9 +319,20 @@ export const DateSelect = memo(
     } = useController({
       name,
       control,
-      defaultValue: propValue || "",
+      defaultValue: propValue || new Date(),
       rules: rules,
     });
+
+    const handleMonth = (month) => {
+      const newDate = setMonth(value, months.indexOf(month));
+      controllerOnChange?.(newDate);
+    };
+
+    const handleYear = (year) => {
+      const newDate = setYear(value, parseInt(year));
+      controllerOnChange?.(newDate);
+    };
+
     return (
       <>
         {labelText && (
@@ -318,7 +358,7 @@ export const DateSelect = memo(
               </Button>
             </PopoverTrigger>
             <PopoverContent className="flex w-auto flex-col space-y-2 p-2 ">
-              <Select
+              {/* <Select
                 onValueChange={(value) =>
                   controllerOnChange?.(addDays(new Date(), parseInt(value)))
                 }
@@ -333,11 +373,45 @@ export const DateSelect = memo(
                   <SelectItem value="7">In a week</SelectItem>
                   <SelectItem value="30">In a Month</SelectItem>
                 </SelectContent>
-              </Select>
+              </Select> */}
+              <div className="flex gap-2 justify-center">
+                <Select
+                  onValueChange={handleMonth}
+                  value={months[getMonth(value)]}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Month" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {months.map((month) => (
+                      <SelectItem value={month} key={month}>
+                        {month}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select
+                  onValueChange={handleYear}
+                  value={getYear(value).toString()}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Year" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {years.map((year) => (
+                      <SelectItem value={year.toString()} key={year}>
+                        {year}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               <Calendar
                 mode="single"
                 selected={value}
                 onSelect={(val) => controllerOnChange?.(val)}
+                month={value}
+                onMonthChange={controllerOnChange}
                 // numberOfMonths={2}
                 // disabled={(date) =>
                 //   date > new Date() || date < new Date("1900-01-01")

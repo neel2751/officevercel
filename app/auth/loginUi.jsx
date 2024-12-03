@@ -1,11 +1,11 @@
 "use client";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import ReactHookForm from "@/components/form/reactHookForm";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { signIn, useSession } from "next-auth/react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import Image from "next/image";
+import { GlobalForm } from "@/components/form/form";
 
 export const LOGINFIELD = [
   {
@@ -41,26 +41,32 @@ export const LOGINFIELD = [
 ];
 
 export const LoginUi = () => {
-  const [resetFlag, setResetFlag] = useState(false);
-  const [initialValues, setInitialValues] = useState({});
-  const [formError, setFormError] = useState(""); // State to hold form-specific errors
-
   const searchParams = useSearchParams();
   const callback = searchParams.get("callbackUrl");
   const { status } = useSession();
+  const router = useRouter();
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const callBackcheck = callback || process.env.NEXTAUTH_URL || "/";
 
   useEffect(() => {
     if (status === "authenticated") {
-      if (window.location.href !== callBackcheck) {
-        window.location.href = callBackcheck;
-      }
+      router.push(callBackcheck); // Push to the callback URL or default to "/"
     }
-  }, [status, callBackcheck]);
+  }, [status, callback, router]);
+
+  // useEffect(() => {
+  //   if (status === "authenticated") {
+  //     if (window.location.href !== callBackcheck) {
+  //       window.location.href = callBackcheck;
+  //     }
+  //   }
+  // }, [status, callBackcheck]);
 
   const handleSubmit = async (data) => {
-    setFormError(""); // Reset form error before submission
+    setIsLoading(true);
+    // add the artifical  delay to simulate the server response
+    // await new Promise((resolve) => setTimeout(resolve, 2000));
     try {
       const res = await signIn("credentials", {
         redirect: false, // Prevent automatic page reload
@@ -69,20 +75,21 @@ export const LoginUi = () => {
       });
 
       if (res?.error) {
-        setFormError(res.error); // Set the error to display below the form
         toast.error(res.error); // Optionally show a toast notification
       } else {
         window.location.href = res.url || callBackcheck || "/";
       }
     } catch (err) {
       console.error("Error during login:", err);
-      setFormError("An unexpected error occurred. Please try again.");
       toast.error("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="max-w-sm mx-auto px-4 mt-36">
+    // <section className="sm:bg-[url('/images/login.png')] w-full h-screen bg-center bg-cover bg-white">
+    <div className="max-w-md mx-auto px-4 top-1/2 translate-y-1/2">
       <Card>
         <CardHeader>
           <div className="flex items-center gap-3">
@@ -93,7 +100,7 @@ export const LoginUi = () => {
               src="/images/cdc.svg"
               alt="CDC"
             />
-            <span className="text-gray-800 font-semibold text-lg">
+            <span className="text-gray-800 font-semibold text-lg whitespace-nowrap">
               Creative Design & Construction
             </span>
           </div>
@@ -102,16 +109,15 @@ export const LoginUi = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <ReactHookForm
+          <GlobalForm
             fields={LOGINFIELD}
-            resetFlag={resetFlag}
-            setResetFlag={setResetFlag}
             onSubmit={handleSubmit}
-            initialValues={initialValues}
+            isLoading={isLoading}
             btnName={"Login"}
           />
         </CardContent>
       </Card>
     </div>
+    // </section>
   );
 };

@@ -3,6 +3,19 @@ import { MENU } from "../menu";
 const { COUNTRIES } = require("../countries");
 
 export const EMPLOYEFIELD = [
+  // {
+  //   name: "profileImage",
+  //   labelText: "Profile Image",
+  //   type: "image",
+  //   placeholder: "Upload Profile Image",
+  //   acceptedFileTypes: ["jpg", "jpeg", "png"],
+  //   maxFileSize: 1024 * 1024 * 5,
+  //   maxFiles: 1,
+  //   size: true,
+  //   validationOptions: {
+  //     required: "Profile Image is required",
+  //   },
+  // },
   {
     name: "firstName",
     labelText: "First Name",
@@ -144,8 +157,12 @@ export const EMPLOYEFIELD = [
     type: "number",
     inputMode: "numeric",
     placeholder: "Enter UTR number",
+    showIf: {
+      field: "paymentType",
+      value: "Weekly",
+    },
     validationOptions: {
-      // required: " UTR  number is required",
+      required: " UTR  number is required",
       pattern: {
         value: /^\d{10}$/i,
         message: "Must be exactly 10 digits",
@@ -208,13 +225,49 @@ export const EMPLOYEFIELD = [
       },
     },
   },
+  // {
+  //   name: "immigrationStatus",
+  //   labelText: " Immigration Status",
+  //   type: "text",
+  //   placeholder: "Enter Immigration Status",
+  //   validationOptions: {
+  //     required: "Immigration Status is required",
+  //     minLength: {
+  //       value: 3,
+  //       message: "Minimum length should be 3 characters",
+  //     },
+  //     pattern: {
+  //       value: /^(?! )[a-zA-Z0-9]+(?: [a-zA-Z0-9]+)*(?<! )$/,
+  //       message: "Invalid immigration status format",
+  //     },
+  //   },
+  // },
+
   {
-    name: "immigrationStatus",
-    labelText: " Immigration Status",
-    type: "text",
-    placeholder: "Enter Immigration Status",
+    name: "immigrationType",
+    labelText: " Immigration Type",
+    type: "select",
+    placeholder: "Enter Immigration Type",
+    options: [
+      { value: "British", label: "British" },
+      { value: "Immigrant", label: "Immigrant" },
+    ],
     validationOptions: {
-      required: "Immigration Status is required",
+      required: "Immigration Type is required",
+    },
+  },
+
+  {
+    name: "immigrationCategory",
+    labelText: " Immigration  Category",
+    type: "text",
+    showIf: {
+      field: "immigrationType",
+      value: "Immigrant",
+    },
+    placeholder: "Enter Immigration  Category",
+    validationOptions: {
+      required: "Immigration  Category is required",
       minLength: {
         value: 3,
         message: "Minimum length should be 3 characters",
@@ -225,6 +278,7 @@ export const EMPLOYEFIELD = [
       },
     },
   },
+
   {
     name: "projectSite",
     labelText: "Project Site",
@@ -243,6 +297,7 @@ export const EMPLOYEFIELD = [
     name: "startDate",
     labelText: "Join Date",
     type: "date",
+    value: new Date(),
     placeholder: "Join Date",
     validationOptions: {
       required: "Join Date is required",
@@ -258,6 +313,10 @@ export const EMPLOYEFIELD = [
     name: "visaStartDate",
     labelText: "Visa Start Date",
     type: "date",
+    showIf: {
+      field: "immigrationType",
+      value: "Immigrant",
+    },
     placeholder: "Visa Start Date",
     validationOptions: {
       required: "Visa Start Date is required",
@@ -267,6 +326,10 @@ export const EMPLOYEFIELD = [
     name: "eVisaExp",
     labelText: " Visa  Expiry Date",
     type: "date",
+    showIf: {
+      field: "immigrationType",
+      value: "Immigrant",
+    },
     placeholder: "Visa End Date",
     validationOptions: {
       required: " Visa Expiry Date is required",
@@ -349,21 +412,21 @@ export const SITEFIELD = [
 export const OFFICEFIELD = [
   {
     name: "name",
-    labelText: "Role Name",
+    labelText: "Full Name",
     type: "text",
     helperText: "*This Name will appear be on Site Project.",
     size: true,
-    placeholder: "Enter Role Name",
+    placeholder: "Enter Employee Name",
     validationOptions: {
-      required: "Role Name is required",
+      required: "Name is required",
     },
   },
   {
     name: "phoneNumber",
-    labelText: "Role Phone Number",
+    labelText: "Phone Number",
     type: "number",
     inputMode: "numeric",
-    placeholder: "Enter Role Phone Number",
+    placeholder: "Enter Employee Phone Number",
     validationOptions: {
       required: "Phone No. is required",
       pattern: {
@@ -379,7 +442,6 @@ export const OFFICEFIELD = [
     helperText: "*Please enter a valid email address.",
     placeholder: "Enter your email",
     inputMode: "email",
-
     validationOptions: {
       required: "Email is required",
       pattern: {
@@ -399,7 +461,7 @@ export const OFFICEFIELD = [
   },
   {
     name: "department",
-    labelText: "Role  Department",
+    labelText: "Role Department",
     options: [
       { label: "test", value: "1" },
       { label: "test2", value: "2" },
@@ -417,12 +479,31 @@ export const OFFICEFIELD = [
     },
   },
   {
-    name: "immigrationStatus",
-    labelText: " Immigration Status",
-    type: "text",
-    placeholder: "Enter Immigration Status",
+    name: "immigrationType",
+    labelText: " Immigration Type",
+    type: "select",
+    placeholder: "Enter Immigration Type",
+    options: [
+      { value: "British", label: "British" },
+      { value: "Immigrant", label: "Immigrant" },
+    ],
     validationOptions: {
-      required: "Immigration Status is required",
+      required: "Immigration Type is required",
+    },
+  },
+
+  {
+    name: "immigrationCategory",
+    labelText: " Immigration  Category",
+    type: "text",
+    showIf: {
+      field: "immigrationType",
+      value: "Immigrant",
+    },
+    size: true,
+    placeholder: "Enter Immigration  Category",
+    validationOptions: {
+      required: "Immigration  Category is required",
       minLength: {
         value: 3,
         message: "Minimum length should be 3 characters",
@@ -453,6 +534,7 @@ export const OFFICEFIELD = [
     name: "joinDate",
     labelText: "Join Date",
     type: "date",
+    value: new Date(),
     placeholder: "Start Date",
     validationOptions: {
       required: "Join Date is required",
@@ -468,6 +550,10 @@ export const OFFICEFIELD = [
     name: "visaStartDate",
     labelText: "Visa Start Date",
     type: "date",
+    showIf: {
+      field: "immigrationType",
+      value: "Immigrant",
+    },
     placeholder: "Select Date",
     validationOptions: {
       required: "Visa Start Date is required",
@@ -478,7 +564,14 @@ export const OFFICEFIELD = [
     name: "visaEndDate",
     labelText: "Visa End Date",
     type: "date",
+    showIf: {
+      field: "immigrationType",
+      value: "Immigrant",
+    },
     placeholder: "Visa End Date",
+    validationOptions: {
+      required: "Visa End Date is required",
+    },
   },
 ];
 
@@ -561,11 +654,43 @@ export const COMPANYFIELD = [
     helperText: "*Describe company",
     placeholder: " Company for construction and building",
   },
+  {
+    name: "emails",
+    labelText: "Company Email",
+    type: "multiple",
+    inputType: "email",
+    placeholder: "Enter Company Email",
+    size: true,
+    validationOptions: {
+      required: "Email is required",
+      pattern: {
+        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+        message: "Invalid email format. Please check and try again.",
+      },
+    },
+    max: 3,
+  },
+  // {
+  //   name: "phones",
+  //   labelText: "Company Phone",
+  //   type: "multiple",
+  //   inputType: "tel",
+  //   placeholder: "Enter Company Phone",
+  //   size: true,
+  //   validationOptions: {
+  //     required: "Phone is required",
+  //     pattern: {
+  //       value: /^\d{3}[-\s]?\d{3}[-\s]?\d{4}$/,
+  //       message: "Invalid phone format. Please check and try again.",
+  //     },
+  //   },
+  //   max: 3,
+  // },
 ];
 
 export const ISSUEREPORTFIELD = [
   {
-    name: "issueTitle",
+    name: "title",
     labelText: "Issue Title",
     type: "text",
     placeholder: "Enter Issue Type",

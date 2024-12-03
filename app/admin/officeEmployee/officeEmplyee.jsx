@@ -11,6 +11,8 @@ import {
 import {
   getOfficeEmployee,
   handleOfficeEmployee,
+  officeEmployeeDelete,
+  OfficeEmployeeStatus,
 } from "@/server/officeServer/officeServer";
 import { isFuture } from "date-fns";
 import { Plus } from "lucide-react";
@@ -29,16 +31,19 @@ import {
 import { useSubmitMutation } from "@/hooks/use-mutate";
 import { CommonContext } from "@/context/commonContext";
 import { OFFICEFIELD } from "@/data/fields/fields";
+import Alert from "@/components/alert/alert";
 
 const OfficeEmplyee = ({ searchParams }) => {
   const currentPage = parseInt(searchParams.page || "1");
   const pagePerData = parseInt(searchParams.pageSize || "10");
   const query = searchParams.query;
   const [initialValues, setInitialValues] = useState({});
+  const [alert, setAlert] = useState({});
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState({
     company: "",
     role: "",
+    type: "",
   });
   const [isEdit, setIsEdit] = useState(false);
   const queryKey = [
@@ -97,15 +102,16 @@ const OfficeEmplyee = ({ searchParams }) => {
     setIsEdit(false);
   };
 
-  const { mutate: handleSubmit } = useSubmitMutation({
-    mutationFn: async (data) => await handleOfficeEmployee(data),
+  const { mutate: handleSubmit, isPending } = useSubmitMutation({
+    mutationFn: async (data) =>
+      await handleOfficeEmployee(data, initialValues._id),
     invalidateKey: queryKey,
     onSuccessMessage: (response) =>
       `Employee ${initialValues._id ? "Updated" : "Created"} successfully`,
     onClose: initialValues?._id ? handleEditClose : handleClose,
   });
   const onSubmit = (data) => {
-    if (!isFuture(new Date(data.visaEndDate))) {
+    if (data?.visaEndDate && !isFuture(new Date(data.visaEndDate))) {
       return toast.error("Visa End date should be greater than today");
     }
     handleSubmit(data);
@@ -121,12 +127,39 @@ const OfficeEmplyee = ({ searchParams }) => {
     setOpen(true);
   };
 
+  const alertClose = () => {
+    setAlert({});
+  };
+
+  const { mutate: handleStatus } = useSubmitMutation({
+    mutationFn: async () =>
+      alert?.type === "Delete"
+        ? await officeEmployeeDelete(alert)
+        : await OfficeEmployeeStatus(alert),
+    invalidateKey: queryKey,
+    onSuccessMessage: (response) =>
+      `${
+        alert.type === "Delete" ? "Employee Delete" : "Status Update"
+      } successfully`,
+    onClose: alertClose,
+  });
+
+  const handleAlert = (id, type, status) => {
+    setAlert({ id, type, status });
+  };
+
+  const [{ options }] = field.filter((it) => {
+    if (it.name === "immigrationType") {
+      return it.options;
+    }
+  });
+
   return (
     <div className="p-4">
       <CommonContext.Provider
         value={{
           officeEmployeeData,
-          handleSubmit,
+          isPending,
           onSubmit,
           field,
           setInitialValues,
@@ -138,13 +171,14 @@ const OfficeEmplyee = ({ searchParams }) => {
           currentPage,
           pagePerData,
           totalCount,
+          handleAlert,
         }}
       >
         <div>
           <Card>
             <CardHeader>
               <div className="mb-4">
-                <CardTitle>Office Employee</CardTitle>
+                <CardTitle>Office Management</CardTitle>
               </div>
               <div className="flex items-center justify-between">
                 <SearchDebounce />
@@ -166,6 +200,13 @@ const OfficeEmplyee = ({ searchParams }) => {
                       filter.company === "" ? "All" : "Select Company"
                     }
                     onChange={(e) => setFilter({ ...filter, company: e })}
+                    noData="No Data found"
+                  />
+                  <SelectFilter
+                    value={filter.type}
+                    frameworks={[{ label: "All", value: "" }, ...options]}
+                    placeholder={filter.type === "" ? "All" : "Select Type"}
+                    onChange={(e) => setFilter({ ...filter, type: e })}
                     noData="No Data found"
                   />
                   <Button onClick={handleOpen}>
@@ -199,7 +240,6 @@ const OfficeEmplyee = ({ searchParams }) => {
               ) : (
                 <EmployeTabel />
               )}
-
               {totalCount > 10 && (
                 <div className="pt-4 mt-2 border-t">
                   <Pagination />
@@ -207,6 +247,13 @@ const OfficeEmplyee = ({ searchParams }) => {
               )}
             </CardContent>
           </Card>
+          <Alert
+            open={alert?.type ? true : false}
+            label={alert}
+            setOpen={setAlert}
+            onClose={alertClose}
+            onConfirm={handleStatus}
+          />
         </div>
       </CommonContext.Provider>
     </div>

@@ -3,10 +3,12 @@ import { connect } from "@/db/db";
 import OfficeEmployeeModel from "@/models/officeEmployeeModel";
 import bcrypt from "bcryptjs";
 
-export const handleOfficeEmployee = async (data) => {
+export const handleOfficeEmployee = async (data, id) => {
+  // make dealy for  testing
+  // await new Promise((resolve) => setTimeout(resolve, 1000));
+  // return;
   // check if email and phone  already exist in db
   if (!data) return { success: false, message: "No Data Provided" };
-  const id = data?._id;
   try {
     if (id) {
       // update an existing office employee
@@ -92,6 +94,7 @@ export const getOfficeEmployee = async (filterData) => {
     const validLimit = parseInt(filterData?.pageSize || 10);
     const roleTypeFilter = filterData?.filter?.role;
     const companyFilter = filterData?.filter?.company;
+    const filterType = filterData?.filter?.type;
     const skip = (validPage - 1) * validLimit;
     const query = { delete: false };
     if (roleTypeFilter) {
@@ -99,6 +102,9 @@ export const getOfficeEmployee = async (filterData) => {
     }
     if (companyFilter) {
       query.company = companyFilter;
+    }
+    if (filterType) {
+      query.immigrationType = filterType;
     }
     if (sanitizedSearch) {
       query.$or = [
@@ -110,6 +116,7 @@ export const getOfficeEmployee = async (filterData) => {
     const totalCountDocuments = await OfficeEmployeeModel.countDocuments(query);
     const result = await OfficeEmployeeModel.find(query)
       .populate("department", "roleTitle")
+      .populate("company", "name")
       .skip(skip)
       .limit(validLimit)
       .sort({ createdAt: -1 })
@@ -166,5 +173,46 @@ export const GenerateHashPassword = async (password) => {
     return hashPassword;
   } catch (error) {
     console.log("Error hashing password: ", error);
+  }
+};
+
+export const OfficeEmployeeStatus = async (data) => {
+  if (!data) return { success: false, message: "Not found" };
+  try {
+    const id = data?.id;
+    const isActive = !data?.status;
+    const statusDate = data.status ? new Date() : null;
+    await OfficeEmployeeModel.updateOne(
+      { _id: id },
+      { $set: { isActive, statusDate } }
+    );
+    return {
+      success: true,
+      message: "The Status of the Assign Project has been Updated",
+    };
+  } catch (error) {
+    console.log(error);
+    return { success: false, message: `Error Occurred in server problem` };
+  }
+};
+
+export const officeEmployeeDelete = async (data) => {
+  if (!data) return { success: false, message: "Not found" };
+  try {
+    const id = data?.id;
+    const isActive = false;
+    const isDelete = true;
+    const statusDate = new Date();
+    await OfficeEmployeeModel.updateOne(
+      { _id: id },
+      { $set: { isActive, delete: isDelete, statusDate } }
+    );
+    return {
+      success: true,
+      message: "The  Status of the Assign Project has been Updated",
+    };
+  } catch (error) {
+    console.log(error);
+    return { success: false, message: `Error Occurred in server problem` };
   }
 };

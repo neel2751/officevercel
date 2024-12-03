@@ -22,6 +22,8 @@ import { Edit, Trash2 } from "lucide-react";
 import React from "react";
 import EmployeeForm from "./employeeForm";
 import { useCommonContext } from "@/context/commonContext";
+import { TableStatus } from "@/components/tableStatus/status";
+import EmployeeSheet from "./employeeSheet";
 
 const EmployeTabel = () => {
   const {
@@ -29,6 +31,7 @@ const EmployeTabel = () => {
     handleEdit,
     isEdit,
     setIsEdit,
+    handleAlert,
   } = useCommonContext();
 
   return (
@@ -37,14 +40,12 @@ const EmployeTabel = () => {
         <TableHeader>
           <TableRow>
             {[
-              "id",
               "name",
               "email",
               "contactNo",
-              "Department",
-              // "roletype",
               "status",
               "joindate",
+              "Enddate",
               "VisaStart",
               "VisaEnd",
               "visa",
@@ -59,45 +60,45 @@ const EmployeTabel = () => {
         <TableBody>
           {data?.map((item, index) => (
             <TableRow key={index}>
-              <TableCell>{index + 1}</TableCell>
-              <TableCell>{item?.name}</TableCell>
+              <TableCell className="cursor-pointer">
+                <EmployeeSheet item={item} />
+              </TableCell>
               <TableCell>{item?.email}</TableCell>
               <TableCell>{item?.phoneNumber}</TableCell>
-              <TableCell>{item?.department?.roleTitle}</TableCell>
-              {/* <TableCell>{item?.roleType}</TableCell> */}
               <TableCell>
-                {item?.isActive ? (
-                  <Badge
-                    className="bg-indigo-50 text-indigo-600 rounded-full hover:bg-indigo-600 hover:text-white cursor-pointer"
-                    size="sm"
-                  >
-                    Active
-                  </Badge>
-                ) : (
-                  <Badge
-                    className="bg-rose-50 text-rose-600 rounded-full hover:bg-rose-600 hover:text-white cursor-pointer"
-                    size="sm"
-                  >
-                    Inactive
-                  </Badge>
-                )}
+                <div
+                  onClick={() =>
+                    handleAlert(item?._id, "Update", item?.isActive)
+                  }
+                >
+                  <TableStatus isActive={item?.isActive} />
+                </div>
               </TableCell>
               <TableCell>
                 {item?.joinDate && format(new Date(item?.joinDate), "PPP")}
               </TableCell>
               <TableCell>
-                {item?.visaStartDate &&
-                  format(new Date(item?.visaStartDate), "PPP")}
+                {(item?.endDate && format(new Date(item?.endDate), "PPP")) ||
+                  "-"}
+              </TableCell>
+              <TableCell>
+                {item?.immigrationType === "British"
+                  ? "-"
+                  : item?.visaStartDate &&
+                    format(new Date(item?.visaStartDate), "PPP")}
               </TableCell>
 
               <TableCell
                 className={`${
-                  isPast(new Date(item?.endDate), new Date())
+                  isPast(new Date(item?.visaEndDate) || new Date(), new Date())
                     ? "text-rose-600"
-                    : "text-neutral-600"
+                    : "text-neutral-700"
                 }`}
               >
-                {item?.visaEndDate && format(new Date(item.visaEndDate), "PPP")}
+                {item?.immigrationType === "British"
+                  ? "-"
+                  : item?.visaEndDate &&
+                    format(new Date(item.visaEndDate), "PPP")}
               </TableCell>
               <TableCell>
                 {item?.visaEndDate && item?.visaEndDate
@@ -132,7 +133,13 @@ const EmployeTabel = () => {
                     </DialogContent>
                   </Dialog>
                   {!item?.isSuperAdmin && (
-                    <Button variant="outline" size="icon">
+                    <Button
+                      onClick={() =>
+                        handleAlert(item?._id, "Delete", item?.isActive)
+                      }
+                      variant="outline"
+                      size="icon"
+                    >
                       <Trash2 className="text-rose-600" />
                     </Button>
                   )}
