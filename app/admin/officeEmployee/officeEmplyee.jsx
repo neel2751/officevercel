@@ -118,7 +118,11 @@ const OfficeEmplyee = ({ searchParams }) => {
   };
 
   const handleEdit = (item) => {
-    setInitialValues({ ...item, department: item.department._id });
+    setInitialValues({
+      ...item,
+      department: item.department._id,
+      company: item.company._id,
+    });
     setIsEdit(true);
   };
 
