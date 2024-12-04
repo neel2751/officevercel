@@ -2,10 +2,14 @@ import TableSheet from "@/components/tableStatus/tableSheet";
 import { format } from "date-fns";
 
 const EmployeeSheet = ({ item }) => {
-  const employeData = [
+  const data = [
     {
       label: "Employee ID",
       value: item._id.slice(-4).padStart(item._id.length, "*"),
+    },
+    {
+      label: "Name",
+      value: item.firstName + " " + item.lastName,
     },
     {
       label: "Email",
@@ -13,15 +17,27 @@ const EmployeeSheet = ({ item }) => {
     },
     {
       label: "Phone",
-      value: item.phoneNumber,
+      value: item.phone,
     },
     {
-      label: "Role Type",
-      value: item.roleType,
+      label: "Country",
+      value: item.eAddress.country,
     },
     {
-      label: "Department",
-      value: item?.department?.roleTitle,
+      label: "Payment Type",
+      value: item.paymentType,
+    },
+    {
+      label: "Employee Type",
+      value: item.employeType,
+    },
+    {
+      label: "PayRate",
+      value: `£${item.payRate.toFixed(2)}`,
+    },
+    {
+      label: "Address",
+      value: item.eAddress.address,
     },
     {
       label: "Immigration Type",
@@ -65,11 +81,11 @@ const EmployeeSheet = ({ item }) => {
   ];
   return (
     <TableSheet
-      data={employeData}
+      data={data}
+      tableName={data[1].value}
       title={"Employee Details"}
-      description={"Detailed view of the employee's information."}
-      tableName={item?.name}
-      tableDesc={item?.company?.name || "N/A"}
+      description={"This is a description of the employee details"}
+      tableDesc={data[2].value}
     />
   );
 };

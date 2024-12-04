@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -22,19 +21,18 @@ import React from "react";
 import EmployeeForm from "../officeEmployee/employeeForm";
 import { CheckBoxNormal } from "@/components/form/formFields";
 import { useCommonContext } from "@/context/commonContext";
-import { GlobalForm } from "@/components/form/form";
-// import EmployeeForm from "./employeeForm";
+import { TableStatus } from "@/components/tableStatus/status";
+import EmployeeSheet from "./employeeSheet";
 
 const EmployeTabel = () => {
   const {
     officeEmployeeData: data,
     handleEdit,
     isEdit,
-    field,
-    initialValues,
     setIsEdit,
     isChecked,
     setIsChecked,
+    handleAlert,
   } = useCommonContext();
 
   return (
@@ -52,8 +50,9 @@ const EmployeTabel = () => {
               "P.type",
               "status",
               "joindate",
-              "Visastart",
-              "visaend",
+              "Enddate",
+              "VisaStart",
+              "VisaEnd",
               "visa",
               "Actions",
             ].map((item, index) => (
@@ -67,36 +66,34 @@ const EmployeTabel = () => {
           {data?.map((item, index) => (
             <TableRow key={index}>
               <TableCell>{index + 1}</TableCell>
-              <TableCell>{item?.firstName + " " + item?.lastName}</TableCell>
+              <TableCell>
+                <EmployeeSheet item={item} />
+              </TableCell>
               <TableCell>{item?.phone}</TableCell>
-              {/* <TableCell>{item?.eAddress?.country}</TableCell> */}
               <TableCell>£{item?.payRate.toFixed(2)}</TableCell>
               <TableCell>{item?.employeType}</TableCell>
               <TableCell>{item?.paymentType}</TableCell>
               <TableCell>
-                {item?.isActive ? (
-                  <Badge
-                    className="bg-indigo-50 text-indigo-600 rounded-full hover:bg-indigo-600 hover:text-white cursor-pointer"
-                    size="sm"
-                  >
-                    Active
-                  </Badge>
-                ) : (
-                  <Badge
-                    className="bg-rose-50 text-rose-600 rounded-full hover:bg-rose-600 hover:text-white cursor-pointer"
-                    size="sm"
-                  >
-                    Inactive
-                  </Badge>
-                )}
+                <div
+                  onClick={() =>
+                    handleAlert(item?._id, "Update", item?.isActive)
+                  }
+                >
+                  <TableStatus isActive={item?.isActive} />
+                </div>
               </TableCell>
               <TableCell>
                 {item?.startDate && format(new Date(item?.startDate), "PPP")}
               </TableCell>
               <TableCell>
-                {(item?.visaStartDate &&
-                  format(new Date(item?.startDate), "PPP")) ||
+                {(item?.endDate && format(new Date(item?.endDate), "PPP")) ||
                   "-"}
+              </TableCell>
+              <TableCell>
+                {item?.immigrationType === "British"
+                  ? "-"
+                  : item?.visaStartDate &&
+                    format(new Date(item?.visaStartDate), "PPP")}
               </TableCell>
 
               <TableCell
@@ -106,10 +103,14 @@ const EmployeTabel = () => {
                     : "text-neutral-600"
                 }`}
               >
-                {format(new Date(item?.eVisaExp), "PPP")}
+                {item?.immigrationType === "British"
+                  ? "-"
+                  : item?.eVisaExp && format(new Date(item?.eVisaExp), "PPP")}
               </TableCell>
               <TableCell>
-                {item.eVisaExp && item?.eVisaExp
+                {item?.immigrationType === "British"
+                  ? "-"
+                  : item.eVisaExp && item?.eVisaExp
                   ? isPast(new Date(item?.eVisaExp))
                     ? "Visa expired"
                     : `${formatDistanceStrict(
@@ -133,22 +134,25 @@ const EmployeTabel = () => {
                     </DialogTrigger>
                     <DialogContent className="w-full max-w-2xl max-h-screen overflow-y-auto bg-white rounded-lg shadow-lg p-6 sm:max-w-md md:max-w-lg lg:max-w-2xl">
                       <DialogHeader>
-                        <DialogTitle>Edit New Role</DialogTitle>
+                        <DialogTitle>Edit Employee Details</DialogTitle>
                         <DialogDescription>
                           Make changes to here. Click update when you're done.
                         </DialogDescription>
                       </DialogHeader>
-                      <GlobalForm
-                        fields={field}
-                        initialValues={initialValues}
-                      />
+                      <EmployeeForm />
                       <CheckBoxNormal
                         isChecked={isChecked}
                         setIsChecked={setIsChecked}
                       />
                     </DialogContent>
                   </Dialog>
-                  <Button variant="outline" size="icon">
+                  <Button
+                    onClick={() =>
+                      handleAlert(item?._id, "Delete", item?.isActive)
+                    }
+                    variant="outline"
+                    size="icon"
+                  >
                     <Trash2 className="text-rose-600" />
                   </Button>
                 </div>

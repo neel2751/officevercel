@@ -135,18 +135,19 @@ const OfficeEmplyee = ({ searchParams }) => {
     setAlert({});
   };
 
-  const { mutate: handleStatus } = useSubmitMutation({
-    mutationFn: async () =>
-      alert?.type === "Delete"
-        ? await officeEmployeeDelete(alert)
-        : await OfficeEmployeeStatus(alert),
-    invalidateKey: queryKey,
-    onSuccessMessage: (response) =>
-      `${
-        alert.type === "Delete" ? "Employee Delete" : "Status Update"
-      } successfully`,
-    onClose: alertClose,
-  });
+  const { mutate: handleStatus, isPending: isStatusPending } =
+    useSubmitMutation({
+      mutationFn: async () =>
+        alert?.type === "Delete"
+          ? await officeEmployeeDelete(alert)
+          : await OfficeEmployeeStatus(alert),
+      invalidateKey: queryKey,
+      onSuccessMessage: (response) =>
+        `${
+          alert.type === "Delete" ? "Employee Delete" : "Status Update"
+        } successfully`,
+      onClose: alertClose,
+    });
 
   const handleAlert = (id, type, status) => {
     setAlert({ id, type, status });
@@ -257,6 +258,7 @@ const OfficeEmplyee = ({ searchParams }) => {
             setOpen={setAlert}
             onClose={alertClose}
             onConfirm={handleStatus}
+            isPending={isStatusPending}
           />
         </div>
       </CommonContext.Provider>
