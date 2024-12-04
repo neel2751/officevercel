@@ -100,7 +100,9 @@ const EmployeTabel = () => {
                     format(new Date(item.visaEndDate), "PPP")}
               </TableCell>
               <TableCell>
-                {item?.visaEndDate && item?.visaEndDate
+                {item?.immigrationType === "British"
+                  ? "-"
+                  : item?.visaEndDate && item?.visaEndDate
                   ? isPast(new Date(item?.visaEndDate))
                     ? "Visa expired"
                     : `${formatDistanceStrict(
@@ -123,7 +125,7 @@ const EmployeTabel = () => {
                     </DialogTrigger>
                     <DialogContent className="w-full max-w-2xl max-h-screen overflow-y-auto bg-white rounded-lg shadow-lg p-6 sm:max-w-md md:max-w-lg lg:max-w-2xl">
                       <DialogHeader>
-                        <DialogTitle>Edit New Role</DialogTitle>
+                        <DialogTitle>Edit Employee Details</DialogTitle>
                         <DialogDescription>
                           Make changes to here. Click update when you're done.
                         </DialogDescription>

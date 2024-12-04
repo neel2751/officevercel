@@ -163,7 +163,7 @@ export const getOfficeEmpSummaryData = async () => {
             $sum: { $cond: [{ $eq: ["$isActive", false] }, 1, 0] },
           }, // Count inactive employees
           expiredEmployees: {
-            $sum: { $cond: [{ $lte: ["$endDate", new Date()] }, 1, 0] },
+            $sum: { $cond: [{ $lte: ["$visaEndDate", new Date()] }, 1, 0] },
           }, // Count expired employees (endDate <= current date)
           reminderEmployees: {
             $push: { name: "$firstName", eVisaExp: "$endDate" }, // Push name and eVisaExp fields to an array

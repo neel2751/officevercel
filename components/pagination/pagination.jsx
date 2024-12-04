@@ -48,8 +48,12 @@ export function PaginationWithLinks({
   const navToPageSize = useCallback(
     (newPageSize) => {
       const key = pageSizeSelectOptions?.pageSizeSearchParam || "pageSize";
+      const pageKey = pageSearchParam || "page";
       const newSearchParams = new URLSearchParams(searchParams || undefined);
+      // Set the  new page size
       newSearchParams.set(key, String(newPageSize));
+      // Reset  the page to 1
+      newSearchParams.set(pageKey, "1");
       router.push(`${pathname}?${newSearchParams.toString()}`);
     },
     [searchParams, pathname]
