@@ -654,22 +654,22 @@ export const COMPANYFIELD = [
     helperText: "*Describe company",
     placeholder: " Company for construction and building",
   },
-  {
-    name: "emails",
-    labelText: "Company Email",
-    type: "multiple",
-    inputType: "email",
-    placeholder: "Enter Company Email",
-    size: true,
-    validationOptions: {
-      required: "Email is required",
-      pattern: {
-        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-        message: "Invalid email format. Please check and try again.",
-      },
-    },
-    max: 3,
-  },
+  // {
+  //   name: "emails",
+  //   labelText: "Company Email",
+  //   type: "multiple",
+  //   inputType: "email",
+  //   placeholder: "Enter Company Email",
+  //   size: true,
+  //   validationOptions: {
+  //     required: "Email is required",
+  //     pattern: {
+  //       value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+  //       message: "Invalid email format. Please check and try again.",
+  //     },
+  //   },
+  //   max: 3,
+  // },
   // {
   //   name: "phones",
   //   labelText: "Company Phone",

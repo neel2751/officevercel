@@ -1,8 +1,10 @@
 "use server";
+import { connect } from "@/db/db";
 import CompanyModel from "@/models/companyModel";
 
 export async function getCompanies(filterData) {
   try {
+    await connect();
     const sanitizedSearch = filterData?.query?.trim() || ""; // Ensure search is a string
     // const searchRegex = new RegExp(sanitizedSearch, "i"); // Create a case-ins ensitive regex
     const validPage = parseInt(filterData?.page || 1);
@@ -13,13 +15,24 @@ export async function getCompanies(filterData) {
       query.$or = [{ name: { $regex: sanitizedSearch, $options: "i" } }];
     }
     const totalCountDocuments = await CompanyModel.countDocuments(query);
-    const roleTypes = await CompanyModel.find(query)
-      .skip(skip)
-      .limit(validLimit)
-      .sort({ createdAt: -1 });
+    const pipeline = [
+      {
+        $match: query,
+      },
+      {
+        $sort: { updatedAt: -1 },
+      },
+      {
+        $skip: skip,
+      },
+      {
+        $limit: validLimit,
+      },
+    ];
+    const companies = await CompanyModel.aggregate(pipeline);
     return {
       success: true,
-      data: JSON.stringify(roleTypes),
+      data: JSON.stringify(companies),
       totalCount: totalCountDocuments,
     };
   } catch (error) {
@@ -31,9 +44,10 @@ export async function getCompanies(filterData) {
   }
 }
 
-export const handleCompany = async (data) => {
+export const handleCompany = async (data, id) => {
+  // make artifical  delay
+  // await new Promise((resolve) => setTimeout(resolve, 1000));
   if (!data) return { success: false, message: "No Data Provided" };
-  const id = data?._id;
   try {
     if (id) {
       let company = await CompanyModel.findById(id);
@@ -72,5 +86,41 @@ export const handleCompany = async (data) => {
   } catch (error) {
     console.log("Error in updatin company information by Id ", error);
     return { success: false, message: `Internal Server Error` };
+  }
+};
+
+export const companyStatus = async (data) => {
+  if (!data) return { success: false, message: "Not found" };
+  try {
+    const id = data?.id;
+    const isActive = !data?.status;
+    await CompanyModel.updateOne({ _id: id }, { $set: { isActive } });
+    return {
+      success: true,
+      message: "The Status has been updated successfully",
+    };
+  } catch (error) {
+    console.log(error);
+    return { success: false, message: `Error Occurred in server problem` };
+  }
+};
+
+export const companyDelete = async (data) => {
+  if (!data) return { success: false, message: "Not found" };
+  try {
+    const id = data?.id;
+    const isActive = false;
+    const isDelete = true;
+    await CompanyModel.updateOne(
+      { _id: id },
+      { $set: { isActive, delete: isDelete } }
+    );
+    return {
+      success: true,
+      message: " The Company has been deleted successfully",
+    };
+  } catch (error) {
+    console.log(error);
+    return { success: false, message: `Error Occurred in server problem` };
   }
 };
