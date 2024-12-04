@@ -1,7 +1,6 @@
 "use server";
 
 import { connect } from "@/db/db";
-import AttendanceModel from "@/models/attendanceModel";
 import CompanyModel from "@/models/companyModel";
 import EmployeModel from "@/models/employeModel";
 import OfficeEmployeeModel from "@/models/officeEmployeeModel";
@@ -13,7 +12,7 @@ export const getSelectRoleType = async () => {
     await connect();
     const roles = await RoleTypesModel.aggregate([
       {
-        $match: { delete: false }, // Filters documents where delete is false
+        $match: { delete: false, isActive: true }, // Filters documents where delete is false
       },
       {
         $project: {
@@ -76,7 +75,7 @@ export const getSelectOfficeEmployee = async () => {
     const roles = await OfficeEmployeeModel.aggregate(
       [
         {
-          $match: { delete: false },
+          $match: { delete: false, isActive: true },
         },
         {
           $project: {
@@ -115,7 +114,7 @@ export const getSelectEmployee = async () => {
     const roles = await EmployeModel.aggregate(
       [
         {
-          $match: { delete: false },
+          $match: { delete: false, isActive: true },
         },
         {
           $project: {
@@ -153,7 +152,7 @@ export const getSelectCompanies = async () => {
     await connect();
     const company = await CompanyModel.aggregate([
       {
-        $match: { delete: false }, // Filters documents where delete is false
+        $match: { delete: false, isActive: true }, // Filters documents where delete is false
       },
       {
         $project: {
