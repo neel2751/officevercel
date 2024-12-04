@@ -42,12 +42,7 @@ export const FormInput = ({ field, ...props }) => {
 
   return (
     <div className="space-y-2">
-      <Label
-        className="text-sm font-medium text-neutral-500"
-        htmlFor={field.name}
-      >
-        {field.labelText}
-      </Label>
+      <FormLabel name={field.name} labelText={field.labelText} />
       <Input
         id={field.name}
         type={field.type}
@@ -77,7 +72,7 @@ export const FormSelect = ({ field }) => {
   } = useFormContext();
   return (
     <div className="space-y-2">
-      <Label htmlFor={field.name}>{field.labelText}</Label>
+      <FormLabel name={field.name} labelText={field.labelText} />
       <Controller
         name={field.name}
         control={control}
@@ -113,7 +108,7 @@ export const FormRadio = ({ field }) => {
   } = useFormContext();
   return (
     <div className="space-y-2">
-      <Label className="text-neutral-500">{field.labelText}</Label>
+      <FormLabel name={field.name} labelText={field.labelText} />
       <Controller
         name={field.name}
         control={control}
@@ -211,7 +206,7 @@ export const FormDate = ({ field }) => {
 
   return (
     <div className="space-y-2">
-      <Label htmlFor={field.name}>{field.labelText}</Label>
+      <FormLabel name={field.name} labelText={field.labelText} />
       <Controller
         name={field.name}
         control={control}
@@ -318,7 +313,7 @@ export const SearchableSelect = ({ field }) => {
 
   return (
     <div className="space-y-2">
-      <Label htmlFor={field.name}>{field.labelText}</Label>
+      <FormLabel name={field.name} labelText={field.labelText} />
       <Controller
         name={field.name}
         control={control}
@@ -406,7 +401,7 @@ export const FormTextarea = ({ field, ...props }) => {
   } = useFormContext();
   return (
     <div className="space-y-2">
-      <Label htmlFor={field.name}>{field.labelText}</Label>
+      <FormLabel name={field.name} labelText={field.labelText} />
       <Textarea
         id={field.name}
         placeholder={field.placeholder}
@@ -436,7 +431,7 @@ export const FormImageUpload = ({ field }) => {
 
   return (
     <div className="space-y-2">
-      <Label htmlFor={field.name}>{field.labelText}</Label>
+      <FormLabel name={field.name} labelText={field.labelText} />
       <Controller
         name={field.name}
         control={control}
@@ -589,12 +584,13 @@ export const FormMultiInput = ({ field }) => {
               }}
               render={({ field: { onChange, value, name } }) => (
                 <div className="space-y-1">
-                  <Label
+                  {/* <Label
                     className="text-sm font-medium text-neutral-500"
                     htmlFor={field?.name}
                   >
                     {field?.labelText}
-                  </Label>
+                  </Label> */}
+                  <FormLabel name={field.name} labelText={field.labelText} />
                   <Input
                     type={field.inputType}
                     placeholder={field?.placeholder}
@@ -653,6 +649,14 @@ export const FormMultiInput = ({ field }) => {
           </p>
         )}
     </div>
+  );
+};
+
+const FormLabel = ({ name, labelText }) => {
+  return (
+    <Label className="text-sm font-medium text-neutral-500" htmlFor={name}>
+      {labelText}
+    </Label>
   );
 };
 

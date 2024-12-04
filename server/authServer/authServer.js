@@ -28,6 +28,26 @@ export const LoginData = async (email, password) => {
         status: false,
         message: "Your account is Inactive! Please contact Admin...",
       };
+    // we have to check if british check endDate other wise check endDate and visaEndDate
+    if (foundData.immigrationType === "British") {
+      if (foundData.endDate < new Date()) {
+        return {
+          status: false,
+          message: "Your EndDate has expired. Please contact Admin...",
+        };
+      }
+    } else {
+      if (
+        foundData.endDate < new Date() ||
+        foundData.visaEndDate < new Date()
+      ) {
+        return {
+          status: false,
+          message: "Your visa has expired. Please contact Admin...",
+        };
+      }
+    }
+
     // Check Password
     const isMatch = await isMatchedPassword(password, foundData.password);
     if (!isMatch)

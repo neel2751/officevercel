@@ -12,6 +12,7 @@ import { format } from "date-fns";
 import React from "react";
 
 const EmployeeSheet = ({ item }) => {
+  console.log(item);
   const employeData = [
     {
       label: "Employee ID",
@@ -39,7 +40,7 @@ const EmployeeSheet = ({ item }) => {
     },
     {
       label: "Immigration Category",
-      value: item.immigrationCategory,
+      value: item.immigrationCategory || "-",
     },
     {
       label: "Join Date",
@@ -51,15 +52,21 @@ const EmployeeSheet = ({ item }) => {
     },
     {
       label: "Visa Start  Date",
-      value: item.visaStartDate
-        ? format(item.visaStartDate || new Date(), "PPP")
-        : "N/A",
+      value:
+        item?.immigrationType === "British"
+          ? "-"
+          : item.visaStartDate
+          ? format(item.visaStartDate || new Date(), "PPP")
+          : "N/A",
     },
     {
       label: "Visa End Date",
-      value: item.visaEndDate
-        ? format(item.visaEndDate || new Date(), "PPP")
-        : "N/A",
+      value:
+        item?.immigrationType === "British"
+          ? "-"
+          : item.visaEndDate
+          ? format(item.visaEndDate || new Date(), "PPP")
+          : "N/A",
     },
     {
       label: "Employee Status",
