@@ -2,6 +2,7 @@
 import { connect } from "@/db/db";
 import OfficeEmployeeModel from "@/models/officeEmployeeModel";
 import bcrypt from "bcryptjs";
+import mongoose from "mongoose";
 
 export const handleOfficeEmployee = async (data, id) => {
   // make dealy for  testing
@@ -88,6 +89,7 @@ export const handleOfficeEmployee = async (data, id) => {
 export const getOfficeEmployee = async (filterData) => {
   try {
     await connect();
+    const MongooseId = mongoose.Types.ObjectId;
     const sanitizedSearch = filterData?.query?.trim() || ""; // Ensure search is a string
     // const searchRegex = new RegExp(sanitizedSearch, "i"); // Create a case-ins ensitive regex
     const validPage = parseInt(filterData?.page || 1);
@@ -97,12 +99,15 @@ export const getOfficeEmployee = async (filterData) => {
     const filterType = filterData?.filter?.type;
     const skip = (validPage - 1) * validLimit;
     const query = { delete: false };
-    if (roleTypeFilter) {
-      query.department = roleTypeFilter;
-    }
-    if (companyFilter) {
-      query.company = companyFilter;
-    }
+
+    const roleTypeFilterQuery = roleTypeFilter
+      ? { "departments._id": new MongooseId(roleTypeFilter) } // Field for department filter
+      : {};
+
+    const companyFilterQuery = companyFilter
+      ? { "companys._id": new MongooseId(companyFilter) } // Field for company filter
+      : {};
+
     if (filterType) {
       query.immigrationType = filterType;
     }
@@ -132,6 +137,12 @@ export const getOfficeEmployee = async (filterData) => {
           localField: "department",
           foreignField: "_id",
           as: "departments",
+        },
+      },
+      {
+        $match: {
+          ...roleTypeFilterQuery,
+          ...companyFilterQuery,
         },
       },
       {
