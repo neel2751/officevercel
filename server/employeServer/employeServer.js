@@ -1,5 +1,4 @@
 "use server";
-
 import { connect } from "@/db/db";
 import EmployeModel from "@/models/employeModel";
 
@@ -8,8 +7,16 @@ export const getAllEmployees = async (filterData) => {
   // const searchRegex = new RegExp(sanitizedSearch, "i"); // Create a case-ins ensitive regex
   const validPage = parseInt(filterData?.page || 1);
   const validLimit = parseInt(filterData?.pageSize || 10);
+  const paymentType = filterData?.filter?.employeType;
+  const immigrationType = filterData?.filter?.type;
   const skip = (validPage - 1) * validLimit;
   const query = { delete: false };
+  if (paymentType) {
+    query.paymentType = paymentType;
+  }
+  if (immigrationType) {
+    query.immigrationType = immigrationType;
+  }
   if (sanitizedSearch) {
     query.$or = [
       { firstName: { $regex: sanitizedSearch, $options: "i" } },
@@ -20,21 +27,32 @@ export const getAllEmployees = async (filterData) => {
   }
   try {
     const totalEmployees = await EmployeModel.countDocuments(query);
-    const filterData = await EmployeModel.find(query)
-      .skip(skip)
-      .limit(validLimit)
-      .sort({ createdAt: -1 })
-      .lean()
-      .exec();
+
+    const pipeline = [
+      {
+        $match: query,
+      },
+      {
+        $sort: {
+          createdAt: -1,
+        },
+      },
+      {
+        $skip: skip,
+      },
+      {
+        $limit: validLimit,
+      },
+    ];
+
+    const employees = await EmployeModel.aggregate(pipeline);
     // RangeError handling  for empty array
-    if (!filterData || !Array.isArray(filterData))
-      return { success: false, message: "No employees found" };
+    if (!filterData) return { success: false, message: "No employees found" };
     const data = {
       success: true,
       totalCount: totalEmployees,
-      data: JSON.stringify(filterData),
+      data: JSON.stringify(employees),
     };
-
     return data;
   } catch (err) {
     return {
@@ -43,10 +61,10 @@ export const getAllEmployees = async (filterData) => {
     };
   }
 };
-export const handleEmploye = async (data, isChecked) => {
+
+export const handleEmploye = async (data, isChecked, id) => {
   if (!data) return { status: false, message: "Please Provide Informations" };
   // if (!images) return { status: true, message: "success" };
-  const id = data?._id;
   const payRateValidation = /^([1-9][\d]{0,7})(\.\d{0,2})?$/; // 1.5 or 15.68 or .34 only
   const Payrate = payRateValidation.test(String(Number(data?.payRate)));
   if (Payrate === false) return { status: false, message: "Invalid Pay Rate" };
@@ -203,5 +221,46 @@ const EmployePhoneAndEmailExists = async (id, phone, email) => {
     }
   } catch (err) {
     console.log(err);
+  }
+};
+
+export const employeeStatus = async (data) => {
+  if (!data) return { success: false, message: "Not found" };
+  try {
+    const id = data?.id;
+    const isActive = !data?.status;
+    const statusDate = data.status ? new Date() : null;
+    await EmployeModel.updateOne(
+      { _id: id },
+      { $set: { isActive, statusDate } }
+    );
+    return {
+      success: true,
+      message: "The Status of the Assign Project has been Updated",
+    };
+  } catch (error) {
+    console.log(error);
+    return { success: false, message: `Error Occurred in server problem` };
+  }
+};
+
+export const employeeDelete = async (data) => {
+  if (!data) return { success: false, message: "Not found" };
+  try {
+    const id = data?.id;
+    const isActive = false;
+    const isDelete = true;
+    const statusDate = new Date();
+    await EmployeModel.updateOne(
+      { _id: id },
+      { $set: { isActive, delete: isDelete, statusDate } }
+    );
+    return {
+      success: true,
+      message: "The  Status of the Assign Project has been Updated",
+    };
+  } catch (error) {
+    console.log(error);
+    return { success: false, message: `Error Occurred in server problem` };
   }
 };

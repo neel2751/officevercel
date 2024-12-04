@@ -164,6 +164,7 @@ export const EMPLOYEFIELD = [
     validationOptions: {
       required: " UTR  number is required",
       pattern: {
+        // extact  10 digits
         value: /^\d{10}$/i,
         message: "Must be exactly 10 digits",
       },

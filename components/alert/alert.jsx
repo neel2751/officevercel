@@ -1,8 +1,8 @@
-import { X } from "lucide-react";
+import { Loader, X } from "lucide-react";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 
-export default function Alert({ label, open, onClose, onConfirm }) {
+export default function Alert({ label, open, onClose, onConfirm, isPending }) {
   return (
     <div
       className={`${
@@ -15,15 +15,17 @@ export default function Alert({ label, open, onClose, onConfirm }) {
         } md:max-w-md md:w-full m-3 md:mx-auto`}
       >
         <div className="relative flex flex-col bg-white border shadow-sm rounded-xl overflow-hidden">
-          <div onClick={onClose} className="absolute top-2 end-2">
-            <Button
-              variant="outline"
-              size="icon"
-              className="rounded-full size-4 p-3"
-            >
-              <X />
-            </Button>
-          </div>
+          {/* <div onClick={onClose} className="absolute top-2 end-2"> */}
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={onClose}
+            disabled={isPending}
+            className="rounded-full size-4 p-3 absolute top-2 end-2"
+          >
+            <X />
+          </Button>
+          {/* </div> */}
 
           <div className="p-4 sm:p-10 overflow-y-auto">
             <div className="flex gap-x-4 md:gap-x-7">
@@ -62,10 +64,16 @@ export default function Alert({ label, open, onClose, onConfirm }) {
           </div>
 
           <div className="flex justify-end items-center gap-x-2 py-3 px-4  border-t">
-            <Button onClick={onClose} variant="outline" size="sm">
+            <Button
+              disabled={isPending}
+              onClick={onClose}
+              variant="outline"
+              size="sm"
+            >
               Cancel
             </Button>
             <Button
+              disabled={isPending}
               onClick={onConfirm}
               className={cn(
                 label?.type === "Delete"
@@ -75,7 +83,15 @@ export default function Alert({ label, open, onClose, onConfirm }) {
               variant="solid"
               size="sm"
             >
-              {label?.type === "Delete" ? label?.type : "Update"}
+              {isPending ? (
+                <>
+                  <Loader className="animate-spin" />
+                  Wait
+                </>
+              ) : (
+                label?.type
+              )}
+              {/* {label?.type === "Delete" ? label?.type : "Update"} */}
             </Button>
           </div>
         </div>

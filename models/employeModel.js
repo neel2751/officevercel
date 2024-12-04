@@ -135,6 +135,9 @@ const employeSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    statusDate: {
+      type: Date,
+    },
     delete: {
       type: Boolean,
       default: false,

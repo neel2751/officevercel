@@ -49,7 +49,7 @@ export const FormInput = ({ field, ...props }) => {
         placeholder={field.placeholder}
         {...register(field.name, {
           ...field.validationOptions,
-          valueAsNumber: field.type === "number",
+          // valueAsNumber: field.type === "number",
         })}
         {...props}
       />

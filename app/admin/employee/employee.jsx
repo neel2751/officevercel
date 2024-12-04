@@ -12,59 +12,61 @@ import { isFuture } from "date-fns";
 import { Plus } from "lucide-react";
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import EmployeeForm from "../officeEmployee/employeeForm";
 import EmployeTabel from "./employeTable";
 import {
+  employeeDelete,
+  employeeStatus,
   getAllEmployees,
   handleEmploye,
 } from "@/server/employeServer/employeServer";
 import { EMPLOYEFIELD } from "@/data/fields/fields";
 import Pagination from "@/lib/pagination";
 import { getSelectProjects } from "@/server/selectServer/selectServer";
-import { useFetchSelectQuery } from "@/hooks/use-query";
+import { useFetchQuery, useFetchSelectQuery } from "@/hooks/use-query";
 import { CommonContext } from "@/context/commonContext";
-import { GlobalForm } from "@/components/form/form";
+import { useSubmitMutation } from "@/hooks/use-mutate";
+import EmployeeForm from "../officeEmployee/employeeForm";
+import Alert from "@/components/alert/alert";
+import { SelectFilter } from "@/components/selectFilter/selectFilter";
 
-const Emplyee = ({ searchParams }) => {
+const Employee = ({ searchParams }) => {
   const currentPage = parseInt(searchParams.page || "1");
   const pagePerData = parseInt(searchParams.pageSize || "10");
   const [initialValues, setInitialValues] = useState({});
   const [open, setOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
+  const [alert, setAlert] = useState({});
   const [isChecked, setIsChecked] = useState(false);
+  const [filter, setFilter] = useState({
+    type: "",
+    employeType: "",
+  });
+  const query = searchParams.query;
+  const queryKey = ["employee", { query, currentPage, pagePerData, filter }];
 
-  const queryClient = useQueryClient();
   const { data: selectSiteProject = [] } = useFetchSelectQuery({
     queryKey: ["selectSiteProject"],
     fetchFn: getSelectProjects,
   });
 
-  const query = searchParams.query;
   const {
     data: queryResult,
     isLoading,
     isError,
-  } = useQuery({
-    queryKey: ["employee", { query, currentPage, pagePerData }],
-    keepPreviousData: true,
-    queryFn: async () => {
-      const response = await getAllEmployees({
-        page: currentPage,
-        pageSize: pagePerData,
-        query: query,
-      });
-      const parsedData = JSON.parse(response?.data);
-
-      return {
-        officeEmployeeData: parsedData || [],
-        totalCount: response?.totalCount || 0,
-      };
+  } = useFetchQuery({
+    params: {
+      query,
+      page: currentPage,
+      pageSize: pagePerData,
+      filter,
     },
-    staleTime: 1000 * 60 * 10,
+    queryKey,
+    fetchFn: getAllEmployees,
   });
-  const { officeEmployeeData = [], totalCount = 0 } = queryResult || {};
+
+  const { newData: officeEmployeeData = [], totalCount = 0 } =
+    queryResult || {};
 
   const field = EMPLOYEFIELD.map((item) => {
     if (item.name === "projectSite") {
@@ -80,53 +82,20 @@ const Emplyee = ({ searchParams }) => {
     setInitialValues({});
     setOpen(false);
   };
-  const handleSubmit = useMutation({
-    mutationFn: async (data) => {
-      return await handleEmploye(data, isChecked);
-      //   return await handleOfficeEmployee(data);
-    },
-    onSuccess: (response) => {
-      if (response?.success) {
-        queryClient.invalidateQueries([
-          "employee",
-          { query, currentPage, pagePerData },
-          { exact: true },
-        ]);
-        toast.success(
-          `Employee ${initialValues._id ? "Updated" : "Create"} successfully`
-        );
-        initialValues._id ? handleEditClose() : handleClose();
-      } else {
-        throw new Error(response.message);
-      }
-    },
-    onError: (error) => {
-      console.log("Error", error);
-      toast.error(`${error}`);
-      console.log("Error fetching options", error);
-    },
-  });
-  const onSubmit = (data) => {
-    if (!isFuture(new Date(data.eVisaExp))) {
-      return toast.error("Visa Expiry should be greater than start date");
-    }
-    if (isChecked) {
-      if (data?.payRate === initialValues?.payRate) {
-        return toast.error(
-          " Pay Rate should be different than previous one,  if you want to update"
-        );
-      }
-      const confir = confirm(" Are you sure you want to submit this form?");
-      if (confir) {
-        handleSubmit.mutate(data);
-      } else {
-        return;
-      }
-    } else {
-      handleSubmit.mutate(data);
-    }
-    // handleSubmit.mutate(data);
+
+  const handleEditClose = () => {
+    setInitialValues({});
+    setIsEdit(false);
   };
+
+  const { mutate: handleSubmit, isPending } = useSubmitMutation({
+    mutationFn: async (data) =>
+      await handleEmploye(data, isChecked, initialValues?._id),
+    invalidateKey: queryKey,
+    onSuccessMessage: (response) => `${response}`,
+    onClose: initialValues._id ? handleEditClose : handleClose,
+  });
+
   const handleEdit = (item) => {
     const { eAddress, bankDetail } = item;
     const newItem = {
@@ -142,10 +111,49 @@ const Emplyee = ({ searchParams }) => {
     setInitialValues(newItem);
     setIsEdit(true);
   };
-  const handleEditClose = () => {
-    setInitialValues({});
-    setIsEdit(false);
+  const onSubmit = (data) => {
+    if (data?.visaEndDate && !isFuture(new Date(data.eVisaExp))) {
+      return toast.error("Visa Expiry should be greater than start date");
+    }
+    if (isChecked) {
+      if (data?.payRate === initialValues?.payRate) {
+        return toast.error(
+          " Pay Rate should be different than previous one,  if you want to update"
+        );
+      }
+      const confir = confirm(" Are you sure you want to submit this form?");
+      if (confir) {
+        handleSubmit(data);
+      } else {
+        return;
+      }
+    } else {
+      handleSubmit(data);
+    }
   };
+
+  const alertClose = () => {
+    setAlert({});
+  };
+
+  const { mutate: handleStatus, isPending: isStatusPending } =
+    useSubmitMutation({
+      mutationFn: async () =>
+        alert?.type === "Delete"
+          ? await employeeDelete(alert)
+          : await employeeStatus(alert),
+      invalidateKey: queryKey,
+      onSuccessMessage: (response) =>
+        `${
+          alert.type === "Delete" ? "Employee Delete" : "Status Update"
+        } successfully`,
+      onClose: alertClose,
+    });
+
+  const handleAlert = (id, type, status) => {
+    setAlert({ id, type, status });
+  };
+
   const handleOpen = () => {
     setInitialValues({});
     setOpen(true);
@@ -156,7 +164,7 @@ const Emplyee = ({ searchParams }) => {
       <CommonContext.Provider
         value={{
           officeEmployeeData,
-          handleSubmit,
+          isPending,
           onSubmit,
           field,
           setInitialValues,
@@ -164,6 +172,7 @@ const Emplyee = ({ searchParams }) => {
           handleEdit,
           handleEditClose,
           isEdit,
+          handleAlert,
           setIsEdit,
           isChecked,
           setIsChecked,
@@ -176,11 +185,47 @@ const Emplyee = ({ searchParams }) => {
           <Card>
             <CardHeader>
               <div className="mb-4">
-                <CardTitle>Office Employee</CardTitle>
+                <CardTitle>Employee List</CardTitle>
               </div>
               <div className="flex items-center justify-between">
                 <SearchDebounce />
                 <div className="flex gap-2">
+                  <SelectFilter
+                    value={filter.employeType}
+                    frameworks={[
+                      { label: "All", value: "" },
+                      {
+                        label: "Monthly",
+                        value: "Monthly",
+                      },
+                      {
+                        label: "Weekly",
+                        value: "Weekly",
+                      },
+                    ]}
+                    placeholder={
+                      filter.employeType === "" ? "All" : "Select Type"
+                    }
+                    onChange={(e) => setFilter({ ...filter, employeType: e })}
+                    noData="No Data found"
+                  />
+                  <SelectFilter
+                    value={filter.type}
+                    frameworks={[
+                      { label: "All", value: "" },
+                      {
+                        label: "British",
+                        value: "British",
+                      },
+                      {
+                        label: "Immigrant",
+                        value: "Immigrant",
+                      },
+                    ]}
+                    placeholder={filter.type === "" ? "All" : "Select Type"}
+                    onChange={(e) => setFilter({ ...filter, type: e })}
+                    noData="No Data found"
+                  />
                   <Button onClick={handleOpen}>
                     <Plus />
                     Add
@@ -193,10 +238,7 @@ const Emplyee = ({ searchParams }) => {
                           Please fill the form to add new role
                         </DialogDescription>
                       </DialogHeader>
-                      <GlobalForm
-                        fields={EMPLOYEFIELD}
-                        initialValues={initialValues}
-                      />
+                      <EmployeeForm />
                     </DialogContent>
                   </Dialog>
                 </div>
@@ -220,10 +262,18 @@ const Emplyee = ({ searchParams }) => {
               )}
             </CardContent>
           </Card>
+          <Alert
+            open={alert?.type ? true : false}
+            label={alert}
+            setOpen={setAlert}
+            onClose={alertClose}
+            onConfirm={handleStatus}
+            isPending={isStatusPending}
+          />
         </div>
       </CommonContext.Provider>
     </div>
   );
 };
 
-export default Emplyee;
+export default Employee;
