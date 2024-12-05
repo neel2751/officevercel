@@ -31,6 +31,9 @@ import Pagination from "@/lib/pagination";
 import Alert from "@/components/alert/alert";
 
 const SiteAssign = ({ searchParams }) => {
+  const query = searchParams?.query;
+  const currentPage = parseInt(searchParams?.page || "1");
+  const pagePerData = parseInt(searchParams?.pageSize || "10");
   const [open, setOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [initialValues, setInitialValues] = useState({});
@@ -40,13 +43,12 @@ const SiteAssign = ({ searchParams }) => {
     queryKey: ["selectSiteProject"],
     fetchFn: getSelectProjects,
   });
+
   const { data: selectOfficeEmployee = [] } = useFetchSelectQuery({
     queryKey: ["selectOfficeEmployee"],
     fetchFn: getSelectOfficeEmployee,
   });
-  const currentPage = parseInt(searchParams?.page || "1");
-  const pagePerData = parseInt(searchParams?.pageSize || "10");
-  const query = searchParams?.query;
+
   const queryKey = ["siteAssignManager", { currentPage, pagePerData, query }];
   const { data, isLoading, isError } = useFetchQuery({
     params: {
@@ -74,12 +76,11 @@ const SiteAssign = ({ searchParams }) => {
 
   const handleClose = () => {
     setOpen(false);
-    setIsEdit(false);
     setInitialValues({});
   };
   const handleOpen = () => {
-    setInitialValues({});
     setOpen(true);
+    setInitialValues({});
   };
 
   const alertClose = () => {
@@ -89,24 +90,34 @@ const SiteAssign = ({ searchParams }) => {
     setIsEdit(true);
     setInitialValues(item);
   };
-  const { mutate: handleSubmit } = useSubmitMutation({
-    mutationFn: async (data) => await handleSiteAssignManager(data),
+
+  const handleEditClose = () => {
+    setIsEdit(false);
+    setInitialValues({});
+  };
+
+  const { mutate: handleSubmit, isPending } = useSubmitMutation({
+    mutationFn: async (data) =>
+      await handleSiteAssignManager(data, initialValues._id),
     invalidateKey: queryKey,
     onSuccessMessage: (response) =>
-      `Employee ${initialValues._id ? "Updated" : "Created"} successfully`,
-    onClose: handleClose,
+      `Site Assign${initialValues._id ? "Updated" : ""} successfully`,
+    onClose: initialValues._id ? handleEditClose : handleClose,
   });
 
-  const { mutate: handleStatus } = useSubmitMutation({
-    mutationFn: async () =>
-      alert?.type === "Delete"
-        ? await handleSiteAssignManagerDelete(alert)
-        : await handleSiteAssignManagerStatus(alert),
-    invalidateKey: queryKey,
-    onSuccessMessage: (response) =>
-      `Status ${alert.id ? "Updated" : "Created"} successfully`,
-    onClose: alertClose,
-  });
+  const { mutate: handleStatus, isPending: isPendingStatus } =
+    useSubmitMutation({
+      mutationFn: async () =>
+        alert?.type === "Delete"
+          ? await handleSiteAssignManagerDelete(alert)
+          : await handleSiteAssignManagerStatus(alert),
+      invalidateKey: queryKey,
+      onSuccessMessage: (response) =>
+        `${
+          alert.type === "Delete" ? "Deleted Site Assign" : "Status Updated"
+        } successfully`,
+      onClose: alertClose,
+    });
 
   const handleAlert = (id, type, status) => {
     setAlert({ id, type, status });
@@ -124,9 +135,12 @@ const SiteAssign = ({ searchParams }) => {
           totalCount,
           field: updatedRoleField,
           initialValues,
+          isEdit,
+          setIsEdit,
           handleEdit,
+          handleEditClose,
           onSubmit,
-          handleSubmit,
+          isPending,
           currentPage,
           pagePerData,
           totalCount,
@@ -145,12 +159,16 @@ const SiteAssign = ({ searchParams }) => {
                   <Plus />
                   Add
                 </Button>
-                <Dialog open={open} onOpenChange={handleClose}>
+                <Dialog
+                  open={open}
+                  onOpenChange={handleClose}
+                  className="bg-black/80"
+                >
                   <DialogContent className="sm:max-w-2xl max-h-max">
                     <DialogHeader>
-                      <DialogTitle>Add New Role</DialogTitle>
+                      <DialogTitle>Add New Site Assign</DialogTitle>
                       <DialogDescription>
-                        Please fill the form to add new role
+                        Please fill the form to add new site assign
                       </DialogDescription>
                     </DialogHeader>
                     <EmployeeForm />
@@ -180,6 +198,7 @@ const SiteAssign = ({ searchParams }) => {
           setOpen={setAlert}
           onClose={alertClose}
           onConfirm={handleStatus}
+          isPending={isPendingStatus}
         />
       </CommonContext.Provider>
     </div>

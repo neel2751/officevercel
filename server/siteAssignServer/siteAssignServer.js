@@ -8,7 +8,7 @@ export async function getAllSiteAssign(filterData) {
   const validPage = parseInt(filterData?.page || 1);
   const validLimit = parseInt(filterData?.pageSize || 10);
   const skip = (validPage - 1) * validLimit;
-  const query = { delete: false };
+  const query = { isDelete: false };
   if (sanitizedSearch) {
     query.$or = [
       { "role.name": { $regex: sanitizedSearch, $options: "i" } },
@@ -83,29 +83,26 @@ export async function getAllSiteAssign(filterData) {
   }
 }
 
-export async function handleSiteAssignManager(data) {
+export async function handleSiteAssignManager(data, id) {
   if (!data) return { success: false, message: "No data provided" };
   //Checking if the site id and user id are valid
-  const id = data?._id;
   try {
     // check if employed id and  site id exists in database with status true and delete false to already assigned error
     const proId = data?.projectSiteID;
     const rolId = data.roleId;
-    const siteData = await isSiteandNameisExists(id, proId, rolId);
-    if (siteData?.success === false)
-      return { success: siteData.success, message: siteData.message };
+    const siteData = await isSiteandNameisExists(id, proId);
+    if (siteData?.success === false) return siteData;
     //Getting the site information to check if it exists
     const siteInfo = await getSiteById(proId);
-    if (!siteInfo?.success)
-      return { success: siteInfo.success, message: siteInfo.message };
+    if (!siteInfo?.success) return siteInfo;
 
     const employeInfo = await getEmployeById(rolId);
     if (!employeInfo?.success)
       return { success: false, message: `Failed to retrieve employee` };
 
     const info = JSON.parse(employeInfo?.data);
-    const password = info.password;
-    const email = info.email;
+    const password = info?.password;
+    const email = info?.email;
     if (id) {
       const updateAssign = {
         password,
@@ -123,14 +120,12 @@ export async function handleSiteAssignManager(data) {
         return { success: false, message: "Faild to Update Assign..." };
       return {
         success: true,
-        message: `The Project has  been updated Successfully`,
+        message: `The Project has been updated Successfully`,
       };
     } else {
       // generate the Random Interger using  crypto
       const loginSiteId = crypto.randomUUID();
       //   const loginSiteId = randomInt(1000000, 9999999).toString();
-
-      console.log("crypto number", loginSiteId);
       const assignData = { ...data, loginSiteId, email, password };
 
       const result = await assignSiteData(assignData);
@@ -156,35 +151,37 @@ const assignSiteData = async (assignData) => {
   }
 };
 
-const isSiteandNameisExists = async (id, projectSiteID, roleId) => {
+const isSiteandNameisExists = async (id, projectSiteID) => {
   try {
     if (!id) {
-      const existingAssignment = await SiteAssignManagerModel.findOne({
-        roleId: roleId,
-        isActive: true,
-      });
-      if (existingAssignment)
-        return { success: false, message: "This Role already assigned" };
+      // const existingAssignment = await SiteAssignManagerModel.findOne({
+      //   roleId: roleId,
+      //   // isActive: true,
+      // });
+      // if (existingAssignment)
+      //   return { success: false, message: "This Role already assigned" };
       const existingSite = await SiteAssignManagerModel.findOne({
         projectSiteID: projectSiteID,
-        isActive: true,
+        // isActive: true,
       });
       if (existingSite) {
-        return { success: false, message: "This Site is already assigned." };
+        return { success: false, message: "This Site is Already Assigned." };
       }
       return true;
     }
     if (id) {
-      const existingAssignment = await SiteAssignManagerModel.findOne({
-        projectSiteID: projectSiteID,
-        roleId: { $ne: roleId }, // Ensure employeeId is not the same
-        isActive: true,
+      const existingAssignment = await SiteAssignManagerModel.find({
+        projectSiteID: projectSiteID, // exclude the current project site
+        _id: { $ne: id }, // Exclude the current assignment
       });
-      if (existingAssignment) {
-        return { success: false, message: "Site is already Assign" }; // Site is not assigned to the employee or not active
+      if (existingAssignment.length > 0) {
+        return {
+          success: false,
+          message: "This Site Already Assigned Another Role.",
+        };
       }
+      return true;
     }
-    return true;
   } catch (error) {
     console.log("this error come from isSiteandNameisExists", error);
     return { success: false, message: "Error checking while Assignment" };

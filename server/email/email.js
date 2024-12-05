@@ -117,6 +117,7 @@ function templateForSession(data) {
         <p>We detected a new login to your account:</p>
         <p><strong>IP Address:</strong> ${data?.ipAddress ?? ""}</p>
         <p><strong>Device:</strong>  ${data?.device ?? ""}</p>
+        <p><strong>City:</strong>  ${data?.city ?? ""}</p>
         <p><strong>Country:</strong>   ${data?.country ?? ""}</p>
         <p><strong>Browser:</strong>  ${data?.browser ?? ""}</p>
         <p><strong>Login Time:</strong> ${new Date()}</p>
