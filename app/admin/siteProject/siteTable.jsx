@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -25,10 +24,11 @@ import { useCommonContext } from "@/context/commonContext";
 
 const SiteTable = () => {
   const {
-    officeEmployeeData: data,
+    siteProjectData: data,
     handleEdit,
     isEdit,
     setIsEdit,
+    handleAlert,
   } = useCommonContext();
   return (
     <>
@@ -60,7 +60,13 @@ const SiteTable = () => {
                 <Status title={item?.status} />
               </TableCell>
               <TableCell>
-                <TableStatus isActive={item?.isActive} />
+                <div
+                  onClick={() =>
+                    handleAlert(item?._id, "Update", item?.isActive)
+                  }
+                >
+                  <TableStatus isActive={item?.isActive} />
+                </div>
               </TableCell>
               <TableCell>{format(new Date(item?.createdAt), "PPP")}</TableCell>
               <TableCell>
@@ -77,7 +83,7 @@ const SiteTable = () => {
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-xl max-h-max">
                       <DialogHeader>
-                        <DialogTitle>Edit New Role</DialogTitle>
+                        <DialogTitle>Edit Site</DialogTitle>
                         <DialogDescription>
                           Make changes to here. Click update when you're done.
                         </DialogDescription>
@@ -85,7 +91,13 @@ const SiteTable = () => {
                       <EmployeeForm />
                     </DialogContent>
                   </Dialog>
-                  <Button variant="outline" size="icon">
+                  <Button
+                    onClick={() =>
+                      handleAlert(item?._id, "Delete", item?.isActive)
+                    }
+                    variant="outline"
+                    size="icon"
+                  >
                     <Trash2 className="text-rose-600" />
                   </Button>
                 </div>

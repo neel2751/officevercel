@@ -42,9 +42,9 @@ export const getSelectProjects = async () => {
   try {
     await connect();
     const roles = await ProjectSiteModel.aggregate([
-      // {
-      //   $match: { siteDelete: false }, // Filters documents where delete is false
-      // },
+      {
+        $match: { siteDelete: false, isActive: true }, // Filters documents where delete is false
+      },
       {
         $project: {
           _id: 0,
