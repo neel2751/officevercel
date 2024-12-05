@@ -41,6 +41,9 @@ const projectSiteSchema = new mongoose.Schema(
       type: Number,
       required: false,
     },
+    statusDate: {
+      type: Date,
+    },
     siteDelete: {
       type: Boolean,
       default: false,

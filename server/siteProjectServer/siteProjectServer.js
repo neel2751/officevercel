@@ -1,5 +1,4 @@
 "use server";
-
 import { connect } from "@/db/db";
 import ProjectSiteModel from "@/models/siteProjectModel";
 
@@ -11,8 +10,12 @@ export const searchSiteProjectByKeywordNew = async (filterData) => {
     const validPage = parseInt(filterData?.page || 1);
     const validLimit = parseInt(filterData?.pageSize || 10);
     const skip = (validPage - 1) * validLimit;
+    const siteType = filterData?.filter?.type;
     // const query = { delete: false };
-    const query = {};
+    const query = { siteDelete: false };
+    if (siteType) {
+      query.siteType = siteType;
+    }
     if (sanitizedSearch) {
       query.$or = [
         { siteName: { $regex: sanitizedSearch, $options: "i" } },
@@ -24,15 +27,26 @@ export const searchSiteProjectByKeywordNew = async (filterData) => {
     await connect();
     const totalCountDocuments = await ProjectSiteModel.countDocuments(query);
 
-    const DBdata = await ProjectSiteModel.find(query)
-      .skip(skip)
-      .limit(validLimit)
-      .sort({ createdAt: -1 })
-      .lean()
-      .exec();
+    const pipleline = [
+      {
+        $match: query,
+      },
+      {
+        $skip: skip,
+      },
+      {
+        $limit: validLimit,
+      },
+      {
+        $sort: {
+          createdAt: -1,
+        },
+      },
+    ];
+    const result = await ProjectSiteModel.aggregate(pipleline);
     return {
       success: true,
-      data: JSON.stringify(DBdata),
+      data: JSON.stringify(result),
       totalCount: totalCountDocuments,
     };
   } catch (error) {
@@ -42,8 +56,7 @@ export const searchSiteProjectByKeywordNew = async (filterData) => {
 };
 
 // # UPDATE A SPECIFIC SITE PROJECT INFORMATION BY ID
-export const updateSiteProjectById = async (data) => {
-  const id = data?._id;
+export const updateSiteProjectById = async (data, id) => {
   try {
     await connect();
     if (id) {
@@ -78,5 +91,46 @@ export const getSiteById = async (siteId) => {
   } catch (error) {
     console.log(`Error in getting site by id ${error}`);
     return { success: false, message: "Error in getting site by id" };
+  }
+};
+
+export const siteProjectStatus = async (data) => {
+  if (!data) return { success: false, message: "Not found" };
+  try {
+    const id = data?.id;
+    const isActive = !data?.status;
+    const statusDate = data.status ? new Date() : null;
+    await ProjectSiteModel.updateOne(
+      { _id: id },
+      { $set: { isActive, statusDate } }
+    );
+    return {
+      success: true,
+      message: "The Status of the Site Project has been Updated",
+    };
+  } catch (error) {
+    console.log(error);
+    return { success: false, message: `Error Occurred in server problem` };
+  }
+};
+
+export const siteProjectDelete = async (data) => {
+  if (!data) return { success: false, message: "Not found" };
+  try {
+    const id = data?.id;
+    const isActive = false;
+    const isDelete = true;
+    const statusDate = new Date();
+    await ProjectSiteModel.updateOne(
+      { _id: id },
+      { $set: { isActive, delete: isDelete, statusDate } }
+    );
+    return {
+      success: true,
+      message: "The  Status of the Site Project has been Updated",
+    };
+  } catch (error) {
+    console.log(error);
+    return { success: false, message: `Error Occurred in server problem` };
   }
 };
