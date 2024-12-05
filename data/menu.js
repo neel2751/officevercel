@@ -49,10 +49,10 @@ export const MENU = [
     icon: <Filter className="w-5 h-5" />,
   },
   {
-    name: "SiteAssign",
+    name: "Assign Site Manager ",
     path: "/admin/siteAssign",
     role: ["superAdmin"],
-    icon: <Network className="w-5 h-5" />,
+    icon: <RadioIcon className="w-5 h-5" />,
   },
 
   // {
@@ -69,7 +69,7 @@ export const MENU = [
       { name: "View Shifts", path: "/shiftview/viewshifts" },
       { name: "Add Employee to Shift", path: "/addEmpToShift" },
     ],
-    icon: <RadioIcon className="w-5 h-5" />,
+    icon: <Network className="w-5 h-5" />,
   },
 
   // {
@@ -93,7 +93,7 @@ export const MENU = [
   {
     name: "Company",
     path: "/admin/company",
-    role: ["superAdmin"],
+    role: ["superAdmin", "admin"],
     icon: <Building2 className="h-5 w-5" />,
   },
 ];

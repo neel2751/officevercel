@@ -15,14 +15,14 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash2 } from "lucide-react";
 import EmployeeForm from "../officeEmployee/employeeForm";
+import { format } from "date-fns";
 
 const SiteAssignTable = () => {
-  const { data, totalCount, handleEdit, isEdit, setIsEdit, handleAlert } =
+  const { data, handleEdit, isEdit, handleEditClose, handleAlert } =
     useCommonContext();
   const tabelHead = [
     "id",
@@ -64,23 +64,21 @@ const SiteAssignTable = () => {
                 <TableStatus isActive={item?.isActive} />
               </div>
             </TableCell>
-            <TableCell>{item?.startDate || "-"}</TableCell>
-            <TableCell>{item?.endDate || "-"}</TableCell>
+            <TableCell>{format(item?.startDate, "PPP") || "-"}</TableCell>
+            <TableCell>{format(item?.endDate, "PPP") || "-"}</TableCell>
             <TableCell>
               <div className="flex gap-2">
-                <Dialog open={isEdit} onOpenChange={setIsEdit}>
-                  <DialogTrigger asChild>
-                    <Button
-                      onClick={() => handleEdit(item)}
-                      variant="outline"
-                      size="icon"
-                    >
-                      <Edit className="text-indigo-600" />
-                    </Button>
-                  </DialogTrigger>
+                <Button
+                  onClick={() => handleEdit(item)}
+                  variant="outline"
+                  size="icon"
+                >
+                  <Edit className="text-indigo-600" />
+                </Button>
+                <Dialog open={isEdit} onOpenChange={handleEditClose}>
                   <DialogContent className="sm:max-w-xl max-h-max">
                     <DialogHeader>
-                      <DialogTitle>Edit New Role</DialogTitle>
+                      <DialogTitle>Edit Site Assign</DialogTitle>
                       <DialogDescription>
                         Make changes to here. Click update when you're done.
                       </DialogDescription>
