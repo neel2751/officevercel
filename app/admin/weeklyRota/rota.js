@@ -101,7 +101,7 @@ const Rota = ({ searchParams }) => {
                         <div className="flex gap-2">
                           <span className="inline-flex gap-2">
                             <CheckCheck className="w-4 h-4" />
-                            {item?.approvedStatus}
+                            {item?.approvedStatus} ({item?.approvedCount || 0})
                           </span>
                           <span className="inline-flex gap-2">
                             <User className="w-4 h-4" />
@@ -111,7 +111,6 @@ const Rota = ({ searchParams }) => {
                             <CalendarDays className="w-4 h-4" />
                             {format(item?.submitDate || new Date(), "PPP")}
                           </span>
-                          {item?.approvedCount}
                           <span className="inline-flex gap-2">
                             <CalendarClock className="w-4 h-4" />
                             {format(item?.approvedDate || new Date(), "PPP")}

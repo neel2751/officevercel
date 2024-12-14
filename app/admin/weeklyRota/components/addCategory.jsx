@@ -13,7 +13,7 @@ import React from "react";
 const AddCategory = () => {
   const [open, setOpen] = React.useState(false);
 
-  const { mutate: handleSubmit } = useSubmitMutation({
+  const { mutate: handleSubmit, isPending } = useSubmitMutation({
     mutationFn: async (data) => handleAttendanceCategory(data),
     invalidateKey: ["selectAttendanceCategories"],
     onSuccessMessage: (response) => ` Category created successfully`,
@@ -67,6 +67,7 @@ const AddCategory = () => {
             fields={field}
             onSubmit={handleSubmit}
             btnName={"Add Category"}
+            isLoading={isPending}
           />
         </DialogContent>
       </Dialog>

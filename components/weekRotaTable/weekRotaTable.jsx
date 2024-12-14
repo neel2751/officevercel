@@ -31,7 +31,7 @@ const WeekRotaTable = ({
   memoizedSchedules,
   isLoading,
   queryKey,
-  handleOnClose,
+  handleOnClose = () => {},
 }) => {
   const { data: categories = [] } = useFetchSelectQuery({
     fetchFn: getSelectAttendanceCategory,
@@ -235,11 +235,11 @@ const WeekRotaTable = ({
                   ))}
                   <TableCell>
                     <Button
-                      disabled={isPending}
+                      disabled={isPending || categories.length === 0}
                       type="button"
                       onClick={() => autoFillSchedule(schedule?.employeeId)}
                     >
-                      Auto Fill
+                      {categories.length > 0 ? "Auto Fill" : "No Categories"}
                     </Button>
                   </TableCell>
                 </TableRow>
