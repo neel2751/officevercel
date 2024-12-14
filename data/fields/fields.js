@@ -492,6 +492,23 @@ export const OFFICEFIELD = [
       required: "Immigration Type is required",
     },
   },
+  {
+    name: "employeNI",
+    labelText: "Employee NI",
+    type: "text",
+    placeholder: " Enter Employee NI",
+    size: true,
+    validationOptions: {
+      required: " Employee NI is required",
+      pattern: {
+        // capital  letters and numbers only nine  digits
+        value: /^[A-Z]{2}\d{6}[A-Z]$/i,
+        message: "Must be in the format XX123456X",
+        //   value: /^\d{9}[A-Z]{3}$/i,
+        //   value: /^[0-9]{6}[0-9A-Z]{4}[0-9A-Z]$/i,
+      },
+    },
+  },
 
   {
     name: "immigrationCategory",

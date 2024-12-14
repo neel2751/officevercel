@@ -1,5 +1,9 @@
 "use server";
+import { connect } from "@/db/db";
 import nodemailer from "nodemailer";
+import { getServerSideProps } from "../session/session";
+import EmailWeekRotaReminderModel from "@/models/weekEmailReminderModel";
+import { getSuperAdmins } from "../officeServer/officeServer";
 
 export const sendMail = async (data) => {
   const transporter = nodemailer.createTransport({
@@ -23,6 +27,109 @@ export const sendMail = async (data) => {
     };
     await transporter.sendMail(mailOptions);
     transporter.close();
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const sendMultipleEmail = async (data) => {
+  try {
+    const transporter = nodemailer.createTransport({
+      host: process.env.EMAIL_HOST,
+      port: 587, // or 465
+      secure: false, // or 'STARTTLS' or 'SSL' or 'TLS' or 'auto' (default)
+      auth: {
+        user: process.env.EMAIL_USERNAME,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+      // add TLS
+      // tls: { rejectUnauthorized: false },
+    });
+    const mailOptions = {
+      from: `"Neel✌️" ${process.env.EMAIL_USERNAME}`,
+      to: data?.email ?? "patelneel1732@gmail.com",
+      subject:
+        data?.subject || "Creative Design & Construction Subject by Default",
+      // text: "Hello from Node.js",
+      html: data?.html || templateForSession(data),
+    };
+    const mailResponse = await transporter.sendMail(mailOptions);
+    transporter.close();
+    if (mailResponse.messageId) {
+      return { status: true, message: "Email sent successfully" };
+    }
+  } catch (error) {
+    console.log(error);
+    return {
+      status: false,
+      message: "Error sending email",
+    };
+  }
+};
+
+export const emailWeekRotaReminder = async (weekId, weekDate) => {
+  try {
+    await connect();
+    const { props } = await getServerSideProps();
+    const adminId = props?.session?.user?._id;
+    const adminEmail = props?.session?.user?.email;
+    if (!adminId || !adminEmail)
+      return { success: false, message: "Admin not found" };
+    // we get all the superAdmin to send a reminder
+    const superAdmins = await getSuperAdmins();
+    const emails = superAdmins?.data?.map(({ email }) => email);
+    emails.push(adminEmail);
+    const removeDulicates = [...new Set(emails)];
+
+    const html = `
+    <h1>Week Rota Reminder</h1>
+    <p>Week Rota Reminder for week ${weekId}</p>
+    <p>Week Date: ${weekDate}</p>
+    <p>This is an automated email from Creative Design & Construction</p>
+    <span>Do not Replay  to this email</span>
+    `;
+    const data = {
+      subject: `Please Ignore Email Reminder - Week ${weekId} - ${weekDate}`,
+      email: removeDulicates.join(","),
+      html: html,
+    };
+
+    const emailResponse = await sendMultipleEmail(data);
+
+    if (emailResponse?.status) {
+      const checkAlreadyWeekId = await EmailWeekRotaReminderModel.find({
+        weekId,
+        adminId,
+      });
+
+      const reminderCount = checkAlreadyWeekId?.reminderData?.length + 1 || 1;
+      const reminderData = [
+        {
+          reminderDate: new Date(),
+          reminderWeek: weekDate,
+          reminderEmail: removeDulicates,
+        },
+      ];
+      if (checkAlreadyWeekId.length > 0) {
+        await EmailWeekRotaReminderModel.findByIdAndUpdate(
+          checkAlreadyWeekId[0]._id,
+          {
+            reminderCount,
+            $push: {
+              reminderData: data,
+            },
+          }
+        );
+      } else {
+        const data = {
+          adminId,
+          weekId,
+          reminderData: reminderData,
+          reminderCount: reminderCount,
+        };
+        await EmailWeekRotaReminderModel.create(data);
+      }
+    }
   } catch (error) {
     console.log(error);
   }
