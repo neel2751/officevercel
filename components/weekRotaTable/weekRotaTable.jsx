@@ -249,7 +249,10 @@ const WeekRotaTable = ({
         )}
       </Table>
       <div className="mt-4 flex gap-4">
-        <Button disabled={isLoading || isPending} onClick={submitSchedules}>
+        <Button
+          disabled={isLoading || isPending || categories.length === 0}
+          onClick={submitSchedules}
+        >
           {memoizedSchedules?.weekId ? "Update Schedules" : "Submit Schedules"}
         </Button>
         {/* {memoizedSchedules.role ||
