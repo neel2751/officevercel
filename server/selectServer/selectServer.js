@@ -1,6 +1,7 @@
 "use server";
 
 import { connect } from "@/db/db";
+import AttendanceCategoryModel from "@/models/attendanceCategoryModel";
 import CompanyModel from "@/models/companyModel";
 import EmployeModel from "@/models/employeModel";
 import OfficeEmployeeModel from "@/models/officeEmployeeModel";
@@ -40,7 +41,7 @@ export const getSelectRoleType = async () => {
 
 export const getSelectProjects = async () => {
   try {
-    await connect();
+    // await connect();
     const roles = await ProjectSiteModel.aggregate([
       {
         $match: { siteDelete: false, isActive: true }, // Filters documents where delete is false
@@ -71,7 +72,7 @@ export const getSelectProjects = async () => {
 
 export const getSelectOfficeEmployee = async () => {
   try {
-    await connect();
+    // await connect();
     const roles = await OfficeEmployeeModel.aggregate(
       [
         {
@@ -110,7 +111,7 @@ export const getSelectOfficeEmployee = async () => {
 
 export const getSelectEmployee = async () => {
   try {
-    await connect();
+    // await connect();
     const roles = await EmployeModel.aggregate(
       [
         {
@@ -149,7 +150,7 @@ export const getSelectEmployee = async () => {
 
 export const getSelectCompanies = async () => {
   try {
-    await connect();
+    // await connect();
     const company = await CompanyModel.aggregate([
       {
         $match: { delete: false, isActive: true }, // Filters documents where delete is false
@@ -169,6 +170,35 @@ export const getSelectCompanies = async () => {
       const data = {
         success: true,
         data: roleData,
+      };
+      return data;
+    }
+  } catch (err) {
+    console.log(err);
+    return { success: false, message: "Error Occured" };
+  }
+};
+
+export const getSelectAttendanceCategory = async () => {
+  try {
+    const categories = await AttendanceCategoryModel.aggregate([
+      {
+        $match: { isDeleted: false, isActive: true }, // Filters documents where delete is false
+      },
+      {
+        $project: {
+          _id: 0,
+          value: "$attendanceCategoryValue", // Renames `_id` to `value`
+          label: "$attendanceCategoryName", // Renames `roleTitle` to `name`
+        },
+      },
+    ]).exec();
+    if (!categories || categories.length === 0) {
+      return { success: false, message: "No Data Found" };
+    } else {
+      const data = {
+        success: true,
+        data: JSON.stringify(categories),
       };
       return data;
     }

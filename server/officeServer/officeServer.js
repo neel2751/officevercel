@@ -281,3 +281,23 @@ export const officeEmployeeDelete = async (data) => {
     return { success: false, message: `Error Occurred in server problem` };
   }
 };
+
+export const getSuperAdmins = async () => {
+  try {
+    const allAdmin = await OfficeEmployeeModel.find(
+      { isSuperAdmin: true },
+      { name: 1, email: 1 }
+    );
+    return {
+      success: true,
+      message: "All Super Admins",
+      data: allAdmin,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      message: "Something went wrong",
+    };
+  }
+};

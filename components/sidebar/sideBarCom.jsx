@@ -231,7 +231,7 @@ const SideBarFooterCom = () => {
                 <DropdownMenuItem>
                   <Sparkles className="text-neutral-500" />
                   <span className="text-xs font-medium text-neutral-500">
-                    Current Version : CDC/v1.1
+                    Current Version : CDC/V3.2
                   </span>
                 </DropdownMenuItem>
               </DropdownMenuGroup>

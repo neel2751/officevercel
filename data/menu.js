@@ -2,6 +2,7 @@ import {
   AlertTriangle,
   Briefcase,
   Building2,
+  CalendarDays,
   Captions,
   ClipboardIcon,
   Filter,
@@ -9,6 +10,7 @@ import {
   Network,
   NewspaperIcon,
   RadioIcon,
+  Stamp,
 } from "lucide-react";
 
 export const MENU = [
@@ -23,6 +25,18 @@ export const MENU = [
     path: "/admin/officeEmployee",
     role: ["superAdmin", "admin"], // admin, manager, user
     icon: <Briefcase className="w-5 h-5" />,
+  },
+  {
+    name: "Leave Management",
+    path: "/admin/leave",
+    role: ["superAdmin", "admin"], // admin, manager, user
+    icon: <Stamp className="w-5 h-5" />,
+  },
+  {
+    name: "Weekly Rota",
+    path: "/admin/weeklyRota",
+    role: ["superAdmin", "admin"], // admin, manager, user
+    icon: <CalendarDays className="w-5 h-5" />,
   },
   {
     name: "Employees",

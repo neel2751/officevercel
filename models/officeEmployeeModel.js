@@ -25,6 +25,7 @@ const officeEmployeSchema = new mongoose.Schema(
     isActive: { type: Boolean, default: true },
     isAdmin: { type: Boolean, default: false },
     isSuperAdmin: { type: Boolean, default: false },
+    employeNI: { type: String, required: false },
     visaStartDate: { type: Date, required: false },
     visaEndDate: { type: Date, required: false },
     joinDate: { type: Date, required: true },
