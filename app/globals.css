@@ -86,3 +86,21 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+.rbc-event,
+.rbc-day-slot .rbc-background-event {
+  background: none !important;
+}
+.rbc-selected {
+  background: none !important;
+}
+.rbc-month-view {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.rbc-show-more {
+  color: var(--primary) !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+}
