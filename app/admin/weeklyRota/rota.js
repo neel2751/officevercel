@@ -22,6 +22,7 @@ import {
   CalendarDays,
   CheckCheck,
   ChevronDown,
+  Loader2,
   User,
 } from "lucide-react";
 import React, { useState } from "react";
@@ -78,77 +79,84 @@ const Rota = ({ searchParams }) => {
             </div>
           </div>
         </CardHeader>
-        <CardContent>
-          {newData?.map((item) => (
-            <Collapsible
-              open={isOpen === item?.weekStartDate}
-              onOpenChange={() => handleOpen(item)}
-              key={item?.weekStartDate}
-              className="mb-4"
-            >
-              <CollapsibleTrigger
-                className={`w-full py-4 px-6 border-x border-t rounded-t-lg`}
+        {isLoading ? (
+          <div className="h-20 w-full flex justify-center items-center">
+            <Loader2 className="size-10 animate-spin text-neutral-500 text-center w-full" />
+          </div>
+        ) : (
+          <CardContent>
+            {newData?.map((item) => (
+              <Collapsible
+                open={isOpen === item?.weekStartDate}
+                onOpenChange={() => handleOpen(item)}
+                key={item?.weekStartDate}
+                className="mb-4"
               >
-                <div className="flex items-center justify-between w-full">
-                  <div className="flex items-center gap-4">
-                    <CardTitle className="flex flex-col items-start gap-2">
-                      Week of{" "}
-                      {format(parseISO(item?.weekStartDate), "MMMM d, yyyy")}
-                      <Badge
-                        variant="outline"
-                        className={`border-none flex-col items-start gap-1 text-indigo-600 p-0`}
-                      >
-                        <div className="flex gap-2">
-                          <span className="inline-flex gap-2">
-                            <CheckCheck className="w-4 h-4" />
-                            {item?.approvedStatus} ({item?.approvedCount || 0})
-                          </span>
-                          <span className="inline-flex gap-2">
-                            <User className="w-4 h-4" />
-                            {item?.result[0]?.employeeName}
-                          </span>
-                          <span className="inline-flex gap-2">
-                            <CalendarDays className="w-4 h-4" />
-                            {format(item?.submitDate || new Date(), "PPP")}
-                          </span>
-                          <span className="inline-flex gap-2">
-                            <CalendarClock className="w-4 h-4" />
-                            {format(item?.approvedDate || new Date(), "PPP")}
-                          </span>
-                        </div>
-                      </Badge>
-                    </CardTitle>
+                <CollapsibleTrigger
+                  className={`w-full py-4 px-6 border-x border-t rounded-t-lg`}
+                >
+                  <div className="flex items-center justify-between w-full">
+                    <div className="flex items-center gap-4">
+                      <CardTitle className="flex flex-col items-start gap-2">
+                        Week of{" "}
+                        {format(parseISO(item?.weekStartDate), "MMMM d, yyyy")}
+                        <Badge
+                          variant="outline"
+                          className={`border-none flex-col items-start gap-1 text-indigo-600 p-0`}
+                        >
+                          <div className="flex gap-2">
+                            <span className="inline-flex gap-2">
+                              <CheckCheck className="w-4 h-4" />
+                              {item?.approvedStatus} ({item?.approvedCount || 0}
+                              )
+                            </span>
+                            <span className="inline-flex gap-2">
+                              <User className="w-4 h-4" />
+                              {item?.result[0]?.employeeName}
+                            </span>
+                            <span className="inline-flex gap-2">
+                              <CalendarDays className="w-4 h-4" />
+                              {format(item?.submitDate || new Date(), "PPP")}
+                            </span>
+                            <span className="inline-flex gap-2">
+                              <CalendarClock className="w-4 h-4" />
+                              {format(item?.approvedDate || new Date(), "PPP")}
+                            </span>
+                          </div>
+                        </Badge>
+                      </CardTitle>
+                    </div>
+                    <ChevronDown className="h-5 w-5" />
                   </div>
-                  <ChevronDown className="h-5 w-5" />
-                </div>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="border-x border-b rounded-b-lg">
-                <CardContent>
-                  <WeekRotaTable
-                    isLoading={isLoading}
-                    currentWeek={item?.weekStartDate}
-                    schedules={schedules}
-                    setSchedules={setSchedules}
-                    queryKey={queryKey}
-                    memoizedSchedules={{
-                      weekId: item._id,
-                    }}
-                  />
-                </CardContent>
-              </CollapsibleContent>
-            </Collapsible>
-          ))}
-          {totalCount > 10 && (
-            <PaginationWithLinks
-              pageSize={pagePerData}
-              totalCount={totalCount || 0}
-              page={currentPage}
-              pageSizeSelectOptions={{
-                pageSizeOptions: [10, 20, 30, 40],
-              }}
-            />
-          )}
-        </CardContent>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="border-x border-b rounded-b-lg">
+                  <CardContent>
+                    <WeekRotaTable
+                      isLoading={isLoading}
+                      currentWeek={item?.weekStartDate}
+                      schedules={schedules}
+                      setSchedules={setSchedules}
+                      queryKey={queryKey}
+                      memoizedSchedules={{
+                        weekId: item._id,
+                      }}
+                    />
+                  </CardContent>
+                </CollapsibleContent>
+              </Collapsible>
+            ))}
+            {totalCount > 10 && (
+              <PaginationWithLinks
+                pageSize={pagePerData}
+                totalCount={totalCount || 0}
+                page={currentPage}
+                pageSizeSelectOptions={{
+                  pageSizeOptions: [10, 20, 30, 40],
+                }}
+              />
+            )}
+          </CardContent>
+        )}
       </Card>
     </div>
   );

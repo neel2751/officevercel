@@ -19,10 +19,14 @@ import {
 import { Button } from "../ui/button";
 import { useSubmitMutation } from "@/hooks/use-mutate";
 import { useFetchSelectQuery } from "@/hooks/use-query";
-import { getSelectAttendanceCategory } from "@/server/selectServer/selectServer";
+import {
+  getSelectAttendanceCategory,
+  getSelectProjects,
+} from "@/server/selectServer/selectServer";
 import { handleWeeklyRotaWithStatus } from "@/server/weeklyRotaServer/weeklyRotaServer";
 import { Badge } from "../ui/badge";
 import { toast } from "sonner";
+import { Input } from "../ui/input";
 
 const WeekRotaTable = ({
   currentWeek,
@@ -38,6 +42,11 @@ const WeekRotaTable = ({
     queryKey: ["selectCategories"],
   });
 
+  const { data: siteProjects = [] } = useFetchSelectQuery({
+    fetchFn: getSelectProjects,
+    queryKey: ["selectProjects"],
+  });
+
   const findMostCommonCategory = (schedule) => {
     const values = Object.values(schedule || {});
     const frequency = values.reduce((acc, value) => {
@@ -51,13 +60,26 @@ const WeekRotaTable = ({
     );
   };
 
-  const handleScheduleChange = (employeeId, day, value) => {
+  const handleScheduleChange = (employeeId, day, field, value) => {
+    // we have to return on sunday because we using the OFF on the day of the week
+    if (day === "Sunday") return;
     setSchedules((prevSchedules) =>
-      prevSchedules.map((schedule) =>
-        schedule.employeeId === employeeId
-          ? { ...schedule, schedule: { ...schedule.schedule, [day]: value } }
-          : schedule
-      )
+      prevSchedules.map((schedule) => {
+        if (schedule.employeeId === employeeId) {
+          const updatedDaySchedule = {
+            ...schedule?.schedule[day],
+            [field]: value,
+          };
+          return {
+            ...schedule,
+            schedule: {
+              ...schedule.schedule,
+              [day]: updatedDaySchedule,
+            },
+          };
+        }
+        return schedule;
+      })
     );
   };
 
@@ -79,17 +101,26 @@ const WeekRotaTable = ({
 
           days.forEach((day) => {
             if (!currentSchedule[day]) {
-              currentSchedule[day] =
-                day === "Sunday" ? "OFF" : mostCommonCategory;
+              day === "Sunday"
+                ? (currentSchedule[day] = {
+                    category: "OFF",
+                    startTime: "00:00",
+                    endTime: "00:00",
+                  })
+                : (currentSchedule[day] = {
+                    category: mostCommonCategory,
+                    startTime: "09:00",
+                    endTime: "17:00",
+                  });
             }
           });
-
           return { ...schedule, schedule: currentSchedule };
         }
         return schedule;
       })
     );
   };
+
   const { mutate: handleSubmit, isPending } = useSubmitMutation({
     mutationFn: async (data) =>
       await handleWeeklyRotaWithStatus(
@@ -104,13 +135,16 @@ const WeekRotaTable = ({
         : "Weekly Rota Submited",
     onClose: () => handleOnClose(),
   });
+
   const submitSchedules = () => {
     // console.log("Before Submiting...", schedules);
     // Validation: Ensure all schedules are complete
     let hasErrors = false;
-
     const updatedSchedules = schedules.map((schedule) => {
-      const missingDays = [
+      const missingDays = [];
+
+      // Check each day's schedule
+      [
         "Monday",
         "Tuesday",
         "Wednesday",
@@ -118,8 +152,39 @@ const WeekRotaTable = ({
         "Friday",
         "Saturday",
         "Sunday",
-      ].filter((day) => day !== "Sunday" && !schedule.schedule[day]); // Skip Sunday validation
+      ].forEach((day) => {
+        const daySchedule = schedule.schedule[day];
 
+        // Skip validation for Sunday
+        if (day === "Sunday") {
+          return;
+        }
+
+        // Check if category exists
+        if (!daySchedule || !daySchedule.category) {
+          missingDays.push(`${day} (missing category)`);
+          return;
+        }
+
+        if (daySchedule.category === "OFFICE/SITE" && !daySchedule.site) {
+          missingDays.push(`${day} (SITE requires a location)`);
+          return;
+        }
+
+        // Validate time fields
+        const { startTime, endTime } = daySchedule;
+        if (!startTime || !endTime) {
+          missingDays.push(`${day} (missing time)`);
+          return;
+        }
+
+        // Ensure startTime < endTime
+        if (startTime >= endTime) {
+          missingDays.push(`${day} (invalid time range)`);
+        }
+      });
+
+      // Update schedule with validation result
       if (missingDays.length > 0) {
         hasErrors = true;
       }
@@ -152,6 +217,7 @@ const WeekRotaTable = ({
     );
     handleSubmit(schedules);
   };
+
   return (
     <>
       <div className="space-x-2 my-2 ms-2">
@@ -206,31 +272,99 @@ const WeekRotaTable = ({
                     "Sunday",
                   ].map((day) => (
                     <TableCell key={day}>
-                      <Select
-                        value={
-                          // every sunday  is a day off
-                          day === "Sunday"
-                            ? "OFF"
-                            : schedule.schedule[day] || ""
-                        }
-                        onValueChange={(value) =>
-                          handleScheduleChange(schedule.employeeId, day, value)
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {categories.map((category) => (
-                            <SelectItem
-                              key={category?.value}
-                              value={category?.value}
-                            >
-                              {category?.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <div className="space-y-2">
+                        <Select
+                          value={
+                            // every sunday  is a day off
+                            day === "Sunday"
+                              ? "OFF"
+                              : schedule?.schedule[day]?.category || ""
+                          }
+                          onValueChange={(value) =>
+                            handleScheduleChange(
+                              schedule.employeeId,
+                              day,
+                              "category",
+                              value
+                            )
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {categories.map((category) => (
+                              <SelectItem
+                                key={category?.value}
+                                value={category?.value}
+                              >
+                                {category?.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Input
+                          type="time"
+                          value={
+                            day === "Sunday"
+                              ? "00:00"
+                              : schedule.schedule[day]?.startTime || ""
+                          }
+                          onChange={(e) =>
+                            handleScheduleChange(
+                              schedule.employeeId,
+                              day,
+                              "startTime",
+                              e.target.value
+                            )
+                          }
+                          className="w-full"
+                        />
+                        <Input
+                          type="time"
+                          value={
+                            day === "Sunday"
+                              ? "00:00"
+                              : schedule.schedule[day]?.endTime || ""
+                          }
+                          onChange={(e) =>
+                            handleScheduleChange(
+                              schedule.employeeId,
+                              day,
+                              "endTime",
+                              e.target.value
+                            )
+                          }
+                          className="w-full"
+                        />
+                        {schedule.schedule[day]?.category === "OFFICE/SITE" && (
+                          <Select
+                            value={schedule.schedule[day]?.site || ""}
+                            onValueChange={(value) =>
+                              handleScheduleChange(
+                                schedule.employeeId,
+                                day,
+                                "site",
+                                value
+                              )
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select Site" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {siteProjects.map((site) => (
+                                <SelectItem
+                                  key={site?.value}
+                                  value={site?.label}
+                                >
+                                  {site.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      </div>
                     </TableCell>
                   ))}
                   <TableCell>
