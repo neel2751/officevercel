@@ -46,6 +46,10 @@ const weeklyRotaSchema = new mongoose.Schema(
       default: "Active",
       type: String,
     },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

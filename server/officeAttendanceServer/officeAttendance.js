@@ -28,15 +28,32 @@ export async function getOfficeEmployeeAttendance(weekStartDate) {
       attendanceData.map((item) => [item?.employeeId?.toString(), item])
     );
 
-    const allData = allEmployees.map((employee) => {
-      return {
-        employeeId: employee._id,
-        employeeName: `${employee.name}`,
-        schedule: attendanceMap.get(employee._id.toString())?.schedule || {},
-        weekStartDate: date,
-        // status: attendanceMap.get?.status || "Draft",
-      };
-    });
+    let allData = [];
+    if (attendanceRecord) {
+      allData = allEmployees
+        .filter((employee) => attendanceMap.has(employee?._id.toString()))
+        .map((employee) => {
+          const existingAttendance = attendanceMap.get(
+            employee?._id.toString()
+          );
+          return {
+            employeeId: employee._id,
+            employeeName: employee.name,
+            schedule: existingAttendance?.schedule || {},
+            weekStartDate: date,
+          };
+        });
+    } else {
+      allData = allEmployees.map((employee) => {
+        return {
+          employeeId: employee._id,
+          employeeName: `${employee.name}`,
+          schedule: attendanceMap.get(employee._id.toString())?.schedule || {},
+          weekStartDate: date,
+          // status: attendanceMap.get?.status || "Draft",
+        };
+      });
+    }
 
     const approvedById = attendanceMap.get(
       attendanceRecord?.approvedBy.toString()

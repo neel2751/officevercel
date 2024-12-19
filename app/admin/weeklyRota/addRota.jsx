@@ -68,7 +68,7 @@ export function AddWeeklyRota() {
     <>
       <Button onClick={() => setIsOpen(true)}>Add Weekly Rota</Button>
       <Dialog open={isOpen} onOpenChange={() => setIsOpen(false)}>
-        <DialogContent className="w-full max-w-2xl max-h-screen overflow-y-auto bg-white rounded-lg shadow-lg p-6 sm:max-w-md md:max-w-lg lg:max-w-5xl">
+        <DialogContent className="w-full max-w-2xl max-h-screen overflow-y-auto bg-white rounded-lg shadow-lg p-6 sm:max-w-md md:max-w-lg lg:max-w-6xl">
           <DialogHeader>
             <div className="mb-8">
               <DialogTitle>Weekly Schedules</DialogTitle>

@@ -107,7 +107,7 @@ export async function getWeeklyRotaForSuperAdmin(filterData) {
     const approvedStatus = filterData?.status;
     if (weekStartDate && !validDate)
       return { success: false, message: "Date is not valid" };
-    const query = {};
+    const query = { isDeleted: false };
     if (weekStartDate) {
       query.weekStartDate = weekStartDate;
     }
