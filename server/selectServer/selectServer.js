@@ -11,6 +11,14 @@ import ProjectSiteModel from "@/models/siteProjectModel";
 export const getSelectRoleType = async () => {
   try {
     await connect();
+    // we have to create index on roleTypeModel
+    // const indexes = await RoleTypesModel.collection.listIndexes().toArray();
+    // mongoose.set("debug", true);
+    // const check = await RoleTypesModel.collection.getIndexes();
+    await RoleTypesModel.collection.createIndex({
+      delete: 1,
+      isActive: 1,
+    });
     const roles = await RoleTypesModel.aggregate([
       {
         $match: { delete: false, isActive: true }, // Filters documents where delete is false
