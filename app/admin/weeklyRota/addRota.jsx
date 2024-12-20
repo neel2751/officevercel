@@ -43,8 +43,8 @@ export function AddWeeklyRota() {
     params: {
       date: format(currentWeek, "yyyy-MM-dd"),
     },
-    fetchFn: getOfficeEmployeeAttendance,
     queryKey,
+    fetchFn: getOfficeEmployeeAttendance,
   });
 
   const { newData = [] } = queryData || {};
@@ -66,7 +66,9 @@ export function AddWeeklyRota() {
   return (
     // <div className="p-4">
     <>
-      <Button onClick={() => setIsOpen(true)}>Add Weekly Rota</Button>
+      <Button disabled={isLoading} onClick={() => setIsOpen(true)}>
+        Add Weekly Rota
+      </Button>
       <Dialog open={isOpen} onOpenChange={() => setIsOpen(false)}>
         <DialogContent className="w-full max-w-2xl max-h-screen overflow-y-auto bg-white rounded-lg shadow-lg p-6 sm:max-w-md md:max-w-lg lg:max-w-6xl">
           <DialogHeader>

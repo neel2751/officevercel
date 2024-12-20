@@ -8,7 +8,6 @@ import { getServerSideProps } from "../session/session";
 // Future to need this function for the Approved and Rejected rota right now this feature is not implemented
 export async function handleWeeklyRota(data, weekStartDate, weekId) {
   try {
-    await connect();
     const { props } = await getServerSideProps();
     const role = props?.session?.user?.role;
     const approvedStatus = role === "superAdmin" ? "Approve" : "Pending";
@@ -50,7 +49,6 @@ export async function handleWeeklyRota(data, weekStartDate, weekId) {
 
 export async function handleWeeklyRotaWithStatus(data, weekStartDate, weekId) {
   try {
-    await connect();
     const { props } = await getServerSideProps();
     const approvedBy = props?.session?.user?._id;
     const approvedStatus = "Approved";
@@ -97,47 +95,55 @@ export async function handleWeeklyRotaWithStatus(data, weekStartDate, weekId) {
 */
 export async function getWeeklyRotaForSuperAdmin(filterData) {
   try {
-    const { props } = await getServerSideProps();
-    const loginId = props?.session?.user?._id;
-    const validPage = parseInt(filterData?.page || 1);
-    const validLimit = parseInt(filterData?.pageSize || 10);
+    const validPage = Number.isInteger(parseInt(filterData?.page))
+      ? parseInt(filterData.page)
+      : 1;
+    const validLimit = Number.isInteger(parseInt(filterData?.pageSize))
+      ? parseInt(filterData.pageSize)
+      : 10;
     const weekStartDate = filterData?.date;
-    const skip = (validPage - 1) * validLimit;
-    const validDate = isMonday(weekStartDate);
+    const skip = Math.max((validPage - 1) * validLimit, 0); // Avoid negative skip
     const approvedStatus = filterData?.status;
-    if (weekStartDate && !validDate)
-      return { success: false, message: "Date is not valid" };
-    const query = { isDeleted: false };
+
+    // Validate date and ensure it is Monday
     if (weekStartDate) {
-      query.weekStartDate = weekStartDate;
+      const parsedDate = parseISO(weekStartDate);
+      if (!isValid(parsedDate) || !isMonday(parsedDate)) {
+        return { success: false, message: "Invalid date or not a Monday" };
+      }
     }
-    if (approvedStatus) {
-      query.approvedStatus = approvedStatus;
-    }
+
+    // Connect to MongoDB
+    await connect();
+
+    // Build query object
+    const query = { isDeleted: false };
+    if (weekStartDate) query.weekStartDate = weekStartDate;
+    if (approvedStatus) query.approvedStatus = approvedStatus;
+
+    // Aggregation pipeline
     const pipeline = [
       {
         $match: query,
       },
       {
         $lookup: {
-          from: "officeemployes",
+          from: "officeemployees",
           localField: "approvedBy",
           foreignField: "_id",
           as: "result",
           pipeline: [
             {
               $project: {
-                employeeId: "$_id", // Rename `_id` to `employeeId`
-                employeeName: "$name", // Rename `name` to `employeeName`
+                employeeId: "$_id",
+                employeeName: "$name",
               },
             },
           ],
         },
       },
       {
-        $sort: {
-          weekStartDate: -1,
-        },
+        $sort: { weekStartDate: -1 },
       },
       {
         $skip: skip,
@@ -147,15 +153,23 @@ export async function getWeeklyRotaForSuperAdmin(filterData) {
       },
     ];
 
-    const totalCountDocuments = await WeeklyRotaModel.countDocuments(query);
-    const weekRota = await WeeklyRotaModel.aggregate(pipeline);
+    // Fetch data and total count
+    const [totalCountDocuments, weekRota] = await Promise.all([
+      WeeklyRotaModel.countDocuments(query), // Count documents
+      WeeklyRotaModel.aggregate(pipeline), // Run aggregation
+    ]);
+
     return {
       success: true,
       data: JSON.stringify(weekRota),
       totalCount: totalCountDocuments,
     };
   } catch (error) {
-    console.log("Get week rota for superAdmin error server", error);
+    console.error("Error in getWeeklyRotaForSuperAdmin:", error);
+    return {
+      success: false,
+      message: "An error occurred while fetching data.",
+    };
   }
 }
 

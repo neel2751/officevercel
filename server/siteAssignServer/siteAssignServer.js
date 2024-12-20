@@ -2,11 +2,17 @@
 import SiteAssignManagerModel from "@/models/siteAssignManagerModel";
 import { getSiteById } from "../siteProjectServer/siteProjectServer";
 import { getEmployeById } from "../officeServer/officeServer";
+import { connect } from "@/db/db";
 
 export async function getAllSiteAssign(filterData) {
+  const validPage = Number.isInteger(parseInt(filterData?.page))
+    ? parseInt(filterData.page)
+    : 1;
+  const validLimit = Number.isInteger(parseInt(filterData?.pageSize))
+    ? parseInt(filterData.pageSize)
+    : 10;
+
   const sanitizedSearch = filterData?.query?.trim() || "";
-  const validPage = parseInt(filterData?.page || 1);
-  const validLimit = parseInt(filterData?.pageSize || 10);
   const skip = (validPage - 1) * validLimit;
   const query = { isDelete: false };
   if (sanitizedSearch) {
@@ -20,10 +26,9 @@ export async function getAllSiteAssign(filterData) {
     ];
   }
   try {
-    const totalCountDocuments = await SiteAssignManagerModel.countDocuments(
-      query
-    );
-    const siteData = await SiteAssignManagerModel.aggregate([
+    await connect();
+
+    const pipleline = [
       {
         $lookup: {
           from: "officeemployes",
@@ -44,19 +49,19 @@ export async function getAllSiteAssign(filterData) {
         $match: query,
       },
       {
-        $project: {
-          _id: 1,
-          roleId: 1,
-          projectSiteID: 1,
-          isActive: 1,
-          isVerified: 1,
-          startDate: 1,
-          endDate: 1,
-          roleName: { $arrayElemAt: ["$role.name", 0] },
-          siteName: { $arrayElemAt: ["$projectSite.siteName", 0] },
-          siteAddress: { $arrayElemAt: ["$projectSite.siteAddress", 0] },
-          siteType: { $arrayElemAt: ["$projectSite.siteType", 0] },
-          siteStatus: { $arrayElemAt: ["$projectSite.status", 0] },
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: [
+              "$$ROOT",
+              {
+                roleName: { $arrayElemAt: ["$role.name", 0] },
+                siteName: { $arrayElemAt: ["$projectSite.siteName", 0] },
+                siteAddress: { $arrayElemAt: ["$projectSite.siteAddress", 0] },
+                siteType: { $arrayElemAt: ["$projectSite.siteType", 0] },
+                siteStatus: { $arrayElemAt: ["$projectSite.status", 0] },
+              },
+            ],
+          },
         },
       },
       {
@@ -70,7 +75,13 @@ export async function getAllSiteAssign(filterData) {
           createdAt: -1,
         },
       },
-    ]).exec();
+    ];
+
+    const [totalCountDocuments, siteData] = await Promise.all([
+      SiteAssignManagerModel.countDocuments(query),
+      SiteAssignManagerModel.aggregate(pipleline),
+    ]);
+
     const data = {
       success: true,
       data: JSON.stringify(siteData),
@@ -78,8 +89,8 @@ export async function getAllSiteAssign(filterData) {
     };
     return data;
   } catch (error) {
-    console.log(error);
-    return { success: false, message: " Error fetching data" };
+    console.log("Error in getSiteAssignManagerData", error);
+    return { success: false, message: "An error occured while fetching data." };
   }
 }
 

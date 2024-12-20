@@ -56,7 +56,7 @@ const SiteAssign = ({ searchParams }) => {
       pageSize: pagePerData,
       query: query,
     },
-    queryKey: queryKey,
+    queryKey,
     fetchFn: getAllSiteAssign,
   });
   const { newData = [], totalCount } = data || {};
