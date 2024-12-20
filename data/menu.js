@@ -99,7 +99,7 @@ export const MENU = [
   //   icon: <FolderOpen className="h-5 w-5" />,
   // },
   {
-    name: "All Role",
+    name: "Department",
     path: "/admin/roleType",
     role: ["superAdmin"],
     icon: <Captions className="h-5 w-5" />,

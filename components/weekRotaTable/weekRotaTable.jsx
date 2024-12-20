@@ -274,6 +274,7 @@ const WeekRotaTable = ({
                     <TableCell key={day}>
                       <div className="space-y-2">
                         <Select
+                          disabled={day === "Sunday"}
                           value={
                             // every sunday  is a day off
                             day === "Sunday"
@@ -305,8 +306,15 @@ const WeekRotaTable = ({
                         </Select>
                         <Input
                           type="time"
+                          disabled={
+                            day === "Sunday" ||
+                            (schedule?.schedule[day]?.category &&
+                              schedule?.schedule[day]?.category === "OFF")
+                          }
                           value={
-                            day === "Sunday"
+                            schedule?.schedule[day]?.category === "OFF"
+                              ? "00:00"
+                              : day === "Sunday"
                               ? "00:00"
                               : schedule.schedule[day]?.startTime || ""
                           }
@@ -322,14 +330,21 @@ const WeekRotaTable = ({
                         />
                         <Input
                           type="time"
+                          disabled={
+                            day === "Sunday" ||
+                            (schedule?.schedule[day]?.category &&
+                              schedule?.schedule[day]?.category === "OFF")
+                          }
                           value={
-                            day === "Sunday"
+                            schedule?.schedule[day]?.category === "OFF"
                               ? "00:00"
-                              : schedule.schedule[day]?.endTime || ""
+                              : day === "Sunday"
+                              ? "00:00"
+                              : schedule?.schedule[day]?.endTime || ""
                           }
                           onChange={(e) =>
                             handleScheduleChange(
-                              schedule.employeeId,
+                              schedule?.employeeId,
                               day,
                               "endTime",
                               e.target.value
@@ -337,12 +352,13 @@ const WeekRotaTable = ({
                           }
                           className="w-full"
                         />
-                        {schedule.schedule[day]?.category === "OFFICE/SITE" && (
+                        {schedule?.schedule[day]?.category ===
+                          "OFFICE/SITE" && (
                           <Select
-                            value={schedule.schedule[day]?.site || ""}
+                            value={schedule?.schedule[day]?.site || ""}
                             onValueChange={(value) =>
                               handleScheduleChange(
-                                schedule.employeeId,
+                                schedule?.employeeId,
                                 day,
                                 "site",
                                 value
@@ -353,12 +369,12 @@ const WeekRotaTable = ({
                               <SelectValue placeholder="Select Site" />
                             </SelectTrigger>
                             <SelectContent>
-                              {siteProjects.map((site) => (
+                              {siteProjects?.map((site) => (
                                 <SelectItem
                                   key={site?.value}
                                   value={site?.label}
                                 >
-                                  {site.label}
+                                  {site?.label}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -369,7 +385,7 @@ const WeekRotaTable = ({
                   ))}
                   <TableCell>
                     <Button
-                      disabled={isPending || categories.length === 0}
+                      disabled={isPending || categories?.length === 0}
                       type="button"
                       onClick={() => autoFillSchedule(schedule?.employeeId)}
                     >
