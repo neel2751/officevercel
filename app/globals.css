@@ -99,6 +99,26 @@ body {
   border-radius: var(--radius);
 }
 
+.rbc-agenda-table {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.rbc-agenda-view {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.rbc-agenda-table {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.rbc-time-view {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
 .rbc-show-more {
   color: var(--primary) !important;
   font-size: 0.75rem !important;

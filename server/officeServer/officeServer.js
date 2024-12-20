@@ -151,30 +151,21 @@ export const getOfficeEmployee = async (filterData) => {
         },
       },
       {
-        $project: {
-          // we have to send all but only two filed changes department and company
-          _id: 1,
-          name: 1,
-          email: 1,
-          phoneNumber: 1,
-          isActive: 1,
-          joinDate: 1,
-          endDate: 1,
-          visaStartDate: 1,
-          visaEndDate: 1,
-          immigrationType: 1,
-          immigrationCategory: 1,
-          isAdmin: 1,
-          isSuperAdmin: 1,
-          roleType: 1,
-          password: 1, // we need to send password
-          department: {
-            roleTitle: { $arrayElemAt: ["$departments.roleTitle", 0] },
-            _id: { $arrayElemAt: ["$departments._id", 0] },
-          },
-          company: {
-            name: { $arrayElemAt: ["$companys.name", 0] },
-            _id: { $arrayElemAt: ["$companys._id", 0] },
+        $replaceRoot: {
+          newRoot: {
+            $mergeObjects: [
+              "$$ROOT",
+              {
+                department: {
+                  roleTitle: { $arrayElemAt: ["$departments.roleTitle", 0] },
+                  _id: { $arrayElemAt: ["$departments._id", 0] },
+                },
+                company: {
+                  name: { $arrayElemAt: ["$companys.name", 0] },
+                  _id: { $arrayElemAt: ["$companys._id", 0] },
+                },
+              },
+            ],
           },
         },
       },

@@ -452,15 +452,6 @@ export const OFFICEFIELD = [
     },
   },
   {
-    name: "roleType",
-    labelText: "Role Type",
-    type: "text",
-    placeholder: "operation, office,business...",
-    validationOptions: {
-      required: "Role Type is required",
-    },
-  },
-  {
     name: "department",
     labelText: "Role Department",
     options: [
@@ -469,6 +460,15 @@ export const OFFICEFIELD = [
     ],
     type: "select",
     validationOptions: { required: "Role  Department is required" },
+  },
+  {
+    name: "roleType",
+    labelText: "Role Type",
+    type: "text",
+    placeholder: "operation, office,business...",
+    validationOptions: {
+      required: "Role Type is required",
+    },
   },
   {
     name: "company",

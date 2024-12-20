@@ -3,7 +3,7 @@ import { CardTitle } from "@/components/ui/card";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import React from "react";
 
-const CustomeHeader = ({ toolbar }) => {
+const CustomeToolbar = ({ toolbar }) => {
   return (
     <div className="flex justify-between items-center mb-5">
       <div className="flex -space-x-px">
@@ -54,4 +54,4 @@ const CustomeHeader = ({ toolbar }) => {
   );
 };
 
-export default CustomeHeader;
+export default CustomeToolbar;

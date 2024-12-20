@@ -13,8 +13,9 @@ import { useCallback, useState } from "react";
 import DialogTask from "../dialogTask";
 import { taskData } from "../kanban/kanban";
 import EventCard from "./event-card";
-import CustomeHeader from "./cutomeHeader";
 import CustomeShowMore from "./custome/customeShowMore";
+import CustomeToolbar from "./custome/customeToolbar";
+import CustomeHeader from "./custome/cutomeHeader";
 
 // import { Calendar as FullCalendar } from '@fullcalendar/react'
 
@@ -98,14 +99,23 @@ export function CalenderPage() {
             localizer.format(date, "YYYY", culture),
         }}
         components={{
+          week: {
+            // header: (header) => <CustomeHeader header={header} />,
+            // event: ({ event }) => <EventCard events={event} />,
+          },
+          event: ({ event }) => <EventCard events={event} />,
+          header: (header) => <CustomeHeader header={header} />,
           showMore: (showMore) => <CustomeShowMore showMore={showMore} />,
-          toolbar: (toolbar) => <CustomeHeader toolbar={toolbar} />,
+          toolbar: (toolbar) => <CustomeToolbar toolbar={toolbar} />,
+          //   timeGutterHeader: (timeGutterHeader) => <div>test</div>,
           month: {
             header: ({ date, label }) => (
               <div className="h-10 flex items-center justify-center">
                 <span
-                  className={`text-sm font-semibold text-neutral-700 ${
-                    format(new Date(), "ccc") === label ? "text-indigo-700" : ""
+                  className={`text-sm font-semibold ${
+                    format(new Date(), "ccc") === label
+                      ? "text-indigo-700"
+                      : "text-neutral-700"
                   } `}
                 >
                   {label}
@@ -127,7 +137,7 @@ export function CalenderPage() {
                 </span>
               </div>
             ), // date header customization
-            event: ({ event }) => <EventCard events={event} />,
+            // event: ({ event }) => <EventCard events={event} />,
           },
         }}
         selectable

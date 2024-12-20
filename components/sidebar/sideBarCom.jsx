@@ -20,13 +20,11 @@ import {
 } from "../ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
-  AlertTriangle,
   BadgeCheck,
   Bell,
   ChevronsUpDown,
   CreditCard,
   LogOut,
-  Plus,
   Sparkles,
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
@@ -35,17 +33,6 @@ import { getMenu, getReportMenu, MENU, REPORT } from "@/data/menu";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Collapsible } from "../ui/collapsible";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "../ui/dialog";
-import ReactHookForm from "../form/reactHookForm";
-import { ISSUEREPORTFIELD } from "@/data/fields/fields";
-import { generateTicket } from "@/server/dev/generateTicket";
 
 const SideBarHeaderCom = () => {
   return (
@@ -231,7 +218,7 @@ const SideBarFooterCom = () => {
                 <DropdownMenuItem>
                   <Sparkles className="text-neutral-500" />
                   <span className="text-xs font-medium text-neutral-500">
-                    Current Version : CDC/V3.2
+                    Current Version : CDC/V5.9
                   </span>
                 </DropdownMenuItem>
               </DropdownMenuGroup>

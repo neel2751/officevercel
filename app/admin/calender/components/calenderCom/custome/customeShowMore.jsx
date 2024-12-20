@@ -92,10 +92,10 @@ export function MoreDetails({ item, children }) {
 
   return (
     <HoverCard
-      className={`w-full max-w-2xl transition-all duration-300 ease-in-out `}
+      className={`w-full max-w-lg transition-all duration-300 ease-in-out `}
     >
       <HoverCardTrigger asChild>{children}</HoverCardTrigger>
-      <HoverCardContent side="left">
+      <HoverCardContent side="left" className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <div className="flex items-center justify-between">
             <Badge
@@ -115,8 +115,10 @@ export function MoreDetails({ item, children }) {
               </TooltipProvider>
             </div>
           </div>
-          <CardTitle className="text-xl font-bold">{item?.title}</CardTitle>
-          <CardDescription className="">{item?.description}</CardDescription>
+          <CardTitle className="font-bold">{item?.title}</CardTitle>
+          <CardDescription className="truncate">
+            {item?.description}
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-wrap items-center gap-2">
