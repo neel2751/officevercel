@@ -19,7 +19,7 @@ async function checkRoleMiddleware(req) {
   }
 
   // Use `fetch` to request role data
-  const res = await fetch(`${process.env.NEXTAUTH_URL}api/role`, {
+  const res = await fetch(`${process.env.NEXTAUTH_URL}/api/role`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
