@@ -5,6 +5,7 @@ import {
   FormImageUpload,
   FormInput,
   FormMultiInput,
+  FormMultipleSelect,
   FormRadio,
   FormTextarea,
   SearchableSelect,
@@ -52,6 +53,9 @@ export function GlobalForm({
                 )}
                 {field.type === "select" && (
                   <SearchableSelect key={field?.name} field={field} />
+                )}
+                {field.type === "multipleSelect" && (
+                  <FormMultipleSelect key={field?.name} field={field} />
                 )}
                 {field.type === "radio" && (
                   <FormRadio key={field?.name} field={field} />

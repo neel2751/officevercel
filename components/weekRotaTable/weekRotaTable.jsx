@@ -215,6 +215,7 @@ const WeekRotaTable = ({
     setSchedules((prevSchedules) =>
       prevSchedules.map((schedule) => ({ ...schedule, status: "Submitted" }))
     );
+    if (schedules.length <= 0) return toast.warning(" No schedules to submit");
     handleSubmit(schedules);
   };
 

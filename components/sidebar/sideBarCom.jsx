@@ -29,10 +29,13 @@ import {
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
-import { getMenu, getReportMenu, MENU, REPORT } from "@/data/menu";
+import { getMenu, getReportMenu, REPORT } from "@/data/menu";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Collapsible } from "../ui/collapsible";
+import { useFetchSelectQuery } from "@/hooks/use-query";
+import { getEmployeeMenu } from "@/server/selectServer/selectServer";
+import SideBarMenuCom from "./sideBarMenu";
 
 const SideBarHeaderCom = () => {
   return (
@@ -73,47 +76,21 @@ const SideBarMenu = () => {
   const path = pathName.split("/", 3).join("/");
   const currentMenu = getMenu(path);
   const { data } = useSession();
-  const menuItems = MENU.filter((item) =>
-    item?.role?.includes(data?.user?.role)
-  );
+  const { data: menuItems } = useFetchSelectQuery({
+    queryKey: ["menu"],
+    fetchFn: getEmployeeMenu,
+  });
+
   const currentReport = getReportMenu(path);
 
   return (
     <SidebarContent>
       <SidebarGroup>
-        <SidebarMenu className="gap-4">
-          {menuItems?.map((item) => (
-            <Collapsible
-              key={item?.name}
-              asChild
-              defaultOpen={item?.name === currentMenu?.name}
-              className="group/collapsible"
-            >
-              <SidebarMenuItem>
-                {/* <CollapsibleTrigger asChild> */}
-                <SidebarMenuButton
-                  asChild
-                  tooltip={item?.name}
-                  className={`${
-                    item?.name === currentMenu?.name
-                      ? "bg-neutral-200 text-neutral-900"
-                      : "hover:bg-gray-100"
-                  } text-sm text-gray-800 font-normal rounded-lg flex items-center p-2 group`}
-                >
-                  <Link href={item?.path} className="flex gap-2 items-center">
-                    {item?.icon}
-                    <span>{item?.name}</span>
-                  </Link>
-                </SidebarMenuButton>
-                {/* </CollapsibleTrigger> */}
-              </SidebarMenuItem>
-            </Collapsible>
-          ))}
-        </SidebarMenu>
+        <SideBarMenuCom menuItems={menuItems} path={path} />
       </SidebarGroup>
       {(data?.user?.role === "superAdmin" || data?.user?.role === "admin") && (
         <SidebarGroup>
-          <SidebarGroupLabel>Report</SidebarGroupLabel>
+          <SidebarGroupLabel>More</SidebarGroupLabel>
           <SidebarMenu className="gap-4">
             {REPORT?.map((item) => (
               <Collapsible

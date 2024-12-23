@@ -4,6 +4,7 @@ import { connect } from "@/db/db";
 import WeeklyRotaModel from "@/models/weeklyRotaModel";
 import { isMonday } from "date-fns";
 import { getServerSideProps } from "../session/session";
+import OfficeEmployeeModel from "@/models/officeEmployeeModel";
 
 // Future to need this function for the Approved and Rejected rota right now this feature is not implemented
 export async function handleWeeklyRota(data, weekStartDate, weekId) {
@@ -72,6 +73,13 @@ export async function handleWeeklyRotaWithStatus(data, weekStartDate, weekId) {
       );
       return { success: true, message: "Weekly Rota Updated" };
     } else {
+      // we have to check if the week already exists
+      const weekExist = await WeeklyRotaModel.findOne({
+        weekStartDate,
+      });
+      if (weekExist) {
+        return { success: false, message: "Week already exists" };
+      }
       const response = await WeeklyRotaModel.create({
         attendanceData: data,
         weekStartDate,
@@ -158,10 +166,27 @@ export async function getWeeklyRotaForSuperAdmin(filterData) {
       WeeklyRotaModel.countDocuments(query), // Count documents
       WeeklyRotaModel.aggregate(pipeline), // Run aggregation
     ]);
+    // we have check the if result.employeeName is not empty if empty we have to fetch from officeEmployee
+    const resultNew = await Promise.all(
+      weekRota?.map(async (item) => {
+        // we have to store this employee name in weekRota under result
+        // first we have to find the employee name from officeEmployee
+        const employeeName = await OfficeEmployeeModel.findOne({
+          _id: item?.approvedBy,
+        });
+        return {
+          ...item,
+          result: {
+            employeeId: employeeName?._id,
+            employeeName: employeeName?.name,
+          },
+        };
+      })
+    );
 
     return {
       success: true,
-      data: JSON.stringify(weekRota),
+      data: JSON.stringify(resultNew),
       totalCount: totalCountDocuments,
     };
   } catch (error) {
