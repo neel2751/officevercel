@@ -19,7 +19,7 @@ import {
 import { CommonContext } from "@/context/commonContext";
 import { useSubmitMutation } from "@/hooks/use-mutate";
 import { useFetchQuery, useFetchSelectQuery } from "@/hooks/use-query";
-import { ShieldCheckIcon } from "lucide-react";
+import { Loader2, ShieldCheckIcon } from "lucide-react";
 import { useState } from "react";
 import EmployeeForm from "../officeEmployee/employeeForm";
 import PermissionTable from "./permissionTable";
@@ -39,10 +39,11 @@ const Permission = ({ searchParams }) => {
   const [initialValues, setInitialValues] = useState(null);
   const queryKey = ["permission", { query, currentPage, pagePerData }];
 
-  const { data: selectOfficeEmployee = [] } = useFetchSelectQuery({
-    queryKey: ["selectOfficeEmployee"],
-    fetchFn: getSelectOfficeEmployee,
-  });
+  const { data: selectOfficeEmployee = [], isLoading: employeeLoding } =
+    useFetchSelectQuery({
+      queryKey: ["selectOfficeEmployee"],
+      fetchFn: getSelectOfficeEmployee,
+    });
 
   const PERMISSIONFIELD = [
     {
@@ -93,7 +94,11 @@ const Permission = ({ searchParams }) => {
     setInitialValues(item);
   };
 
-  const { data, isLoading, isError } = useFetchQuery({
+  const {
+    data,
+    isLoading: dataLoading,
+    isError,
+  } = useFetchQuery({
     params: {
       query,
       page: currentPage,
@@ -103,10 +108,12 @@ const Permission = ({ searchParams }) => {
     fetchFn: getAllPermission,
   });
 
+  const isLoading = dataLoading || employeeLoding;
+
   const { newData: result = [], totalCount = 0 } = data || {};
 
   const { mutate: onSubmit, isPending } = useSubmitMutation({
-    mutationFn: async (data) => assignPermission(data, initialValues._id),
+    mutationFn: async (data) => assignPermission(data, initialValues?._id),
     invalidateKey: queryKey,
     onSuccessMessage: (response) => response,
     onClose: () => {
@@ -114,14 +121,6 @@ const Permission = ({ searchParams }) => {
       setInitialValues({});
       setOpen(false);
     },
-    // onClose: () => {
-    //   if (initialValues) {
-    //     setIsEdit(false);
-    //     setInitialValues(null);
-    //   } else {
-    //     setOpen(false);
-    //   }
-    // },
   });
 
   return (
@@ -151,7 +150,7 @@ const Permission = ({ searchParams }) => {
               <SearchDebounce />
               <Dialog open={open} onOpenChange={() => setOpen(!open)}>
                 <DialogTrigger asChild>
-                  <Button>
+                  <Button disabled={isLoading}>
                     <ShieldCheckIcon />
                     Assign
                   </Button>
@@ -168,9 +167,15 @@ const Permission = ({ searchParams }) => {
               </Dialog>
             </div>
           </CardHeader>
-          <CardContent>
-            <PermissionTable />
-          </CardContent>
+          {isLoading ? (
+            <div className="h-20 w-full flex justify-center items-center">
+              <Loader2 className="size-10 animate-spin text-neutral-500 text-center w-full" />
+            </div>
+          ) : (
+            <CardContent>
+              <PermissionTable />
+            </CardContent>
+          )}
         </Card>
       </CommonContext.Provider>
     </div>
