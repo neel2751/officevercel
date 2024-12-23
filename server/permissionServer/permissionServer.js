@@ -4,6 +4,7 @@ import { connect } from "@/db/db";
 import RoleBasedModel from "@/models/rolebasedModel";
 
 export async function assignPermission(data, id) {
+  console.log(data, id);
   try {
     await connect();
     if (id) {
