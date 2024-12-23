@@ -112,7 +112,7 @@ const Rota = ({ searchParams }) => {
                             </span>
                             <span className="inline-flex gap-2">
                               <User className="w-4 h-4" />
-                              {item?.result[0]?.employeeName}
+                              {item?.result?.employeeName}
                             </span>
                             <span className="inline-flex gap-2">
                               <CalendarDays className="w-4 h-4" />

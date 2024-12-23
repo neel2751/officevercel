@@ -3,6 +3,7 @@ import { connect } from "@/db/db";
 import OfficeEmployeeModel from "@/models/officeEmployeeModel";
 import WeeklyRotaModel from "@/models/weeklyRotaModel";
 import { getServerSideProps } from "../session/session";
+import mongoose from "mongoose";
 
 export async function getOfficeEmployeeAttendance(weekStartDate) {
   const { date } = weekStartDate;
@@ -55,13 +56,12 @@ export async function getOfficeEmployeeAttendance(weekStartDate) {
       });
     }
 
-    const approvedById = attendanceMap.get(
-      attendanceRecord?.approvedBy.toString()
+    const approvedById = await OfficeEmployeeModel.findOne(
+      { _id: new mongoose.Types.ObjectId(attendanceRecord?.approvedBy) },
+      { name: 1 }
     );
     const approvedBy =
-      approvedById?.employeeId?.toString() === loginId
-        ? "You"
-        : approvedById?.employeeName;
+      approvedById?._id?.toString() === loginId ? "You" : approvedById?.name;
 
     const withIdData = {
       attendanceData: allData,

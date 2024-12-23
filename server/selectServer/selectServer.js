@@ -5,8 +5,11 @@ import AttendanceCategoryModel from "@/models/attendanceCategoryModel";
 import CompanyModel from "@/models/companyModel";
 import EmployeModel from "@/models/employeModel";
 import OfficeEmployeeModel from "@/models/officeEmployeeModel";
+import RoleBasedModel from "@/models/rolebasedModel";
 import RoleTypesModel from "@/models/roleTypeModel";
 import ProjectSiteModel from "@/models/siteProjectModel";
+import { getServerSideProps } from "../session/session";
+import { MENU } from "@/data/menu";
 
 export const getSelectRoleType = async () => {
   try {
@@ -212,6 +215,37 @@ export const getSelectAttendanceCategory = async () => {
     }
   } catch (err) {
     console.log(err);
+    return { success: false, message: "Error Occured" };
+  }
+};
+
+export const getEmployeeMenu = async () => {
+  try {
+    const { props } = await getServerSideProps();
+    const employeeId = props?.session?.user?._id;
+    const role = props?.session?.user?.role;
+    if (role === "superAdmin") {
+      const menu = MENU.filter((item) => item?.role?.includes(role));
+      return { success: true, data: JSON.stringify(menu) };
+    } else {
+      const menu = await RoleBasedModel.findOne({
+        employeeId: employeeId,
+      });
+      if (!menu) {
+        return { success: false, message: "No Data Found" };
+      } else {
+        const menuItem = MENU.filter((ie) =>
+          menu?.permissions?.includes(ie?.path)
+        );
+        const data = {
+          success: true,
+          data: JSON.stringify(menuItem),
+        };
+        return data;
+      }
+    }
+  } catch (error) {
+    console.log(error);
     return { success: false, message: "Error Occured" };
   }
 };

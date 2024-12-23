@@ -1,54 +1,42 @@
-import {
-  AlertTriangle,
-  Briefcase,
-  Building2,
-  CalendarDays,
-  Captions,
-  ClipboardIcon,
-  Filter,
-  LayoutDashboard,
-  Network,
-  NewspaperIcon,
-  RadioIcon,
-  Stamp,
-} from "lucide-react";
+import { AlertTriangle, ShieldCheck } from "lucide-react";
+import React from "react";
 
 export const MENU = [
   {
     name: "Dashboard",
     path: "/admin/dashboard",
     role: ["superAdmin"], // admin, manager, user
-    icon: <LayoutDashboard className="h-5 w-5" />,
+    icon: "LayoutDashboard",
   },
   {
     name: "Office Management",
     path: "/admin/officeEmployee",
     role: ["superAdmin", "admin"], // admin, manager, user
-    icon: <Briefcase className="w-5 h-5" />,
+    icon: "Briefcase",
   },
   {
     name: "Leave Management",
     path: "/admin/leave",
     role: ["superAdmin", "admin"], // admin, manager, user
-    icon: <Stamp className="w-5 h-5" />,
+    icon: "Stamp",
   },
   {
     name: "Weekly Rota",
     path: "/admin/weeklyRota",
     role: ["superAdmin", "admin"], // admin, manager, user
-    icon: <CalendarDays className="w-5 h-5" />,
+    icon: "CalendarDays",
   },
   {
     name: "Employees",
     path: "/admin/employee",
     role: ["superAdmin"],
-    icon: <ClipboardIcon className="h-5 w-5" />,
+    icon: "ClipboardIcon",
   },
   {
     name: "Site Project",
     path: "/admin/siteProject",
     role: ["superAdmin"],
-    icon: <NewspaperIcon className="h-5 w-5" />,
+    icon: "NewspaperIcon",
   },
   // {
   //   name: "Attendance",
@@ -60,13 +48,13 @@ export const MENU = [
     name: "Filter Attendance",
     path: "/admin/filterAttendance",
     role: ["superAdmin"],
-    icon: <Filter className="w-5 h-5" />,
+    icon: "Filter",
   },
   {
     name: "Assign Site Manager ",
     path: "/admin/siteAssign",
     role: ["superAdmin"],
-    icon: <RadioIcon className="w-5 h-5" />,
+    icon: "RadioIcon",
   },
 
   // {
@@ -83,7 +71,7 @@ export const MENU = [
       { name: "View Shifts", path: "/shiftview/viewshifts" },
       { name: "Add Employee to Shift", path: "/addEmpToShift" },
     ],
-    icon: <Network className="w-5 h-5" />,
+    icon: "Network",
   },
 
   // {
@@ -102,17 +90,23 @@ export const MENU = [
     name: "Department",
     path: "/admin/roleType",
     role: ["superAdmin"],
-    icon: <Captions className="h-5 w-5" />,
+    icon: "Captions",
   },
   {
     name: "Company",
     path: "/admin/company",
     role: ["superAdmin", "admin"],
-    icon: <Building2 className="h-5 w-5" />,
+    icon: "Building2",
   },
 ];
 
 export const REPORT = [
+  {
+    name: "Permission",
+    path: "/admin/permissions",
+    icon: <ShieldCheck className="w-5 h-5" />,
+    role: ["superAdmin"],
+  },
   {
     name: "Report Issue",
     path: "/admin/reportIssue",

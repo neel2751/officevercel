@@ -10,7 +10,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CalendarIcon, Check, ChevronsUpDown, Minus, Plus } from "lucide-react";
+import {
+  CalendarIcon,
+  Check,
+  ChevronsUpDown,
+  Minus,
+  Plus,
+  X,
+} from "lucide-react";
 import { format, getMonth, getYear, setMonth, setYear } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -414,6 +421,123 @@ export const FormTextarea = ({ field, ...props }) => {
       {field.helperText && (
         <p className="text-sm text-muted-foreground">{field.helperText}</p>
       )}
+      {errors[field.name] && (
+        <p className="text-sm text-destructive">
+          {errors[field.name]?.message}
+        </p>
+      )}
+    </div>
+  );
+};
+
+export const FormMultipleSelect = ({ field }) => {
+  const [open, setOpen] = React.useState(false);
+  const {
+    control,
+    formState: { errors },
+  } = useFormContext();
+
+  const options = field.options;
+
+  return (
+    <div className="space-y-2">
+      <FormLabel name={field.name} labelText={field.labelText} />
+      <Controller
+        name={field.name}
+        control={control}
+        rules={field.validationOptions}
+        render={({ field: { onChange, value = [] } }) => (
+          <>
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  aria-expanded={open}
+                  className={`w-full justify-between h-auto ${
+                    Array.isArray(value) && value.length > 0
+                      ? "text-neutral-900"
+                      : "text-neutral-500"
+                  }`}
+                >
+                  <div className="flex gap-2 justify-start w-full flex-wrap z-50">
+                    {Array.isArray(value) && value.length > 0
+                      ? value.map((val, i) => (
+                          <div
+                            key={i}
+                            className="px-2 py-1 rounded-xl border bg-slate-200 text-xs font-medium flex items-center gap-1"
+                          >
+                            {
+                              options.find(
+                                (framework) => framework?.value === val
+                              )?.label
+                            }
+                            {/* <X
+                              onClick={(e) => {
+                                e.stopPropagation(); // Prevent event propagation
+                                handleRemoveEmployee(val, onChange, value);
+                              }}
+                              className="size-4 cursor-pointer"
+                            /> */}
+                          </div>
+                        ))
+                      : field.placeholder || "Select..."}
+                  </div>
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[200px] p-0">
+                <Command
+                  filter={(value, search) => {
+                    const item = options.find((item) => item.value === value);
+                    if (!item) return 0;
+                    if (item.label.toLowerCase().includes(search.toLowerCase()))
+                      return 1;
+
+                    return 0;
+                  }}
+                >
+                  <CommandInput placeholder={"Search..."} />
+                  <CommandList>
+                    <CommandEmpty>{"No Data found."}</CommandEmpty>
+                    <CommandGroup>
+                      {options &&
+                        options.map((framework) => (
+                          <CommandItem
+                            key={framework.value}
+                            value={framework.value}
+                            onSelect={() => {
+                              if (Array.isArray(value)) {
+                                onChange(
+                                  value.includes(framework.value)
+                                    ? value.filter((v) => v !== framework.value)
+                                    : [...value, framework.value]
+                                );
+                              } else {
+                                onChange([framework.value]);
+                              }
+                              setOpen(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                Array.isArray(value) &&
+                                  value.includes(framework.value)
+                                  ? "opacity-100"
+                                  : "opacity-0"
+                              )}
+                            />
+                            {framework.label}
+                          </CommandItem>
+                        ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+          </>
+        )}
+      />
       {errors[field.name] && (
         <p className="text-sm text-destructive">
           {errors[field.name]?.message}
