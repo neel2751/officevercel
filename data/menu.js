@@ -2,24 +2,24 @@ import { AlertTriangle, ShieldCheck } from "lucide-react";
 import React from "react";
 
 export const MENU = [
-  {
-    name: "Dashboard",
-    path: "/admin/dashboard",
-    role: ["superAdmin"], // admin, manager, user
-    icon: "LayoutDashboard",
-  },
+  // {
+  //   name: "Dashboard",
+  //   path: "/admin/dashboard",
+  //   role: ["superAdmin"], // admin, manager, user
+  //   icon: "LayoutDashboard",
+  // },
   {
     name: "Office Management",
     path: "/admin/officeEmployee",
     role: ["superAdmin", "admin"], // admin, manager, user
     icon: "Briefcase",
   },
-  {
-    name: "Leave Management",
-    path: "/admin/leave",
-    role: ["superAdmin", "admin"], // admin, manager, user
-    icon: "Stamp",
-  },
+  // {
+  //   name: "Leave Management",
+  //   path: "/admin/leave",
+  //   role: ["superAdmin", "admin"], // admin, manager, user
+  //   icon: "Stamp",
+  // },
   {
     name: "Weekly Rota",
     path: "/admin/weeklyRota",
@@ -92,11 +92,26 @@ export const MENU = [
     role: ["superAdmin"],
     icon: "Captions",
   },
+  // {
+  //   name: "Company",
+  //   path: "/admin/company",
+  //   role: ["superAdmin", "admin"],
+  //   icon: "Building2",
+  // },
+];
+
+export const COMMONMENUITEMS = [
   {
-    name: "Company",
-    path: "/admin/company",
-    role: ["superAdmin", "admin"],
-    icon: "Building2",
+    name: "Dashboard",
+    path: "/admin/dashboard",
+    role: ["superAdmin"], // admin, manager, user
+    icon: "LayoutDashboard",
+  },
+  {
+    name: "Leave Management",
+    path: "/admin/leaveManagement",
+    role: ["superAdmin", "admin"], // admin, manager, user
+    icon: "Stamp",
   },
 ];
 

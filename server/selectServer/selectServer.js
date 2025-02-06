@@ -9,7 +9,9 @@ import RoleBasedModel from "@/models/rolebasedModel";
 import RoleTypesModel from "@/models/roleTypeModel";
 import ProjectSiteModel from "@/models/siteProjectModel";
 import { getServerSideProps } from "../session/session";
-import { MENU } from "@/data/menu";
+import { COMMONMENUITEMS, MENU } from "@/data/menu";
+import { mergeAndFilterMenus } from "@/lib/object";
+import LeaveCategoryModel from "@/models/leaveCategoryModel";
 
 export const getSelectRoleType = async () => {
   try {
@@ -234,8 +236,8 @@ export const getEmployeeMenu = async () => {
       if (!menu) {
         return { success: false, message: "No Data Found" };
       } else {
-        const menuItem = MENU.filter((ie) =>
-          menu?.permissions?.includes(ie?.path)
+        const menuItem = mergeAndFilterMenus(COMMONMENUITEMS, MENU).filter(
+          (ie) => menu?.permissions?.includes(ie?.path)
         );
         const data = {
           success: true,
@@ -246,6 +248,35 @@ export const getEmployeeMenu = async () => {
     }
   } catch (error) {
     console.log(error);
+    return { success: false, message: "Error Occured" };
+  }
+};
+
+export const getSelectLeaveRequest = async () => {
+  try {
+    const leaveTypes = await LeaveCategoryModel.aggregate([
+      {
+        $match: { isDeleted: false, isActive: true }, // Filters documents where delete is false
+      },
+      {
+        $project: {
+          _id: 0,
+          value: "$leaveType", // Renames `_id` to `value`
+          label: "$leaveType", // Renames `roleTitle` to `name`
+        },
+      },
+    ]).exec();
+    if (!leaveTypes || leaveTypes.length === 0) {
+      return { success: false, message: "No Data Found" };
+    } else {
+      const data = {
+        success: true,
+        data: JSON.stringify(leaveTypes),
+      };
+      return data;
+    }
+  } catch (err) {
+    console.log(err);
     return { success: false, message: "Error Occured" };
   }
 };

@@ -1,6 +1,83 @@
+import { COUNTRIES } from "../countries";
 import { MENU } from "../menu";
 
-const { COUNTRIES } = require("../countries");
+export const PATTERN = {
+  pattern: {
+    value: /^(?! )[a-zA-Z0-9]+(?: [a-zA-Z0-9]+)*(?<! )$/,
+    message: "Invalid format",
+  },
+};
+
+export const EMERGENCYFIELD = [
+  {
+    name: "emergencyName",
+    labelText: "Emergency Name",
+    type: "text",
+    placeholder: "Enter Emergency Name",
+    validationOptions: {
+      required: "Emergency Name is required",
+      minLength: {
+        value: 3,
+        message: "Minimum 3 characters required",
+      },
+      maxLength: {
+        value: 20,
+        message: "Maximum 20 characters allowed",
+      },
+      ...PATTERN,
+    },
+  },
+  {
+    name: "emergencyRelation",
+    labelText: "Emergency Relation",
+    type: "text",
+    placeholder: "Enter Emergency Relation",
+    validationOptions: {
+      required: "Emergency Relation is required",
+      minLength: {
+        value: 3,
+        message: "Minimum 3 characters required",
+      },
+      maxLength: {
+        value: 20,
+        message: "Maximum 20 characters allowed",
+      },
+      ...PATTERN,
+    },
+  },
+  {
+    name: "emergencyPhoneNumber",
+    labelText: "Emergency Number",
+    type: "number",
+    inputMode: "numeric",
+    placeholder: "Emergency Number",
+    validationOptions: {
+      required: "Phone No. is required",
+      pattern: {
+        value: /^\d{10}$/,
+        message: "Invalid phone number. Must be exactly 10 digits.",
+      },
+    },
+  },
+  {
+    name: "emergencyAddress",
+    labelText: "Emergency Address",
+    type: "text",
+    placeholder: "Enter Emergency Address",
+    validationOptions: {
+      required: "Emergency Address is required",
+      minLength: {
+        value: 3,
+        message: "Minimum 3 characters required",
+      },
+      maxLength: {
+        value: 50,
+        message: "Maximum 50 characters allowed",
+      },
+      ...PATTERN,
+    },
+  },
+];
 
 export const EMPLOYEFIELD = [
   // {
@@ -23,6 +100,15 @@ export const EMPLOYEFIELD = [
     placeholder: "Enter First Name",
     validationOptions: {
       required: "First name is required",
+      minLength: {
+        value: 3,
+        message: "Minimum 3 characters required",
+      },
+      maxLength: {
+        value: 20,
+        message: "Maximum 20 characters allowed",
+      },
+      ...PATTERN,
     },
   },
   {
@@ -32,6 +118,15 @@ export const EMPLOYEFIELD = [
     placeholder: "Enter Last Name",
     validationOptions: {
       required: "Last name is required",
+      minLength: {
+        value: 3,
+        message: "Minimum 3 characters required",
+      },
+      maxLength: {
+        value: 20,
+        message: "Maximum 20 characters allowed",
+      },
+      ...PATTERN,
     },
   },
   {
@@ -69,6 +164,15 @@ export const EMPLOYEFIELD = [
     placeholder: "Apt, Syuite, Building",
     validationOptions: {
       required: "Address is required",
+      minLength: {
+        value: 5,
+        message: "Minimum 5 characters required",
+      },
+      maxLength: {
+        value: 50,
+        message: "Maximum 50 characters allowed",
+      },
+      ...PATTERN,
     },
   },
   {
@@ -76,6 +180,9 @@ export const EMPLOYEFIELD = [
     labelText: "Street Address(optional)",
     type: "text",
     placeholder: "Street Address(optional)",
+    validationOptions: {
+      ...PATTERN,
+    },
   },
   {
     name: "city",
@@ -84,6 +191,15 @@ export const EMPLOYEFIELD = [
     placeholder: "city",
     validationOptions: {
       required: "city is required",
+      minLength: {
+        value: 3,
+        message: "Minimum 3 characters required",
+      },
+      maxLength: {
+        value: 20,
+        message: "Maximum 20 characters allowed",
+      },
+      ...PATTERN,
     },
   },
   {
@@ -93,6 +209,7 @@ export const EMPLOYEFIELD = [
     placeholder: "Zip/Postal Code",
     validationOptions: {
       required: "zipcode is required",
+      ...PATTERN,
     },
   },
   {
@@ -121,6 +238,15 @@ export const EMPLOYEFIELD = [
     size: true,
     validationOptions: {
       required: "Account name is required",
+      minLength: {
+        value: 3,
+        message: "Minimum 3 characters required",
+      },
+      maxLength: {
+        value: 20,
+        message: "Maximum 20 characters allowed",
+      },
+      ...PATTERN,
     },
   },
   {
@@ -133,7 +259,7 @@ export const EMPLOYEFIELD = [
       required: "Account number is required",
       pattern: {
         value: /^\d{8}$/i,
-        message: "Must be exactly  8 digits",
+        message: "Must be exactly 8 digits",
       },
     },
   },
@@ -162,7 +288,7 @@ export const EMPLOYEFIELD = [
       value: "Weekly",
     },
     validationOptions: {
-      required: " UTR  number is required",
+      required: "UTR number is required",
       pattern: {
         // extact  10 digits
         value: /^\d{10}$/i,
@@ -214,16 +340,11 @@ export const EMPLOYEFIELD = [
         value: 3,
         message: "Minimum length should be 3 characters",
       },
-      pattern: {
-        value: /^(?! )[a-zA-Z0-9]+(?: [a-zA-Z0-9]+)*(?<! )$/,
-        message: "Invalid employe role format",
-        // only space not  allowed
-        // value: /^[A-Za-z0-9\s]+$/,
-        //   value: /^[A-Za-z\s]{3,50}$/i,
-        //   value: /^[a-zA-Z\s]{3,50}$/i,
-        //   value: /^[a-zA-Z\s]+$/,
-        //   message: "Must be a string of letters and spaces",
+      maxLength: {
+        value: 20,
+        message: "Maximum length should be 20 characters",
       },
+      ...PATTERN,
     },
   },
   // {
@@ -273,10 +394,7 @@ export const EMPLOYEFIELD = [
         value: 3,
         message: "Minimum length should be 3 characters",
       },
-      pattern: {
-        value: /^(?! )[a-zA-Z0-9]+(?: [a-zA-Z0-9]+)*(?<! )$/,
-        message: "Invalid immigration status format",
-      },
+      ...PATTERN,
     },
   },
 
@@ -336,6 +454,7 @@ export const EMPLOYEFIELD = [
       required: " Visa Expiry Date is required",
     },
   },
+  ...EMERGENCYFIELD,
 ];
 
 export const SITEFIELD = [
@@ -347,6 +466,15 @@ export const SITEFIELD = [
     placeholder: "Enter your Site Name",
     validationOptions: {
       required: "This Site Name is required",
+      minLength: {
+        value: 3,
+        message: "This Site Name at least 3 character",
+      },
+      maxLength: {
+        value: 50,
+        message: "This Site Name at most 50 character",
+      },
+      ...PATTERN,
     },
   },
   {
@@ -356,6 +484,15 @@ export const SITEFIELD = [
     placeholder: "Enter Site address",
     validationOptions: {
       required: "Site Address is required",
+      minLength: {
+        value: 3,
+        message: "Site Address at least 3 character",
+      },
+      maxLength: {
+        value: 50,
+        message: "Site Address at most 50 character",
+      },
+      ...PATTERN,
     },
   },
   {
@@ -407,6 +544,9 @@ export const SITEFIELD = [
     type: "textarea",
     helperText: "*Describe the Site Project",
     placeholder: "On this site we will be doing like loft conversion...",
+    validationOptions: {
+      ...PATTERN,
+    },
   },
 ];
 
@@ -420,6 +560,15 @@ export const OFFICEFIELD = [
     placeholder: "Enter Employee Name",
     validationOptions: {
       required: "Name is required",
+      minLength: {
+        value: 3,
+        message: "Name at least 3 characters",
+      },
+      maxLength: {
+        value: 20,
+        message: "Name should not exceed 20 characters",
+      },
+      ...PATTERN,
     },
   },
   {
@@ -454,12 +603,9 @@ export const OFFICEFIELD = [
   {
     name: "department",
     labelText: "Role Department",
-    options: [
-      { label: "test", value: "1" },
-      { label: "test2", value: "2" },
-    ],
+    options: [],
     type: "select",
-    validationOptions: { required: "Role  Department is required" },
+    validationOptions: { required: "Role Department is required" },
   },
   {
     name: "roleType",
@@ -468,6 +614,7 @@ export const OFFICEFIELD = [
     placeholder: "operation, office,business...",
     validationOptions: {
       required: "Role Type is required",
+      ...PATTERN,
     },
   },
   {
@@ -493,11 +640,98 @@ export const OFFICEFIELD = [
     },
   },
   {
+    name: "employeType",
+    labelText: "Employe Type",
+    type: "select",
+    placeholder: "Select Employee Type",
+    options: [
+      { value: "Full-Time", label: "Full-Time" },
+      { value: "Part-Time", label: "Part-Time" },
+      // { value: "Irregular-Hours", label: "Irregular-Hours" },
+      // { value: "Part-Year", label: "Part-Year" },
+    ],
+    validationOptions: {
+      required: "Employe Type is required",
+    },
+  },
+  {
+    name: "partTimeDays",
+    labelText: "Days",
+    showIf: {
+      field: "employeType",
+      value: "Part-Time",
+    },
+    type: "text",
+    pattern: /d*/,
+    inputMode: "numeric",
+    placeholder: "Enter Days",
+    validationOptions: {
+      required: "Days is required",
+      pattern: {
+        // we can't allow to decimal values with not allow zero start with one
+        // value: /^[1-7]$/,
+        value: /^(?:[1-6](?:\.5)?|7)$/,
+        message: "Days should be between 1 and 7",
+      },
+    },
+  },
+  {
+    name: "hoursPerWeek",
+    labelText: "Hours Per Week",
+    showIf: {
+      field: "employeType",
+      value: "Irregular-Hours",
+    },
+    type: "number",
+    placeholder: "Enter Hours Per Week",
+    validationOptions: {
+      required: "Hours Per Week is required",
+      pattern: {
+        // we can't allow to decimal values with not allow zero start with one
+        value: /^(?!0$)(?:[1-4]?\d|50)$/,
+        message: "Please enter a valid number",
+      },
+      minLength: {
+        value: 1,
+        message: "Please enter a valid number",
+      },
+      maxLength: {
+        value: 2,
+        message: "Please enter a valid number",
+      },
+    },
+  },
+  {
+    name: "weeksPerYear",
+    labelText: "Weeks Per Year",
+    showIf: {
+      field: "employeType",
+      value: "Part-Year",
+    },
+    type: "number",
+    placeholder: " Enter Weeks Per Year",
+    validationOptions: {
+      required: " Weeks Per Year is required",
+      pattern: {
+        // we can't allow to decimal values with not allow zero start with one
+        value: /^(?!0$)(?:[1-4]?\d|50)$/,
+        message: "Please enter a valid number",
+      },
+      minLength: {
+        value: 1,
+        message: "Please enter a valid number",
+      },
+      maxLength: {
+        value: 2,
+        message: "Please enter a valid number",
+      },
+    },
+  },
+  {
     name: "employeNI",
     labelText: "Employee NI",
     type: "text",
     placeholder: " Enter Employee NI",
-    size: true,
     validationOptions: {
       required: " Employee NI is required",
       pattern: {
@@ -509,7 +743,6 @@ export const OFFICEFIELD = [
       },
     },
   },
-
   {
     name: "immigrationCategory",
     labelText: " Immigration  Category",
@@ -577,7 +810,6 @@ export const OFFICEFIELD = [
       required: "Visa Start Date is required",
     },
   },
-
   {
     name: "visaEndDate",
     labelText: "Visa End Date",
@@ -591,6 +823,7 @@ export const OFFICEFIELD = [
       required: "Visa End Date is required",
     },
   },
+  ...EMERGENCYFIELD,
 ];
 
 export const ASSIGNSITEMANAGERFIELD = [
@@ -640,6 +873,15 @@ export const ROLETYPEFIELD = [
     size: true,
     validationOptions: {
       required: "Role Type is required",
+      minLength: {
+        value: 3,
+        message: "Role Type at least 3 characters",
+      },
+      maxLength: {
+        value: 20,
+        message: "Role Type cannot be more than 20 characters",
+      },
+      ...PATTERN,
     },
   },
   {
@@ -662,6 +904,15 @@ export const COMPANYFIELD = [
     size: true,
     validationOptions: {
       required: " Company Name is required",
+      minLength: {
+        value: 3,
+        message: "Company Name at least 3 characters",
+      },
+      maxLength: {
+        value: 20,
+        message: "Company Name cannot be more than 20 characters",
+      },
+      ...PATTERN,
     },
   },
   {
@@ -715,6 +966,15 @@ export const ISSUEREPORTFIELD = [
     size: true,
     validationOptions: {
       required: "Issue Title is required",
+      minLength: {
+        value: 3,
+        message: "Issue Title at least 3 characters long",
+      },
+      maxLength: {
+        value: 20,
+        message: "Issue Title not more than 20 characters long",
+      },
+      ...PATTERN,
     },
   },
   {
@@ -750,5 +1010,90 @@ export const ISSUEREPORTFIELD = [
     validationOptions: {
       required: "Description is required",
     },
+  },
+];
+
+export const LEAVECATEGORYFIELD = [
+  {
+    name: "leaveType",
+    labelText: "Category of Leave",
+    placeholder: "Enter category of leave",
+    type: "text",
+    validationOptions: {
+      required: " Please enter a category of leave",
+      minLength: {
+        value: 3,
+        message: "Name at least 3 characters long",
+      },
+      maxLength: {
+        value: 20,
+        message: "Name should not exceed 20 characters",
+      },
+      ...PATTERN,
+    },
+  },
+  {
+    name: "total",
+    labelText: "Total Leave",
+    type: "number",
+    placeholder: "Enter total leave",
+    validationOptions: {
+      required: "Please enter the total leave",
+      pattern: {
+        // we can't allow to decimal values with not allow zero start with one
+        value: /^(?!0$)(?:[1-4]?\d|50)$/,
+        message: "Please enter a valid number",
+      },
+      minLength: {
+        value: 1,
+        message: "Please enter a valid number",
+      },
+      maxLength: {
+        value: 2,
+        message: "Please enter a valid number",
+      },
+    },
+  },
+  {
+    name: "rule",
+    labelText: "No. of (days/month)",
+    type: "number",
+    placeholder: "Enter no. of days/month",
+    helperText: "Eligible after this no. of days/month",
+    validationOptions: {
+      required: "Please enter the total leave",
+      pattern: {
+        // we can't allow to decimal values with not allow zero start with one
+        value: /^(?!0$)(?:[1-4]?\d|50)$/,
+        message: "Please enter a valid number",
+      },
+      minLength: {
+        value: 1,
+        message: "Please enter a valid number",
+      },
+      maxLength: {
+        value: 2,
+        message: "Please enter a valid number",
+      },
+    },
+  },
+  {
+    name: "ruleType",
+    labelText: "Rule Type",
+    type: "select",
+    options: [
+      { value: "days", label: "Days" },
+      { value: "months", label: "Months" },
+    ],
+    validationOptions: {
+      required: "Please enter the total leave",
+    },
+  },
+  {
+    name: "note",
+    labelText: "Note (optional)",
+    type: "textarea",
+    placeholder: "add a note here for your leave category",
+    size: true,
   },
 ];

@@ -32,9 +32,8 @@ export async function getRoleTypes(filterData) {
   }
 }
 
-export const handleRoleType = async (roleData) => {
+export const handleRoleType = async (roleData, id) => {
   if (!roleData) return { success: false, message: "No Data Provided" };
-  const id = roleData?._id;
   try {
     if (id) {
       let role = await RoleTypesModel.findById(id);
@@ -69,5 +68,41 @@ export const handleRoleType = async (roleData) => {
   } catch (error) {
     console.log("Error in updating site project information by Id ", error);
     return { success: false, message: `Internal Server Error` };
+  }
+};
+
+export const roletypeStatus = async (data) => {
+  if (!data) return { success: false, message: "Not found" };
+  try {
+    const id = data?.id;
+    const isActive = !data?.status;
+    await RoleTypesModel.updateOne({ _id: id }, { $set: { isActive } });
+    return {
+      success: true,
+      message: "The Status has been updated successfully",
+    };
+  } catch (error) {
+    console.log(error);
+    return { success: false, message: `Error Occurred in server problem` };
+  }
+};
+
+export const roletypeDelete = async (data) => {
+  if (!data) return { success: false, message: "Not found" };
+  try {
+    const id = data?.id;
+    const isActive = false;
+    const isDelete = true;
+    await RoleTypesModel.updateOne(
+      { _id: id },
+      { $set: { isActive, delete: isDelete } }
+    );
+    return {
+      success: true,
+      message: " The Department has been deleted successfully",
+    };
+  } catch (error) {
+    console.log(error);
+    return { success: false, message: `Error Occurred in server problem` };
   }
 };

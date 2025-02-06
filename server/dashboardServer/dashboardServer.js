@@ -94,7 +94,7 @@ export const getEmpSummaryData = async () => {
               icon: "BadgeX",
             },
             {
-              label: "Expired Employee",
+              label: "Visa Expired Employee",
               value: "$expiredEmployees",
               icon: "Ban",
             },
@@ -103,7 +103,8 @@ export const getEmpSummaryData = async () => {
         },
       },
     ]).exec();
-    if (result[0]) {
+    if (!result[0]) {
+      // After Test remove explation mark
       return {
         status: true,
         data: JSON.stringify(result[0].totalEmployeeData),
@@ -124,7 +125,7 @@ export const getEmpSummaryData = async () => {
             value: 0,
           },
           {
-            label: "Expired Employee",
+            label: "Visa Expired Employee",
             value: 0,
           },
         ],
@@ -190,7 +191,7 @@ export const getOfficeEmpSummaryData = async () => {
               icon: "BadgeX",
             },
             {
-              label: "Expired Employee",
+              label: "Visa Expired Employee",
               value: "$expiredEmployees",
               icon: "Ban",
             },
@@ -199,7 +200,8 @@ export const getOfficeEmpSummaryData = async () => {
         },
       },
     ]).exec();
-    if (result[0]) {
+    if (!result[0]) {
+      // After Test remove explation mark
       // send data into array);
       return {
         status: true,
@@ -221,7 +223,7 @@ export const getOfficeEmpSummaryData = async () => {
             value: 0,
           },
           {
-            label: "Expired Employee",
+            label: "Visa Expired Employee",
             value: 0,
           },
         ],
@@ -409,7 +411,7 @@ export async function getTotalSiteWorkingRightCount() {
       total: result[0]?.total[0]?.total || 0, // Total number of sites
       siteTypes: result[0]?.siteTypes || [], // Site types with count
       data:
-        result[0].statuses.length > 0
+        !result[0].statuses.length > 0
           ? JSON.stringify(result[0]?.statuses)
           : JSON.stringify([
               { label: "Active", value: 0 },

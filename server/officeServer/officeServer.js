@@ -3,6 +3,7 @@ import { connect } from "@/db/db";
 import OfficeEmployeeModel from "@/models/officeEmployeeModel";
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
+import { storeLeave } from "../leaveServer/leaveServer";
 
 export const handleOfficeEmployee = async (data, id) => {
   // make dealy for  testing
@@ -45,6 +46,9 @@ export const handleOfficeEmployee = async (data, id) => {
       return { success: true, data: JSON.stringify(updatedData) };
     } else {
       const { email, phoneNumber, password } = data;
+      // we have check if the email, phone, and password is not return
+      if (!email || !phoneNumber || !password)
+        return { success: false, message: "Please Provid All Required Fields" };
       const hashPass = await GenerateHashPassword(password);
       await connect();
       let userExist = await OfficeEmployeeModel.findOne({
@@ -56,16 +60,20 @@ export const handleOfficeEmployee = async (data, id) => {
           ...data,
           password: hashPass,
         });
+
         const result = await newUser.save();
         if (!result)
           return {
             success: false,
             message: "Failed to create office Employee",
           };
+        const employeeId = result?._id;
+        const leaveResult = await storeLeave(employeeId, data);
+        if (!leaveResult?.success)
+          return { success: false, message: leaveResult.message };
         return {
           success: true,
           message: "Successfully added office employee",
-          data: JSON.stringify(result),
         };
       } else {
         // throw new Error("This Email or Phone Number is Already In Use");
@@ -77,7 +85,10 @@ export const handleOfficeEmployee = async (data, id) => {
     }
   } catch (error) {
     console.log(error.message);
-    return error;
+    return {
+      success: false,
+      message: "Something went wrong on Office Employee",
+    };
     // return {
     //   success: false,
     //   error: "Failed to create office employee",
@@ -170,26 +181,26 @@ export const getOfficeEmployee = async (filterData) => {
         },
       },
       {
-        $skip: skip,
-      },
-      {
-        $limit: validLimit,
+        $facet: {
+          totalCount: [{ $count: "count" }],
+          result: [
+            {
+              $skip: Math.abs(skip),
+            },
+            {
+              $limit: Math.abs(validLimit),
+            },
+          ],
+        },
       },
     ];
-    const totalCountDocuments = await OfficeEmployeeModel.countDocuments(query);
     const officeEmployee = await OfficeEmployeeModel.aggregate(pipeline);
-    if (totalCountDocuments === 0) {
-      return {
-        success: false,
-        message: "No office employee found",
-        data: JSON.stringify([]),
-        totalCount: 0,
-      };
-    }
+    const totalCount = officeEmployee[0].totalCount[0].count;
+    const result = officeEmployee[0].result;
     return {
       success: true,
-      data: JSON.stringify(officeEmployee),
-      totalCount: totalCountDocuments,
+      data: JSON.stringify(result),
+      totalCount: totalCount,
     };
   } catch (error) {
     console.log(error);

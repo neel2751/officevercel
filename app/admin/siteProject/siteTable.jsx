@@ -41,7 +41,7 @@ const SiteTable = () => {
               "siteType",
               "Sitestatus",
               "status",
-              " siteDate",
+              "date",
               "Actions",
             ].map((item, index) => (
               <TableHead className="uppercase text-xs" key={index}>

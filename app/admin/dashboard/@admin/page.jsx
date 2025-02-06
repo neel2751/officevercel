@@ -1,4 +1,4 @@
-import Dash from "./dash";
+import Dash from "../dash";
 
 const page = () => {
   return <Dash />;

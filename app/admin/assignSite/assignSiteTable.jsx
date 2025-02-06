@@ -1,3 +1,4 @@
+import { AnimatedTooltip } from "@/components/animatedui/animated-tooltip";
 import { Status } from "@/components/tableStatus/status";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -43,24 +44,7 @@ const AssignSiteTable = () => {
             <TableCell>{index + 1}</TableCell>
             <TableCell>{item?.siteInfo?.label}</TableCell>
             <TableCell>
-              <div className="flex items-center -space-x-2">
-                {item?.employeeInfo?.map((employee, index) => (
-                  <div
-                    key={index}
-                    className="hover:z-10 hover:shadow-sm group relative"
-                  >
-                    <div className="w-8 h-8 bg-white border-gray-300 border text-neutral-800 font-medium cursor-pointer rounded-full flex items-center justify-center text-sm">
-                      {employee?.label
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("") || "NA"}
-                    </div>
-                    <Badge className="group-hover:opacity-100 group-hover:visible opacity-0 transition-opacity absolute group-hover:block hidden -top-6 left-0 whitespace-nowrap">
-                      {employee?.label}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
+              <AnimatedTooltip items={item?.employeeInfo} />
             </TableCell>
             <TableCell>
               <Status title={item?.siteInfo?.siteStatus} />

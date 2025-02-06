@@ -23,12 +23,13 @@ import { Loader2, ShieldCheckIcon } from "lucide-react";
 import { useState } from "react";
 import EmployeeForm from "../officeEmployee/employeeForm";
 import PermissionTable from "./permissionTable";
-import { MENU } from "@/data/menu";
+import { COMMONMENUITEMS, MENU } from "@/data/menu";
 import { getSelectOfficeEmployee } from "@/server/selectServer/selectServer";
 import {
   assignPermission,
   getAllPermission,
 } from "@/server/permissionServer/permissionServer";
+import { mergeAndFilterMenusWithLabelAndValue } from "@/lib/object";
 
 const Permission = ({ searchParams }) => {
   const currentPage = parseInt(searchParams?.page || "1");
@@ -61,10 +62,11 @@ const Permission = ({ searchParams }) => {
       labelText: "Permissions",
       type: "multipleSelect",
       size: true,
-      options: Array.from(new Set(MENU.map((item) => item))).map((it) => ({
-        label: it.name,
-        value: it.path,
-      })),
+      // options: Array.from(new Set(MENU.map((item) => item))).map((it) => ({
+      //   label: it.name,
+      //   value: it.path,
+      // })),
+      options: mergeAndFilterMenusWithLabelAndValue(MENU, COMMONMENUITEMS),
       validationOptions: {
         required: "Select at least one", // Required validation
       },

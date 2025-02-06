@@ -18,11 +18,14 @@ import Pagination from "@/lib/pagination";
 import {
   getRoleTypes,
   handleRoleType,
+  roletypeDelete,
+  roletypeStatus,
 } from "@/server/roleTypeServer/roleTypeServer";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import EmployeeForm from "../officeEmployee/employeeForm";
 import RoleTypeTable from "./roleTypeTable";
+import Alert from "@/components/alert/alert";
 
 const RoleType = ({ searchParams }) => {
   const currentPage = parseInt(searchParams?.page || "1");
@@ -31,6 +34,7 @@ const RoleType = ({ searchParams }) => {
   const [initialValues, setInitialValues] = useState({});
   const [open, setOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
+  const [alert, setAlert] = useState({});
   const queryKey = ["roleTypes", { query, currentPage, pagePerData }];
 
   const {
@@ -59,10 +63,10 @@ const RoleType = ({ searchParams }) => {
   };
 
   const { mutate: handleSubmit } = useSubmitMutation({
-    mutationFn: async (data) => await handleRoleType(data),
+    mutationFn: async (data) => await handleRoleType(data, initialValues?._id),
     invalidateKey: queryKey,
     onSuccessMessage: (response) =>
-      `Role Type ${initialValues._id ? "Updated" : "Created"} successfully`,
+      `Department ${initialValues._id ? "Updated" : "Created"} successfully`,
     onClose: initialValues?._id ? handleEditClose : handleClose,
   });
   const onSubmit = (data) => {
@@ -78,6 +82,28 @@ const RoleType = ({ searchParams }) => {
     setInitialValues({});
     setOpen(true);
   };
+
+  const alertClose = () => {
+    setAlert({});
+  };
+
+  const { mutate: handleStatus } = useSubmitMutation({
+    mutationFn: async () =>
+      alert?.type === "Delete"
+        ? await roletypeDelete(alert)
+        : await roletypeStatus(alert),
+    invalidateKey: queryKey,
+    onSuccessMessage: (response) =>
+      `${
+        alert.type === "Delete" ? "Department Delete" : "Status Update"
+      } successfully`,
+    onClose: alertClose,
+  });
+
+  const handleAlert = (id, type, status) => {
+    setAlert({ id, type, status });
+  };
+
   return (
     <div className="p-4">
       <CommonContext.Provider
@@ -95,6 +121,7 @@ const RoleType = ({ searchParams }) => {
           currentPage,
           pagePerData,
           totalCount,
+          handleAlert,
         }}
       >
         <div>
@@ -140,6 +167,13 @@ const RoleType = ({ searchParams }) => {
               )}
             </CardContent>
           </Card>
+          <Alert
+            open={alert?.type ? true : false}
+            label={alert}
+            setOpen={setAlert}
+            onClose={alertClose}
+            onConfirm={handleStatus}
+          />
         </div>
       </CommonContext.Provider>
     </div>

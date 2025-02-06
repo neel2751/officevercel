@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -65,13 +66,17 @@ const EmployeTabel = () => {
               <TableCell>{item?.email}</TableCell>
               <TableCell>{item?.phoneNumber}</TableCell>
               <TableCell>
-                <div
-                  onClick={() =>
-                    handleAlert(item?._id, "Update", item?.isActive)
-                  }
-                >
+                {!item?.isSuperAdmin ? (
+                  <div
+                    onClick={() =>
+                      handleAlert(item?._id, "Update", item?.isActive)
+                    }
+                  >
+                    <TableStatus isActive={item?.isActive} />
+                  </div>
+                ) : (
                   <TableStatus isActive={item?.isActive} />
-                </div>
+                )}
               </TableCell>
               <TableCell>
                 {item?.joinDate && format(new Date(item?.joinDate), "PPP")}
@@ -112,28 +117,28 @@ const EmployeTabel = () => {
                   : "-"}
               </TableCell>
               <TableCell>
-                <div className="flex gap-2">
-                  <Dialog open={isEdit} onOpenChange={setIsEdit}>
-                    <DialogTrigger asChild>
-                      <Button
-                        onClick={() => handleEdit(item)}
-                        variant="outline"
-                        size="icon"
-                      >
-                        <Edit className="text-indigo-600" />
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="w-full max-w-2xl max-h-screen overflow-y-auto bg-white rounded-lg shadow-lg p-6 sm:max-w-md md:max-w-lg lg:max-w-2xl">
-                      <DialogHeader>
-                        <DialogTitle>Edit Employee Details</DialogTitle>
-                        <DialogDescription>
-                          Make changes to here. Click update when you're done.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <EmployeeForm />
-                    </DialogContent>
-                  </Dialog>
-                  {!item?.isSuperAdmin && (
+                {!item?.isSuperAdmin && (
+                  <div className="flex gap-2">
+                    <Dialog open={isEdit} onOpenChange={setIsEdit}>
+                      <DialogTrigger asChild>
+                        <Button
+                          onClick={() => handleEdit(item)}
+                          variant="outline"
+                          size="icon"
+                        >
+                          <Edit className="text-indigo-600" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="w-full max-w-2xl max-h-screen overflow-y-auto bg-white rounded-lg shadow-lg p-6 sm:max-w-md md:max-w-lg lg:max-w-2xl">
+                        <DialogHeader>
+                          <DialogTitle>Edit Employee Details</DialogTitle>
+                          <DialogDescription>
+                            Make changes to here. Click update when you're done.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <EmployeeForm />
+                      </DialogContent>
+                    </Dialog>
                     <Button
                       onClick={() =>
                         handleAlert(item?._id, "Delete", item?.isActive)
@@ -143,8 +148,8 @@ const EmployeTabel = () => {
                     >
                       <Trash2 className="text-rose-600" />
                     </Button>
-                  )}
-                </div>
+                  </div>
+                )}
               </TableCell>
             </TableRow>
           ))}

@@ -23,6 +23,7 @@ const Status = ({ title }) => {
     "Other",
     "Open",
     "Closed",
+    "Pending",
   ];
   const statusColorMap = [
     "bg-blue-100 text-blue-800 hover:bg-blue-200",
@@ -44,6 +45,7 @@ const Status = ({ title }) => {
     "bg-orange-200 text-orange-800 hover:bg-orange-300",
     "bg-green-200  text-green-800 hover:bg-green-300",
     "bg-red-200 text-red-800 hover:bg-red-300",
+    "bg-amber-200 text-amber-800 hover:bg-amber-300",
   ];
   const statusIndex = status.indexOf(title);
   if (statusIndex >= 0) {

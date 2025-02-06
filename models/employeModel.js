@@ -123,6 +123,10 @@ const employeSchema = new mongoose.Schema(
       type: Date,
       required: false,
     },
+    emergencyName: { type: String, required: true },
+    emergencyPhoneNumber: { type: Number, required: false },
+    emergencyRelation: { type: String, required: false },
+    emergencyAddress: { type: String, required: false },
     isActive: {
       type: Boolean,
       default: true,

@@ -39,7 +39,7 @@ const CompanyTable = () => {
           <TableRow>
             {[
               "id",
-              "Role name",
+              "company name",
               "description",
               "status",
               "date",

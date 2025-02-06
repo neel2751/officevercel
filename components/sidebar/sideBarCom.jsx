@@ -29,13 +29,14 @@ import {
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
-import { getMenu, getReportMenu, REPORT } from "@/data/menu";
+import { COMMONMENUITEMS, getMenu, getReportMenu, REPORT } from "@/data/menu";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Collapsible } from "../ui/collapsible";
 import { useFetchSelectQuery } from "@/hooks/use-query";
 import { getEmployeeMenu } from "@/server/selectServer/selectServer";
 import SideBarMenuCom from "./sideBarMenu";
+import { mergeAndFilterMenus } from "@/lib/object";
 
 const SideBarHeaderCom = () => {
   return (
@@ -50,16 +51,20 @@ const SideBarHeaderCom = () => {
               >
                 <div className="flex aspect-square size-8 items-center border border-neutral-200 p-1 justify-center rounded-lg text-sidebar-primary-foreground">
                   <Image
-                    src="/images/cdc.svg"
+                    // src="/images/cdc.svg"
+                    src={"https://www.interiorstudioltd.com/images/logo.svg"}
                     alt="Logo"
                     width={30}
                     height={30}
                   />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">CDC</span>
+                  {/* <span className="truncate font-semibold">CDC</span> */}
+                  <span className="truncate font-semibold">
+                    Interior Studio
+                  </span>
                   <span className="truncate text-xs">
-                    Creative Design & Construction
+                    {/* Creative Design & Construction */}
                   </span>
                 </div>
               </SidebarMenuButton>
@@ -76,18 +81,28 @@ const SideBarMenu = () => {
   const path = pathName.split("/", 3).join("/");
   const currentMenu = getMenu(path);
   const { data } = useSession();
-  const { data: menuItems } = useFetchSelectQuery({
+  const { data: menuItems = [], isLoading } = useFetchSelectQuery({
     queryKey: ["menu"],
     fetchFn: getEmployeeMenu,
   });
+
+  const menu = mergeAndFilterMenus(COMMONMENUITEMS, menuItems);
 
   const currentReport = getReportMenu(path);
 
   return (
     <SidebarContent>
-      <SidebarGroup>
-        <SideBarMenuCom menuItems={menuItems} path={path} />
-      </SidebarGroup>
+      {/* <SidebarGroup>
+        <SideBarMenuCom menuItems={COMMONMENUITEMS} path={path} />
+      </SidebarGroup> */}
+      {isLoading ? (
+        <div>Loading...</div>
+      ) : (
+        <SidebarGroup>
+          <SideBarMenuCom menuItems={menu} path={path} />
+        </SidebarGroup>
+      )}
+
       {(data?.user?.role === "superAdmin" || data?.user?.role === "admin") && (
         <SidebarGroup>
           <SidebarGroupLabel>More</SidebarGroupLabel>
@@ -146,17 +161,20 @@ const SideBarFooterCom = () => {
               >
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarImage
-                    src={session?.user?.image || "/images/cdc.svg"}
+                    // src={session?.user?.image || "/images/cdc.svg"}
+                    src={"https://www.interiorstudioltd.com/images/logo.svg"}
                     alt={session?.user?.name || "CDC"}
                   />
                   <AvatarFallback className="rounded-lg">N</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">
-                    {session?.user?.name || "CDC"}
+                    {/* {session?.user?.name || "CDC"} */}
+                    Interior Studio
                   </span>
                   <span className="truncate text-xs">
-                    {session?.user?.email || "info@cdc.construction"}
+                    {/* {session?.user?.email || "info@cdc.construction"} */}
+                    SuperAdmin
                   </span>
                 </div>
                 <ChevronsUpDown className="ml-auto size-4" />

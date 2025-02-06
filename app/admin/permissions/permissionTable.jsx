@@ -20,8 +20,9 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { MENU } from "@/data/menu";
+import { COMMONMENUITEMS, MENU } from "@/data/menu";
 import { Badge } from "@/components/ui/badge";
+import { mergeAndFilterMenus } from "@/lib/object";
 
 const PermissionTable = () => {
   const { result, isEdit, setIsEdit, handleEdit } = useCommonContext();
@@ -31,8 +32,8 @@ const PermissionTable = () => {
     "Employee",
     "CDC Feature",
     "description",
-    "report date",
     "status",
+    "report date",
     "actions",
   ];
 
@@ -46,13 +47,20 @@ const PermissionTable = () => {
             <TableCell>{item?.result[0]?.name}</TableCell>
             <TableCell>
               <div className="flex flex-wrap gap-2">
-                {MENU.filter((it) => item?.permissions?.includes(it.path)).map(
+                {mergeAndFilterMenus(COMMONMENUITEMS, MENU)
+                  .filter((it) => item?.permissions?.includes(it?.path))
+                  .map((im) => (
+                    <Badge key={im.name} variant="outline">
+                      {im?.name}
+                    </Badge>
+                  ))}
+                {/* {MENU.filter((it) => item?.permissions?.includes(it.path)).map(
                   (im) => (
                     <Badge key={im?.name} variant="outline">
                       {im?.name}
                     </Badge>
                   )
-                )}
+                )} */}
               </div>
             </TableCell>
             <TableCell className="cursor-pointer">
@@ -69,10 +77,10 @@ const PermissionTable = () => {
                 </HoverCardContent>
               </HoverCard>
             </TableCell>
-            <TableCell>{format(item?.createdAt, "PPP")}</TableCell>
             <TableCell>
               <Status title={item?.isActive ? "Active" : "Inactive"} />
             </TableCell>
+            <TableCell>{format(item?.createdAt, "PPP")}</TableCell>
             <TableCell>
               <div className="flex gap-2">
                 <Dialog open={isEdit} onOpenChange={setIsEdit}>

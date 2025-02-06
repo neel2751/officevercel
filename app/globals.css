@@ -124,3 +124,33 @@ body {
   font-size: 0.75rem !important;
   font-weight: 600 !important;
 }
+
+.ProseMirror {
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  position: relative;
+  padding: 0.75rem;
+  min-height: 10rem;
+}
+/*  disable focus */
+.ProseMirror:focus {
+  outline: none;
+}
+
+.custom-ul-class {
+  padding-left: 20px; /* Adjust spacing */
+  list-style-type: disc; /* Retain or change bullet styles */
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.custom-li-class {
+  margin-bottom: 8px; /* Add space between items */
+  line-height: 1.5; /* Improve readability */
+}
+.custom-ol-class {
+  padding-left: 20px; /* Adjust spacing */
+  list-style-type: decimal; /* Retain or change bullet styles */
+  margin-top: 8px;
+  margin-bottom: 8px;
+}

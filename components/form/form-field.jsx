@@ -10,14 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  CalendarIcon,
-  Check,
-  ChevronsUpDown,
-  Minus,
-  Plus,
-  X,
-} from "lucide-react";
+import { CalendarIcon, Check, ChevronsUpDown, Minus, Plus } from "lucide-react";
 import { format, getMonth, getYear, setMonth, setYear } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -61,7 +54,7 @@ export const FormInput = ({ field, ...props }) => {
         {...props}
       />
       {field.helperText && (
-        <p className="text-sm text-muted-foreground">{field.helperText}</p>
+        <p className="text-xs text-muted-foreground">{field.helperText}</p>
       )}
       {errors[field.name] && (
         <p className="text-sm text-destructive">
@@ -213,7 +206,7 @@ export const FormDate = ({ field }) => {
 
   return (
     <div className="space-y-2">
-      <FormLabel name={field.name} labelText={field.labelText} />
+      <FormLabel name={field?.name} labelText={field?.labelText} />
       <Controller
         name={field.name}
         control={control}
@@ -230,6 +223,8 @@ export const FormDate = ({ field }) => {
             const newDate = setYear(value, parseInt(year));
             onChange(newDate);
           };
+
+          const disabledDateLogic = field.disabled || (() => false);
 
           return (
             <Popover>
@@ -294,6 +289,7 @@ export const FormDate = ({ field }) => {
                   month={value}
                   onMonthChange={onChange}
                   initialFocus
+                  disabled={disabledDateLogic}
                 />
               </PopoverContent>
             </Popover>
