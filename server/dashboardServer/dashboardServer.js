@@ -455,3 +455,115 @@ export async function getTotalSiteWorkingRightCount() {
     }; // Return error message
   }
 }
+
+// This is the test of the browser of Safari
+export const getOfficeEmpSummaryDataTest = async () => {
+  try {
+    await connect();
+    const threeFromNow = new Date();
+    threeFromNow.setMonth(threeFromNow.getMonth() + 3);
+    const result = await OfficeEmployeeModel.aggregate([
+      // if delete true don't  count
+      { $match: { delete: false } }, // filter out deleted employees
+      // { $match: { end_date: { $lte: threeFromNow } } }, // filter by end_date
+      {
+        $group: {
+          _id: null, // Group by employeeId
+          totalEmployees: { $sum: 1 }, // Count total number of employees
+          activeEmployees: {
+            $sum: { $cond: [{ $eq: ["$isActive", true] }, 1, 0] },
+          }, // Count active employees
+          inactiveEmployees: {
+            $sum: { $cond: [{ $eq: ["$isActive", false] }, 1, 0] },
+          }, // Count inactive employees
+          expiredEmployees: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $ne: ["$immigrationType", "British"] }, // Exclude owners
+                    { $lte: ["$visaEndDate", new Date()] }, // Check if visaEndDate is expired
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          }, // Count only immigrants with expired visas
+          // expiredEmployees: {
+          //   $sum: { $cond: [{ $lte: ["$visaEndDate", new Date()] }, 1, 0] },
+          // }, // Count expired employees (endDate <= current date)
+          reminderEmployees: {
+            $push: { name: "$firstName", eVisaExp: "$endDate" }, // Push name and eVisaExp fields to an array
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          totalEmployeeData: [
+            {
+              label: "Total Employee",
+              value: "$totalEmployees",
+              icon: "Users",
+            },
+            {
+              label: "Active Employee",
+              value: "$activeEmployees",
+              icon: "BadgeCheck",
+            },
+            {
+              label: "Inactive Employee",
+              value: "$inactiveEmployees",
+              icon: "BadgeX",
+            },
+            {
+              label: "Visa Expired Employee",
+              value: "$expiredEmployees",
+              icon: "Ban",
+            },
+          ],
+          reminderEmployeeData: "$reminderEmployees",
+        },
+      },
+    ]).exec();
+    if (result[0]) {
+      // After Test remove explation mark
+      // send data into array);
+      return {
+        status: true,
+        data: JSON.stringify(result[0].totalEmployeeData),
+      };
+    } else {
+      const data = {
+        totalEmployeeData: [
+          {
+            label: "Total Employee",
+            value: 0,
+          },
+          {
+            label: "Active Employee",
+            value: 0,
+          },
+          {
+            label: "Inactive Employee",
+            value: 0,
+          },
+          {
+            label: "Visa Expired Employee",
+            value: 0,
+          },
+        ],
+        reminderEmployees: [], // send reminder data
+      };
+      return {
+        success: false,
+        message: "No Data Found!",
+        data: JSON.stringify(data.totalEmployeeData),
+      };
+    }
+  } catch (error) {
+    console.log("Error at getting employee summary data : ", error);
+    return { success: false, message: "Internal Server Error" };
+  }
+};

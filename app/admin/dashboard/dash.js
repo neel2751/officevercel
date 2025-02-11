@@ -1,16 +1,28 @@
 "use client";
-import { fetchCardData } from "@/server/dashboardServer/dashboardServer";
+import {
+  fetchCardData,
+  getOfficeEmpSummaryDataTest,
+} from "@/server/dashboardServer/dashboardServer";
 import { useEffect, useMemo, useState } from "react";
 import DashCount from "./components/dashCard";
 import TodayCard from "./components/todayCard";
 import Overview from "./components/overview";
 import RecentData from "./components/recentData";
 import { toast } from "sonner";
+import { useFetchQuery } from "@/hooks/use-query";
 
 const Dash = () => {
   const [data, setData] = useState();
   const [chartData, setChartData] = useState();
   const [today, setToday] = useState();
+
+  const { data: queryData } = useFetchQuery({
+    fetchFn: getOfficeEmpSummaryDataTest,
+    queryKey: ["officeEmpSummaryData"],
+  });
+
+  const { newData } = queryData || {};
+  console.log(newData);
 
   const info = async () => {
     try {
