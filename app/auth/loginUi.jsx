@@ -97,11 +97,13 @@ export const LoginUi = () => {
               height={20}
               width={20}
               className="h-10 w-10"
-              src="/images/cdc.svg"
+              // src="/images/cdc.svg"
+              src="https://www.interiorstudioltd.com/images/logo.svg"
               alt="CDC"
             />
             <span className="text-gray-800 font-semibold text-lg whitespace-nowrap">
-              Creative Design & Construction
+              {/* Creative Design & Construction */}
+              Interior Studio Ltd
             </span>
           </div>
           <div className=" flex items-center text-xs text-gray-400 uppercase before:flex-[1_1_0%] before:border-t before:border-gray-200 before:me-6 after:flex-[1_1_0%] after:border-t after:border-gray-200 after:ms-6">
