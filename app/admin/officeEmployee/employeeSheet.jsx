@@ -69,7 +69,8 @@ const EmployeeSheet = ({ item }) => {
       title={"Employee Details"}
       description={"Detailed view of the employee's information."}
       tableName={item?.name}
-      tableDesc={item?.company?.name || "N/A"}
+      // tableDesc={item?.company?.name || "N/A"}
+      tableDesc={item?.roleType || "N/A"}
     />
   );
 };

@@ -5,8 +5,8 @@ import { Toaster } from "@/components/ui/sonner";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "CDC Software",
-  description: "Created by CDC",
+  title: "Interior Studio Software",
+  description: "Created by Interior Studio Software",
 };
 
 export default function RootLayout({ children }) {

@@ -67,8 +67,22 @@ export const getEmpSummaryData = async () => {
             $sum: { $cond: [{ $eq: ["$isActive", false] }, 1, 0] },
           }, // Count inactive employees
           expiredEmployees: {
-            $sum: { $cond: [{ $lte: ["$eVisaExp", new Date()] }, 1, 0] },
-          }, // Count expired employees (eVisaExp <= current date)
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $ne: ["$immigrationType", "British"] }, // Exclude owners
+                    { $lte: ["$visaEndDate", new Date()] }, // Check if visaEndDate is expired
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          }, // Count only immigrants with expired visas
+          // expiredEmployees: {
+          //   $sum: { $cond: [{ $lte: ["$eVisaExp", new Date()] }, 1, 0] },
+          // }, // Count expired employees (eVisaExp <= current date)
           reminderEmployees: {
             $push: { name: "$firstName", eVisaExp: "$eVisaExp" }, // List of employees for reminder purposes
           },
@@ -164,8 +178,22 @@ export const getOfficeEmpSummaryData = async () => {
             $sum: { $cond: [{ $eq: ["$isActive", false] }, 1, 0] },
           }, // Count inactive employees
           expiredEmployees: {
-            $sum: { $cond: [{ $lte: ["$visaEndDate", new Date()] }, 1, 0] },
-          }, // Count expired employees (endDate <= current date)
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $ne: ["$immigrationType", "British"] }, // Exclude owners
+                    { $lte: ["$visaEndDate", new Date()] }, // Check if visaEndDate is expired
+                  ],
+                },
+                1,
+                0,
+              ],
+            },
+          }, // Count only immigrants with expired visas
+          // expiredEmployees: {
+          //   $sum: { $cond: [{ $lte: ["$visaEndDate", new Date()] }, 1, 0] },
+          // }, // Count expired employees (endDate <= current date)
           reminderEmployees: {
             $push: { name: "$firstName", eVisaExp: "$endDate" }, // Push name and eVisaExp fields to an array
           },
