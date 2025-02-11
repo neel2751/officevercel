@@ -57,14 +57,22 @@ const OfficeEmplyee = ({ searchParams }) => {
     isError,
   } = useFetchQuery({
     params: {
-      page: currentPage,
-      pageSize: pagePerData,
-      query: query,
-      filter: filter,
+      page: currentPage || 1,
+      pageSize: pagePerData || 10,
+      query: query || "",
+      filter: filter || {}, // Ensure filter is always an object
     },
     queryKey,
-    fetchFn: getOfficeEmployee,
+    fetchFn: async () => {
+      try {
+        return await getOfficeEmployee();
+      } catch (error) {
+        console.error("Error fetching office employees:", error);
+        return { newData: [], totalCount: 0 };
+      }
+    },
   });
+
   const { newData: officeEmployeeData = [], totalCount = 0 } =
     queryResult || {};
 
@@ -93,10 +101,12 @@ const OfficeEmplyee = ({ searchParams }) => {
     }
     return item;
   });
+
   const handleClose = () => {
     setInitialValues({});
     setOpen(false);
   };
+
   const handleEditClose = () => {
     setInitialValues({});
     setIsEdit(false);
@@ -153,11 +163,8 @@ const OfficeEmplyee = ({ searchParams }) => {
     setAlert({ id, type, status });
   };
 
-  const [{ options }] = field.filter((it) => {
-    if (it.name === "immigrationType") {
-      return it.options;
-    }
-  });
+  const immigrationField = field.find((it) => it.name === "immigrationType");
+  const options = immigrationField?.options || [];
 
   return (
     <div className="p-4">
@@ -189,7 +196,7 @@ const OfficeEmplyee = ({ searchParams }) => {
                 <SearchDebounce />
                 <div className="flex gap-2">
                   <SelectFilter
-                    value={filter?.role}
+                    value={filter?.role || ""}
                     frameworks={[
                       { label: "All", value: "" },
                       ...selectRoleType,
@@ -208,7 +215,7 @@ const OfficeEmplyee = ({ searchParams }) => {
                     noData="No Data found"
                   /> */}
                   <SelectFilter
-                    value={filter.type}
+                    value={filter?.type || ""}
                     frameworks={[{ label: "All", value: "" }, ...options]}
                     placeholder={filter.type === "" ? "All" : "Select Type"}
                     onChange={(e) => setFilter({ ...filter, type: e })}
