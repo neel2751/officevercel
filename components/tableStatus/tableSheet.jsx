@@ -26,8 +26,9 @@ const TableSheet = ({ data, tableName, tableDesc, title, description }) => {
             {/* <!-- Header --> */}
             <div className="flex items-center justify-center flex-col text-center">
               <Avatar className="border border-neutral-200 p-0.5 shadow">
-                <AvatarImage src="/images/cdc.svg" />
-                <AvatarFallback>CDC</AvatarFallback>
+                {/* Replace With CDC Logo */}
+                <AvatarImage src="https://www.interiorstudioltd.com/images/logo.svg" />
+                <AvatarFallback>Interior Studio</AvatarFallback>
               </Avatar>
               <div className="mt-2">
                 <h3 className="text-lg text-gray-800 font-semibold">

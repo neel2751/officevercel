@@ -43,17 +43,17 @@ export const LOGINFIELD = [
 export const LoginUi = () => {
   const searchParams = useSearchParams();
   const callback = searchParams.get("callbackUrl");
-  const { status } = useSession();
+  const { status, data: session } = useSession();
   const router = useRouter();
   const [isLoading, setIsLoading] = React.useState(false);
 
   const callBackcheck = callback || process.env.NEXTAUTH_URL || "/";
 
   useEffect(() => {
-    if (status === "authenticated") {
+    if (session) {
       router.push(callBackcheck); // Push to the callback URL or default to "/"
     }
-  }, [status, callback, router]);
+  }, [session]);
 
   // useEffect(() => {
   //   if (status === "authenticated") {

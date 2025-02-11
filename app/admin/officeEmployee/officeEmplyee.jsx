@@ -198,7 +198,7 @@ const OfficeEmplyee = ({ searchParams }) => {
                     onChange={(e) => setFilter({ ...filter, role: e })}
                     noData="No Data found"
                   />
-                  <SelectFilter
+                  {/* <SelectFilter
                     value={filter.company}
                     frameworks={[{ label: "All", value: "" }, ...selectCompany]}
                     placeholder={
@@ -206,7 +206,7 @@ const OfficeEmplyee = ({ searchParams }) => {
                     }
                     onChange={(e) => setFilter({ ...filter, company: e })}
                     noData="No Data found"
-                  />
+                  /> */}
                   <SelectFilter
                     value={filter.type}
                     frameworks={[{ label: "All", value: "" }, ...options]}

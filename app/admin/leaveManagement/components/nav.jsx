@@ -22,6 +22,7 @@ import LeaveHistory from "./leaveHistory/leaveHistory";
 // import { LeavePolicy } from "./leavePolicy/page";
 import { BankHoliday } from "./bankHoliday";
 import RequestOff from "./reuqestOff/requestOff";
+import LeaveReport from "./leaveReport/leaveReport";
 
 export default function Navbar({ slug, searchParams }) {
   const adminMenu = [
@@ -65,24 +66,24 @@ export default function Navbar({ slug, searchParams }) {
       link: "bankholiday",
       icon: ScrollText,
     },
-    {
-      name: "Report",
-      link: "report",
-      //   content: <LeaveEntitlementCalculator />,
-      icon: SquareChartGantt,
-    },
-    {
-      name: "Settings",
-      link: "settings",
-      //   content: <ParentalLeaveCalculator />,
-      icon: Settings,
-    },
+    // {
+    //   name: "Report",
+    //   link: "report",
+    //   //   content: <LeaveEntitlementCalculator />,
+    //   icon: SquareChartGantt,
+    // },
+    // {
+    //   name: "Settings",
+    //   link: "settings",
+    //   //   content: <ParentalLeaveCalculator />,
+    //   icon: Settings,
+    // },
 
-    {
-      name: "Help",
-      link: "help",
-      icon: BadgeHelp,
-    },
+    // {
+    //   name: "Help",
+    //   link: "help",
+    //   icon: BadgeHelp,
+    // },
   ];
 
   const slugComponentmap = {
@@ -93,6 +94,7 @@ export default function Navbar({ slug, searchParams }) {
     requestoff: RequestOff,
     history: LeaveHistory,
     bankholiday: BankHoliday,
+    report: LeaveReport,
   };
 
   return (

@@ -169,8 +169,8 @@ const SideBarFooterCom = () => {
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">
-                    {/* {session?.user?.name || "CDC"} */}
-                    Interior Studio
+                    {session?.user?.name || "Interior Studio"}
+                    {/* Interior Studio */}
                   </span>
                   <span className="truncate text-xs">
                     {/* {session?.user?.email || "info@cdc.construction"} */}
@@ -190,7 +190,8 @@ const SideBarFooterCom = () => {
                 <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                   <Avatar className="h-8 w-8 rounded-lg">
                     <AvatarImage
-                      src={session?.user?.image || "/images/cdc.svg"}
+                      // src={session?.user?.image || "/images/cdc.svg"}
+                      src={"https://www.interiorstudioltd.com/images/logo.svg"}
                       alt={session?.user?.name || "CDC"}
                     />
                     <AvatarFallback className="rounded-lg">N</AvatarFallback>
@@ -203,7 +204,7 @@ const SideBarFooterCom = () => {
                       </span>
                     </span>
                     <span className="truncate text-xs">
-                      {session?.user?.email || "info@cdc.construction"}
+                      {session?.user?.email || ""}
                     </span>
                   </div>
                 </div>
@@ -213,12 +214,12 @@ const SideBarFooterCom = () => {
                 <DropdownMenuItem>
                   <Sparkles className="text-neutral-500" />
                   <span className="text-xs font-medium text-neutral-500">
-                    Current Version : CDC/V5.9
+                    Current Version : IS/V5.9
                   </span>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
-              <DropdownMenuGroup>
+              {/* <DropdownMenuGroup>
                 <DropdownMenuItem>
                   <BadgeCheck />
                   Account
@@ -231,7 +232,7 @@ const SideBarFooterCom = () => {
                   <Bell />
                   Notifications
                 </DropdownMenuItem>
-              </DropdownMenuGroup>
+              </DropdownMenuGroup> */}
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => signOut()}>
                 <LogOut />

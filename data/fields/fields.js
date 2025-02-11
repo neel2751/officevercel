@@ -617,15 +617,15 @@ export const OFFICEFIELD = [
       ...PATTERN,
     },
   },
-  {
-    name: "company",
-    labelText: "Company",
-    type: "select",
-    placeholder: "Select  a company",
-    validationOptions: {
-      required: "password is required",
-    },
-  },
+  // {
+  //   name: "company",
+  //   labelText: "Company",
+  //   type: "select",
+  //   placeholder: "Select  a company",
+  //   validationOptions: {
+  //     required: "password is required",
+  //   },
+  // },
   {
     name: "immigrationType",
     labelText: " Immigration Type",

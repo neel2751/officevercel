@@ -103,7 +103,7 @@ export const getEmpSummaryData = async () => {
         },
       },
     ]).exec();
-    if (!result[0]) {
+    if (result[0]) {
       // After Test remove explation mark
       return {
         status: true,
@@ -200,7 +200,7 @@ export const getOfficeEmpSummaryData = async () => {
         },
       },
     ]).exec();
-    if (!result[0]) {
+    if (result[0]) {
       // After Test remove explation mark
       // send data into array);
       return {
@@ -411,7 +411,7 @@ export async function getTotalSiteWorkingRightCount() {
       total: result[0]?.total[0]?.total || 0, // Total number of sites
       siteTypes: result[0]?.siteTypes || [], // Site types with count
       data:
-        !result[0].statuses.length > 0
+        result[0].statuses.length > 0
           ? JSON.stringify(result[0]?.statuses)
           : JSON.stringify([
               { label: "Active", value: 0 },

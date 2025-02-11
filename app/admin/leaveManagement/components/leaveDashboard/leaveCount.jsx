@@ -33,7 +33,7 @@ const LeaveCount = () => {
 
 export default LeaveCount;
 
-const LeaveCard = ({ label, value }) => (
+export const LeaveCard = ({ label, value }) => (
   <Card className="w-full">
     <CardHeader className="flex flex-row justify-between items-start">
       <div className="space-y-2">
