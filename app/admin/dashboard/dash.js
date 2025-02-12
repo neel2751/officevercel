@@ -23,13 +23,13 @@ const Dash = () => {
       } = await fetchCardData();
       const mergeData = [
         {
+          // label: "Office Employee Summary",
           label: "All Employee Summary",
-          value: JSON.parse([NumberOfEmployeeData?.data]),
+          value: JSON.parse([NumberOfficeEmployeeData?.data]),
         },
         {
-          // label: "Office Employee Summary",
           label: "Immigrant Employee Summary",
-          value: JSON.parse([NumberOfficeEmployeeData?.data]),
+          value: JSON.parse([NumberOfEmployeeData?.data]),
         },
         {
           label: "Total Site",

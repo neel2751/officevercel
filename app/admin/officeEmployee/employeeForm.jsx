@@ -1,3 +1,4 @@
+"use client";
 import { GlobalForm } from "@/components/form/form";
 import { useCommonContext } from "@/context/commonContext";
 import React from "react";

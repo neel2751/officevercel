@@ -1,3 +1,4 @@
+"use client";
 import TableSheet from "@/components/tableStatus/tableSheet";
 import { format } from "date-fns";
 

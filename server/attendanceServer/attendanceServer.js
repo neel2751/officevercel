@@ -171,8 +171,22 @@ export async function attendanceData(date, keyword) {
       });
     } else {
       // Fetch all active employees with valid eVisa
+      // employees = await EmployeModel.find(
+      //   { eVisaExp: { $gte: new Date() }, isActive: true },
+      //   { _id: 1, payRate: 1, firstName: 1, lastName: 1, paymentType: 1 }
+      // );
+
       employees = await EmployeModel.find(
-        { eVisaExp: { $gte: new Date() }, isActive: true },
+        {
+          isActive: true,
+          $or: [
+            { employeeType: "British", endDate: { $gte: new Date() } }, // Check endDate for British employees
+            {
+              employeeType: { $ne: "British" },
+              eVisaExp: { $gte: new Date() },
+            }, // Check eVisaExp for others
+          ],
+        },
         { _id: 1, payRate: 1, firstName: 1, lastName: 1, paymentType: 1 }
       );
     }
