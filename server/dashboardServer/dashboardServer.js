@@ -72,7 +72,7 @@ export const getEmpSummaryData = async () => {
                 {
                   $and: [
                     { $ne: ["$immigrationType", "British"] }, // Exclude owners
-                    { $lte: ["$visaEndDate", new Date()] }, // Check if visaEndDate is expired
+                    { $lte: ["$eVisaExp", new Date()] }, // Check if visaEndDate is expired
                   ],
                 },
                 1,
