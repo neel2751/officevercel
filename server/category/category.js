@@ -1,9 +1,10 @@
 "use server";
+import Leave from "@/class/leaveClass";
 import { connect } from "@/db/db";
+import { getLeaveYearString } from "@/lib/getLeaveYear";
 import AttendanceCategoryModel from "@/models/attendanceCategoryModel";
 import CommonLeaveModel from "@/models/commonLeaveModel";
 import LeaveCategoryModel from "@/models/leaveCategoryModel";
-import { getYear } from "date-fns";
 
 export async function getAttendanceCategories(filterData) {}
 
@@ -57,24 +58,67 @@ export async function fetchLeaveCategory() {
 }
 
 export async function handleLeaveCategory(data, id) {
+  // we have to make this session because if anything happen so we have to do maunally
+  // To do make a session with transaction
+
   if (!data) return { success: false, message: "No data provided" };
+  // if (data?.total <= 0) return { success: false, message: "Check your inputs" };
   try {
+    const isPaid = data?.isPaid === "Paid" ? true : false;
+    const isHide = data?.isHide === "Hide" ? true : false;
     await connect();
     // we have to chcek if the attendance category already exists by name
     if (id) {
       const existingCategory = await LeaveCategoryModel.findById(id);
-      const updateQuery = {
-        leaveYear: getYear(new Date()),
-        "leaveData.leaveType": existingCategory?.leaveType,
-      };
-      const updatePayload = {
-        $set: {
-          "leaveData.$.leaveType": data?.leaveType,
-          "leaveData.$.total": data?.total,
-        },
-      };
+      // const updateQuery = {
+      //   leaveYear: getLeaveYearString(new Date()),
+      //   "leaveData.leaveType": existingCategory?.leaveType,
+      // };
+      // const updatePayload = {
+      //   $set: {
+      //     "leaveData.$.leaveType": data?.leaveType,
+      //     "leaveData.$.total": data?.total,
+      //   },
+      // };
       // await CommonLeaveModel.updateMany( updateQuery, updatePayload, { multi: true } );
-      await CommonLeaveModel.updateMany(updateQuery, updatePayload);
+
+      await CommonLeaveModel.updateMany(
+        {
+          leaveYear: getLeaveYearString(new Date()),
+          "leaveData.leaveType": existingCategory?.leaveType,
+        },
+        [
+          {
+            $set: {
+              leaveData: {
+                $map: {
+                  input: "$leaveData",
+                  as: "item",
+                  in: {
+                    $cond: [
+                      {
+                        $eq: ["$$item.leaveType", existingCategory?.leaveType],
+                      },
+                      {
+                        leaveType: data?.leaveType,
+                        total: Number(data?.total),
+                        used: "$$item.used",
+                        remaining: {
+                          $subtract: [Number(data?.total), "$$item.used"],
+                        },
+                        type: "$$item.type",
+                        isHide: isHide,
+                        isPaid: isPaid,
+                      },
+                      "$$item", // Keep as is if not matching
+                    ],
+                  },
+                },
+              },
+            },
+          },
+        ]
+      );
       await LeaveCategoryModel.findByIdAndUpdate(id, data, {
         new: true,
       });
@@ -91,17 +135,27 @@ export async function handleLeaveCategory(data, id) {
           success: false,
           message: "Leave Category already exists",
         };
-      await LeaveCategoryModel.create(data);
-      await CommonLeaveModel.updateMany({
-        $push: {
-          leaveData: {
-            ...data,
-            used: 0,
-            remaining: data?.total,
-            type: "days",
+      const response = await LeaveCategoryModel.create(data);
+      if (response._id) {
+        const newLeave = new Leave({
+          leaveType: response.leaveType,
+          total: response?.total,
+          isHide,
+          isPaid,
+          used: 0,
+          remaining: 0,
+          type: "days",
+        });
+        await CommonLeaveModel.updateMany({
+          $push: {
+            leaveData: {
+              ...newLeave,
+            },
           },
-        },
-      });
+        });
+      } else {
+        return { success: false, message: "Error while creating..." };
+      }
       return {
         success: true,
         message: "Leave Category created successfully",

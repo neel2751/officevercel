@@ -1,11 +1,12 @@
 "use server";
-
 import { connect } from "@/db/db";
 import { getServerSideProps } from "../session/session";
 import { format, getYear, isPast } from "date-fns";
 import mongoose from "mongoose";
 import LeaveRequestModel from "@/models/leaveRequestModel";
 import CommonLeaveModel from "@/models/commonLeaveModel";
+import { withTransaction } from "@/lib/mongodb";
+import { validateLeaveData } from "./helper/helper";
 
 export async function getLeaveRequestData(leaveYear) {
   try {
@@ -42,14 +43,17 @@ export async function getLeaveRequestData(leaveYear) {
     };
 
     const pipeline = [
+      // Match
       {
         $match: match,
       },
+      // Sort
       {
         $sort: {
           leaveSubmitDate: -1,
         },
       },
+      // Lookup with superadmin and admin
       {
         $lookup: lookup,
       },
@@ -92,16 +96,13 @@ export async function getLeaveRequestDataAdmin(filterData) {
 
     await connect();
     const { leaveYear } = filterData;
-    const checkLeaveYear = Number(parseInt(leaveYear))
-      ? Number(parseInt(leaveYear))
-      : getYear(new Date());
 
     const match =
       role === "superAdmin"
-        ? { leaveYear: checkLeaveYear }
+        ? { leaveYear: leaveYear }
         : {
             employeeId: new mongoose.Types.ObjectId(employeeId),
-            leaveYear: checkLeaveYear,
+            leaveYear: leaveYear,
           };
     const lookup =
       role === "superAdmin"
@@ -140,16 +141,33 @@ export async function getLeaveRequestDataAdmin(filterData) {
           let: {
             startDate: "$leaveStartDate",
             endDate: "$leaveEndDate",
-            employeeId: "$employeeId",
+            employeeId: "$employeeId", // ✅ fixed
           },
           pipeline: [
             {
               $match: {
                 $expr: {
                   $and: [
-                    { $ne: ["$employeeId", "$$employeeId"] }, // exclude self
-                    { $lte: ["$leaveStartDate", "$$endDate"] }, // start date is before end date
-                    { $gte: ["$leaveEndDate", "$$startDate"] }, // end date is after start
+                    { $ne: ["$employeeId", "$$employeeId"] },
+                    {
+                      $lte: [
+                        { $toDate: "$leaveStartDate" }, // ✅ convert to Date
+                        "$$endDate",
+                      ],
+                    },
+                    {
+                      $gte: [
+                        { $toDate: "$leaveEndDate" }, // ✅ convert to Date
+                        "$$startDate",
+                      ],
+                    },
+                    { $in: ["$leaveStatus", ["Pending", "Approved"]] }, // ✅ Only active leaves
+                    {
+                      $gte: [
+                        { $toDate: "$leaveStartDate" },
+                        new Date(), // Today's date in UTC
+                      ],
+                    },
                   ],
                 },
               },
@@ -176,22 +194,39 @@ export async function getLeaveRequestDataAdmin(filterData) {
                 leaveEndDate: 1,
                 leaveType: 1,
                 leaveStatus: 1,
+                leaveDays: 1,
                 leaveSubmitDate: 1,
+                isHalfDay: 1,
                 employeeName: "$overlapEmployee.name", // Project the employee name
                 overLappingDays: {
-                  $add: [
+                  $max: [
                     {
-                      $divide: [
+                      $add: [
                         {
-                          $subtract: [
-                            { $min: ["$leaveEndDate", "$$endDate"] }, // Min of the two end dates
-                            { $max: ["$leaveStartDate", "$$startDate"] }, // Max of the two start
+                          $divide: [
+                            {
+                              $subtract: [
+                                {
+                                  $min: [
+                                    { $toDate: "$leaveEndDate" },
+                                    "$$endDate",
+                                  ],
+                                },
+                                {
+                                  $max: [
+                                    { $toDate: "$leaveStartDate" },
+                                    "$$startDate",
+                                  ],
+                                },
+                              ],
+                            },
+                            1000 * 60 * 60 * 24,
                           ],
                         },
-                        1000 * 60 * 60 * 24, // Convert millisecond to days
+                        1,
                       ],
                     },
-                    1, // Add 1 to include the day of overlap
+                    0, // clamp to zero
                   ],
                 },
               },
@@ -246,13 +281,8 @@ export async function handleEmployeeLeaveStatus(data) {
       );
       return { success: true, message: "Leave status updated successfully" };
     } else {
-      const rejectLeave = await rejectLeaveRequest(
-        data?.leaveId,
-        approvedBy,
-        data?.adminComment
-      );
-      console.log(rejectLeave);
-      return { success: true, message: "Leave status updated successfully" };
+      await rejectLeaveRequest(data?.leaveId, approvedBy, data?.adminComment);
+      return { success: true, message: "Leave Rejected Successfully..." };
     }
   } catch (error) {
     console.log("Error updating leave request status", error);
@@ -261,41 +291,23 @@ export async function handleEmployeeLeaveStatus(data) {
 }
 
 async function rejectLeaveRequest(requestId, adminId, adminComment = "") {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-  try {
-    // Step 1: Fetch the leave request to be rejected
+  return await withTransaction(async (session) => {
     const leaveRequest = await LeaveRequestModel.findById(requestId).session(
       session
     );
-    if (!leaveRequest)
-      return { success: false, message: "Leave request not found" };
-
-    // Step 2: Check if the leave request is already approved or rejected
+    if (!leaveRequest) throw new Error("Leave request not found");
     if (
       leaveRequest?.leaveStatus === "Approved" ||
       leaveRequest?.leaveStatus === "Rejected"
     )
-      return {
-        success: false,
-        message: "Leave request is already approved or rejected",
-      };
-
-    // Step 3: Fetch the common leave record
-    const commonLeave = await CommonLeaveModel.findOne({
-      employeeId: leaveRequest.employeeId,
-      leaveYear: leaveRequest.leaveYear,
-    }).session(session);
-    if (!commonLeave)
-      return { success: false, message: "Common leave record not found" };
-
-    const leaveData = commonLeave.leaveData.find(
-      (leave) => leave.leaveType === leaveRequest.leaveType
-    );
-    if (!leaveData) return { success: false, message: "Leave data not found" };
-
-    // Step 4: Adjust common leave balance if perviously approved
-
+      throw new Error("Leave is alreday approved or rejected");
+    const { employeeId, leaveYear, leaveType } = leaveRequest;
+    const { commonLeave, leaveData } = await validateLeaveData({
+      employeeId,
+      leaveYear,
+      leaveType,
+      session,
+    });
     const used = leaveData?.used - leaveRequest?.leaveDays;
     const remaining = leaveData?.remaining + leaveRequest?.leaveDays;
 
@@ -309,28 +321,19 @@ async function rejectLeaveRequest(requestId, adminId, adminComment = "") {
     );
 
     await commonLeave.save({ session });
-
     //Step 5: Update the leave request status and add admin rejectoin deatils
     leaveRequest.leaveStatus = "Rejected";
     leaveRequest.approvedBy = adminId;
     leaveRequest.approvedDate = new Date();
     leaveRequest.rejectedBy = adminId;
-    leaveRequest.adminComment = isPast(leaveRequest?.leaveStartDate)
+    leaveRequest.adminComment = adminComment
+      ? adminComment
+      : isPast(leaveRequest?.leaveStartDate)
       ? "Leave request is rejected due to past date"
       : adminComment;
     await leaveRequest.save({ session });
-
-    // Commit the transaction
-    await session.commitTransaction();
-    return { success: true, message: "Leave request rejected successfully" };
-  } catch (error) {
-    // Abort the transaction if there's an error
-    await session.abortTransaction();
-    console.log(" Error rejecting leave request:", error);
-    return { success: false, message: "Error rejecting leave request" };
-  } finally {
-    session.endSession();
-  }
+    return { success: true, message: "Reject Leave Successfully..." };
+  });
 }
 
 export async function rejectPastLeaveRequest() {
@@ -491,5 +494,138 @@ export async function editCommonLeave(data) {
   } catch (error) {
     console.log("Error editing common leave:", error);
     return { success: false, message: "Error editing common leave." };
+  }
+}
+
+export async function handleCommonLeaveStatus(data) {
+  try {
+    const { leaveType, isHide, employeeId, leaveYear } = data;
+
+    if (
+      leaveType === "undefined" ||
+      leaveType === "null" ||
+      leaveType === "" ||
+      !leaveType
+    )
+      return { success: false, message: "Leave type is required" };
+    if (isHide === undefined || isHide === null || isHide === "" || !isHide)
+      return { success: false, message: "isHide is required" };
+    // Step 1: Validate input
+    if (!employeeId || !leaveYear) {
+      return {
+        success: false,
+        message: "Employee ID and leave year are required",
+      };
+    }
+    // Some Leave types are not allowed to be hidden
+    const notAllowedLeaveTypes = ["Paternity Leave", "Maternity Leave"];
+    if (notAllowedLeaveTypes.includes(leaveType) && isHide) {
+      return {
+        success: false,
+        message: `Leave type "${leaveType}" cannot be Visible.`,
+      };
+    }
+
+    // fetch the current user session login data
+    const { props } = await getServerSideProps();
+    const { _id: admin, name, role } = props?.session?.user;
+
+    // call the connection
+    await connect();
+
+    // Step 1: Find the common leave document
+    const commonLeave = await CommonLeaveModel.findOne(
+      {
+        employeeId,
+        leaveYear,
+        "leaveData.leaveType": leaveType,
+      },
+      { "leaveData.$": 1 } // Fetch only the matched leave type
+    );
+    if (
+      !commonLeave ||
+      !commonLeave.leaveData ||
+      commonLeave.leaveData.length === 0
+    )
+      return { success: false, message: "Leave type or employee not found" };
+
+    // Step 4: Prepare history entry
+    const historyEntry = {
+      updateAt: new Date(),
+      updatedBy: admin || "System", // Deafult to system if admin is not found
+      updatedByName: name || "System", // Deafult to system if name is not found
+      role: role || "system", // Deafult to system if role is not found
+      leaveType,
+      isHide: !isHide,
+    };
+
+    // Step 5: Update the total, remaining, and append to history
+    const updateResult = await CommonLeaveModel.updateOne(
+      {
+        employeeId,
+        leaveYear,
+        "leaveData.leaveType": leaveType, // Match the leave type
+      },
+      {
+        $set: {
+          "leaveData.$.isHide": !isHide, // Update the remaining days
+        },
+        $push: {
+          leaveHistory: historyEntry, // Append the history entry
+        },
+      }
+    );
+
+    if (updateResult.matchedCount === 0)
+      return { success: false, message: "Leave type or employee not found" };
+    if (updateResult.modifiedCount === 0)
+      return { success: false, message: "No changes made to leave data" };
+
+    // Step 6: Return success response
+    return { success: true, message: "Leave days updated successfully" };
+  } catch (error) {
+    console.log("Error editing common leave:", error);
+    return { success: false, message: "Error editing common leave." };
+  }
+}
+
+export async function getCommonSpecificLeave({
+  employeeId,
+  leaveYear,
+  specificLeave,
+}) {
+  try {
+    const specificLeaveData = await CommonLeaveModel.aggregate([
+      {
+        $match: {
+          employeeId: employeeId,
+          leaveYear,
+          "leaveData.leaveType": specificLeave, // Initial filter to narrow down documents
+        },
+      },
+      {
+        $unwind: "$leaveData", // Deconstructs the leaveData array into multiple documents
+      },
+      {
+        $match: {
+          "leaveData.leaveType": specificLeave,
+          // You can add more specific conditions here as well
+          // For example, "leaveData.startDate": "2025-06-10"
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          leaveData: 1, // Include only the leaveData object
+        },
+      },
+      {
+        $limit: 1, // Since you want to fetch only one leave
+      },
+    ]).exec();
+    return specificLeaveData.length > 0 ? specificLeaveData[0].leaveData : null;
+  } catch (error) {
+    console.log(error);
+    return null;
   }
 }

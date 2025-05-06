@@ -63,14 +63,15 @@ const OfficeEmplyee = ({ searchParams }) => {
       filter: filter || {}, // Ensure filter is always an object
     },
     queryKey,
-    fetchFn: async () => {
-      try {
-        return await getOfficeEmployee();
-      } catch (error) {
-        console.error("Error fetching office employees:", error);
-        return { newData: [], totalCount: 0 };
-      }
-    },
+    fetchFn: getOfficeEmployee,
+    // fetchFn: async () => {
+    //   try {
+    //     return await getOfficeEmployee();
+    //   } catch (error) {
+    //     console.error("Error fetching office employees:", error);
+    //     return { newData: [], totalCount: 0 };
+    //   }
+    // },
   });
 
   const { newData: officeEmployeeData = [], totalCount = 0 } =
@@ -195,32 +196,41 @@ const OfficeEmplyee = ({ searchParams }) => {
               <div className="flex items-center justify-between">
                 <SearchDebounce />
                 <div className="flex gap-2">
-                  <SelectFilter
-                    value={filter?.role || ""}
-                    frameworks={[
-                      { label: "All", value: "" },
-                      ...selectRoleType,
-                    ]}
-                    placeholder={filter?.role === "" ? "All" : "Select Role"}
-                    onChange={(e) => setFilter({ ...filter, role: e })}
-                    noData="No Data found"
-                  />
-                  {/* <SelectFilter
-                    value={filter.company}
-                    frameworks={[{ label: "All", value: "" }, ...selectCompany]}
-                    placeholder={
-                      filter.company === "" ? "All" : "Select Company"
-                    }
-                    onChange={(e) => setFilter({ ...filter, company: e })}
-                    noData="No Data found"
-                  /> */}
-                  <SelectFilter
-                    value={filter?.type || ""}
-                    frameworks={[{ label: "All", value: "" }, ...options]}
-                    placeholder={filter.type === "" ? "All" : "Select Type"}
-                    onChange={(e) => setFilter({ ...filter, type: e })}
-                    noData="No Data found"
-                  />
+                  <div>
+                    <SelectFilter
+                      value={filter?.role || ""}
+                      frameworks={[
+                        { label: "All", value: "" },
+                        ...selectRoleType,
+                      ]}
+                      placeholder={filter?.role === "" ? "All" : "Select Role"}
+                      onChange={(e) => setFilter({ ...filter, role: e })}
+                      noData="No Data found"
+                    />
+                  </div>
+                  <div>
+                    <SelectFilter
+                      value={filter.company}
+                      frameworks={[
+                        { label: "All", value: "" },
+                        ...selectCompany,
+                      ]}
+                      placeholder={
+                        filter.company === "" ? "All" : "Select Company"
+                      }
+                      onChange={(e) => setFilter({ ...filter, company: e })}
+                      noData="No Data found"
+                    />
+                  </div>
+                  <div>
+                    <SelectFilter
+                      value={filter?.type || ""}
+                      frameworks={[{ label: "All", value: "" }, ...options]}
+                      placeholder={filter.type === "" ? "All" : "Select Type"}
+                      onChange={(e) => setFilter({ ...filter, type: e })}
+                      noData="No Data found"
+                    />
+                  </div>
                   <Button onClick={handleOpen}>
                     <Plus />
                     Add

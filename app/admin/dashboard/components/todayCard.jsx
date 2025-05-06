@@ -7,10 +7,10 @@ import {
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 
-const TodayCard = ({ title, description, value, supportText }) => {
+const TodayCard = ({ title, value, supportText }) => {
   return (
-    <Card className="max-w-xs w-full" x-chunk="charts-01-chunk-6">
-      <CardHeader className="p-4 pb-0">
+    <Card className="max-w-xs w-full">
+      <CardHeader>
         <CardTitle>{title}</CardTitle>
         <CardDescription className="sm:block hidden">
           Today's attendance total{" "}
@@ -21,7 +21,7 @@ const TodayCard = ({ title, description, value, supportText }) => {
           {/* You're burning an average of 754 calories per day. Good job! */}
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex sm:flex-row flex-col items-baseline gap-4 p-4 pt-2">
+      <CardContent className="flex sm:flex-row flex-col items-baseline gap-4">
         <div className="flex items-baseline gap-2 text-2xl font-bold tabular-nums leading-none">
           {title.toLowerCase().split(" ").join("") === "totalhours"
             ? value

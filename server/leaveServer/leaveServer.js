@@ -128,7 +128,7 @@ export async function fetchCommonLeave(filterData) {
           name: 1,
           joinDate: 1,
           employeType: 1,
-          partTimeDays: 1,
+          dayPerWeek: 1,
           hasCommonLeave: 1,
           leaveData: 1,
           roleType: 1,
@@ -169,6 +169,7 @@ export async function countLeave(employeeId, data) {
     const allCategory = await fetchLeaveCategory();
     if (!allCategory.success) return allCategory;
     const leaveCategories = JSON.parse(allCategory?.data);
+
     const STATUTORY_ANNUAL_LEAVE_DAYS = 28;
     const STATUTORY_SICK_WEEKS = 28; // Maximum SSP weeks
     const MATERNITY_WEEKS = 52;
@@ -414,6 +415,7 @@ export async function storeEmployeeLeave(data, id) {
         leaveYear,
         leaveDays: isEligible?.countDays,
         leaveSubmitDate: new Date(),
+        submitBy: employeeId,
       };
       const requestLeaveResult = await LeaveRequestModel.create(
         leaveRequestData
@@ -431,10 +433,11 @@ export async function storeEmployeeLeave(data, id) {
 export async function isDateOverLapping(employeeId, data, id) {
   try {
     await connect();
-    const requestId = id && { _id: { $ne: id } };
+    const requestId = id && { _id: { $ne: new mongoose.Types.ObjectId(id) } };
+    const ObjectIdEmployee = new mongoose.Types.ObjectId(employeeId);
     // check only with status pending
     const overLappingRequests = await LeaveRequestModel.find({
-      employeeId,
+      ObjectIdEmployee,
       requestId,
       $or: [{ leaveStatus: "Pending" }, { leaveStatus: "Approved" }],
       $or: [
@@ -450,6 +453,7 @@ export async function isDateOverLapping(employeeId, data, id) {
     return true;
   }
 }
+
 async function checkEligibility(employeeId, data, id) {
   try {
     const isOverLapping = await isDateOverLapping(employeeId, data, id);
@@ -519,6 +523,7 @@ async function checkEligibility(employeeId, data, id) {
     return { success: false, message: "Error checking eligibility" };
   }
 }
+
 async function editLeaveRequest(data, requestId) {
   const session = await mongoose.startSession();
   session.startTransaction();

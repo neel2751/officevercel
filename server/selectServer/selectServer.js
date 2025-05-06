@@ -12,6 +12,9 @@ import { getServerSideProps } from "../session/session";
 import { COMMONMENUITEMS, MENU } from "@/data/menu";
 import { mergeAndFilterMenus } from "@/lib/object";
 import LeaveCategoryModel from "@/models/leaveCategoryModel";
+import { getLeaveYearString } from "@/lib/getLeaveYear";
+import CommonLeaveModel from "@/models/commonLeaveModel";
+import mongoose from "mongoose";
 
 export const getSelectRoleType = async () => {
   try {
@@ -89,7 +92,14 @@ export const getSelectOfficeEmployee = async () => {
     const roles = await OfficeEmployeeModel.aggregate(
       [
         {
-          $match: { delete: false, isActive: true },
+          $match: {
+            isActive: true,
+            delete: false,
+            $or: [
+              { visaEndDate: { $lte: new Date() } },
+              { endDate: { $gte: new Date() } },
+            ],
+          },
         },
         {
           $project: {
@@ -252,7 +262,7 @@ export const getEmployeeMenu = async () => {
   }
 };
 
-export const getSelectLeaveRequest = async () => {
+export const getSelectLeaveCategories = async () => {
   try {
     const leaveTypes = await LeaveCategoryModel.aggregate([
       {
@@ -277,6 +287,62 @@ export const getSelectLeaveRequest = async () => {
     }
   } catch (err) {
     console.log(err);
+    return { success: false, message: "Error Occured" };
+  }
+};
+
+export const getSelectLeaveRequestForEmployee = async () => {
+  try {
+    await connect();
+
+    const { props } = await getServerSideProps();
+    const employeeId = props?.session?.user?._id;
+    const leaveYear = getLeaveYearString(new Date());
+    const pipeline = [
+      {
+        $match: {
+          leaveYear,
+          employeeId: new mongoose.Types.ObjectId(employeeId),
+        },
+      },
+      {
+        $project: {
+          leaveData: {
+            $filter: {
+              input: "$leaveData",
+              as: "item",
+              cond: { $eq: ["$$item.isHide", false] },
+            },
+          },
+        },
+      },
+      {
+        $unwind: "$leaveData",
+      },
+      {
+        $project: {
+          _id: 0,
+          value: "$leaveData.leaveType",
+          label: "$leaveData.leaveType",
+          total: "$leaveData.total",
+          used: "$leaveData.used",
+          remaining: "$leaveData.remaining",
+        },
+      },
+    ];
+
+    const result = await CommonLeaveModel.aggregate(pipeline).exec();
+    if (!result || result.length === 0) {
+      return { success: false, message: "No Data Found" };
+    } else {
+      const data = {
+        success: true,
+        data: JSON.stringify(result),
+      };
+      return data;
+    }
+  } catch (error) {
+    console.log(error);
     return { success: false, message: "Error Occured" };
   }
 };

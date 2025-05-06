@@ -14,14 +14,19 @@ const LeaveForm = ({
   fields,
   handleSubmit,
   initialValues,
+  isEdit,
 }) => {
   return (
     <Dialog open={showDialog} onOpenChange={setShowDialog}>
       <DialogContent className="max-w-xl">
         <DialogHeader>
-          <DialogTitle>Leave Request</DialogTitle>
+          <DialogTitle>
+            {isEdit ? "Edit Leave Request" : "New Leave Request"}
+          </DialogTitle>
           <DialogDescription>
-            Please fill in the form below to submit a leave request.
+            {isEdit
+              ? "Update the details below to edit the leave request."
+              : "Please fill in the form below to submit a leave request."}
           </DialogDescription>
         </DialogHeader>
         <GlobalForm

@@ -10,7 +10,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CalendarIcon, Check, ChevronsUpDown, Minus, Plus } from "lucide-react";
+import {
+  CalendarIcon,
+  Check,
+  ChevronsUpDown,
+  ImagePlus,
+  Minus,
+  Plus,
+  X,
+} from "lucide-react";
 import { format, getMonth, getYear, setMonth, setYear } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -33,6 +41,9 @@ import React from "react";
 import { useDropzone } from "react-dropzone";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import Image from "next/image";
+import { useImageUpload } from "@/hooks/use-image-upload-profile";
+import mime from "mime";
+import { formatToDateString, normalizeDateToUTC } from "@/lib/formatDate";
 
 export const FormInput = ({ field, ...props }) => {
   const {
@@ -181,8 +192,8 @@ export const FormDate = ({ field }) => {
     formState: { errors },
   } = useFormContext();
 
-  const startYear = getYear(new Date()) - 100;
-  const endYear = getYear(new Date()) + 100;
+  const startYear = getYear(new Date()) - 50;
+  const endYear = getYear(new Date()) + 50;
 
   const months = [
     "January",
@@ -213,18 +224,20 @@ export const FormDate = ({ field }) => {
         rules={field.validationOptions}
         render={({ field: { onChange, value } }) => {
           const handleMonth = (month) => {
-            const newDate = setMonth(value, months.indexOf(month));
-            onChange(newDate);
+            const newDate = setMonth(
+              value || new Date(),
+              months.indexOf(month)
+            );
+            onChange(normalizeDateToUTC(newDate));
           };
           const handleYear = (year) => {
-            if (!value) {
-              value = new Date();
-            }
-            const newDate = setYear(value, parseInt(year));
-            onChange(newDate);
+            const baseDate = value || new Date();
+            const newDate = setYear(baseDate, parseInt(year));
+            onChange(normalizeDateToUTC(newDate));
           };
 
           const disabledDateLogic = field.disabled || (() => false);
+          const parsedDate = value ? new Date(value) : new Date();
 
           return (
             <Popover>
@@ -248,9 +261,7 @@ export const FormDate = ({ field }) => {
                 <div className="flex gap-2 justify-center">
                   <Select
                     onValueChange={handleMonth}
-                    value={
-                      months[getMonth(value)] || months[getMonth(new Date())]
-                    }
+                    value={months[getMonth(parsedDate)]}
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Month" />
@@ -265,10 +276,7 @@ export const FormDate = ({ field }) => {
                   </Select>
                   <Select
                     onValueChange={handleYear}
-                    value={
-                      getYear(value).toString() ??
-                      getYear(new Date().toString())
-                    }
+                    value={parsedDate.getFullYear().toString()}
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Year" />
@@ -284,10 +292,16 @@ export const FormDate = ({ field }) => {
                 </div>
                 <Calendar
                   mode="single"
-                  selected={value || field.value}
-                  onSelect={onChange}
+                  selected={value ? new Date(value) : new Date()}
+                  onSelect={(date) => {
+                    if (date) {
+                      onChange(formatToDateString(normalizeDateToUTC(date)));
+                    }
+                  }}
                   month={value}
-                  onMonthChange={onChange}
+                  onMonthChange={(newMonth) => {
+                    onChange(normalizeDateToUTC(newMonth));
+                  }}
                   initialFocus
                   disabled={disabledDateLogic}
                 />
@@ -355,31 +369,30 @@ export const SearchableSelect = ({ field }) => {
                   <CommandList>
                     <CommandEmpty>{"No Data found."}</CommandEmpty>
                     {/* <ScrollArea className="h-72"> */}
-                    <CommandGroup>
-                      {options &&
-                        options?.map((framework) => (
-                          <CommandItem
-                            key={framework.value}
-                            value={framework.value}
-                            onSelect={() => {
-                              onChange(
-                                framework.value === value ? "" : framework.value
-                              );
-                              setOpen(false);
-                            }}
-                          >
-                            <Check
-                              className={cn(
-                                "mr-2 h-4 w-4",
-                                value === framework.value
-                                  ? "opacity-100"
-                                  : "opacity-0"
-                              )}
-                            />
-                            {framework.label}
-                          </CommandItem>
-                        ))}
-                    </CommandGroup>
+
+                    {options &&
+                      options?.map((framework) => (
+                        <CommandItem
+                          key={framework.value}
+                          value={framework.value}
+                          onSelect={() => {
+                            onChange(
+                              framework.value === value ? "" : framework.value
+                            );
+                            setOpen(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              value === framework.value
+                                ? "opacity-100"
+                                : "opacity-0"
+                            )}
+                          />
+                          {framework.label}
+                        </CommandItem>
+                      ))}
                     {/* </ScrollArea> */}
                   </CommandList>
                 </Command>
@@ -546,68 +559,281 @@ export const FormMultipleSelect = ({ field }) => {
 export const FormImageUpload = ({ field }) => {
   const {
     control,
+    setValue, // ✅ Use `setValue` to update form
     formState: { errors },
   } = useFormContext();
+
+  const [uploadedFiles, setUploadedFiles] = React.useState([]);
+
+  // 🔹 Sync with React Hook Form safely (only when uploadedFiles changes)
+  React.useEffect(() => {
+    setValue(
+      field.name,
+      field.maxFiles === 1 ? uploadedFiles[0] || null : uploadedFiles
+    );
+  }, [uploadedFiles, setValue, field.name]);
+
+  // 🔹 Cleanup Object URLs when the component unmounts
+  React.useEffect(() => {
+    return () =>
+      uploadedFiles.forEach((file) => URL.revokeObjectURL(file.preview));
+  }, [uploadedFiles]);
+
+  const onDrop = (acceptedFiles) => {
+    if (acceptedFiles.length === 0) return;
+
+    const newFiles = acceptedFiles
+      .filter(
+        (file) =>
+          !uploadedFiles.some((existingFile) => existingFile.name === file.name)
+      )
+      .map((file) =>
+        Object.assign(file, { preview: URL.createObjectURL(file) })
+      );
+
+    setUploadedFiles((prev) => {
+      const updatedFiles =
+        field.maxFiles === 1 ? [newFiles[0]] : [...prev, ...newFiles];
+      return updatedFiles;
+    });
+  };
+
+  const handleRemove = (event, index) => {
+    event.stopPropagation(); // Prevent Dropzone from opening file manager
+
+    setUploadedFiles((prev) => {
+      URL.revokeObjectURL(prev[index].preview);
+      return prev.filter((_, i) => i !== index);
+    });
+  };
+
+  const renderPreview = (file) => {
+    const fileType = file.type;
+
+    if (fileType.startsWith("image/")) {
+      // Image file preview
+      return (
+        <Image
+          src={file.preview}
+          alt={file.name}
+          height={80}
+          width={80}
+          className="rounded-md border border-gray-200 size-28 object-fill"
+        />
+      );
+    }
+
+    if (fileType.startsWith("video/")) {
+      // Video file preview
+      return (
+        <video controls className="rounded-md border border-gray-200 size-28">
+          <source src={file.preview} type={fileType} />
+          Your browser does not support the video tag.
+        </video>
+      );
+    }
+
+    if (fileType === "application/pdf") {
+      // PDF file preview
+      return (
+        <embed
+          src={file.preview}
+          type="application/pdf"
+          className="rounded-md border border-gray-200 size-28"
+        />
+      );
+    }
+
+    if (fileType.startsWith("text/")) {
+      // Text file preview
+      return (
+        <iframe
+          src={file.preview}
+          title={file.name}
+          className="rounded-md border border-gray-200 size-28"
+        />
+      );
+    }
+
+    // Fallback for other file types
+    return (
+      <div className="size-28 flex items-center justify-center bg-gray-200">
+        {file.name}
+      </div>
+    );
+  };
 
   return (
     <div className="space-y-2">
       <FormLabel name={field.name} labelText={field.labelText} />
       <Controller
-        name={field.name}
+        name={field?.name}
         control={control}
-        rules={field.validationOptions}
-        render={({ field: { onChange, value } }) => (
+        rules={field?.validationOptions}
+        render={() => (
           <Dropzone
-            onDrop={(acceptedFiles) => {
-              onChange(field.maxFiles === 1 ? acceptedFiles[0] : acceptedFiles);
-            }}
-            accept={field.acceptedFileTypes}
-            maxSize={field.maxFileSize}
-            maxFiles={field.maxFiles}
+            onDrop={onDrop}
+            accept={field?.acceptedFileTypes}
+            maxSize={field?.maxFileSize}
+            maxFiles={field?.maxFiles}
           >
-            {({
-              getRootProps,
-              getInputProps,
-              isDragActive,
-              fileRejections,
-            }) => (
-              <div
-                {...getRootProps()}
-                className={cn(
-                  "border-2 border-dashed rounded-md p-4 text-center cursor-pointer",
-                  isDragActive ? "border-primary" : "border-gray-300"
-                )}
-              >
-                <input {...getInputProps()} />
-                {value ? (
-                  <ImagePreview value={value} maxFiles={field.maxFiles} />
-                ) : (
-                  <p>
-                    {isDragActive
-                      ? "Drop the file here"
-                      : `Drag 'n' drop ${
-                          field.maxFiles > 1 ? "files" : "a file"
-                        } here, or click to select`}
-                  </p>
-                )}
-                {fileRejections?.length > 0 && (
-                  <div className="text-red-500 mt-2">
-                    {fileRejections.map(({ file, errors }) => (
-                      <div key={file.name}>
-                        {errors.map((e) => (
-                          <p key={e.code}>{e.message}</p>
-                        ))}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+            {({ fileRejections, isDragActive }) => (
+              <>
+                <div
+                  className={`border  border-dashed rounded-md p-4 cursor-pointer h-40 flex ${
+                    isDragActive
+                      ? "border-indigo-500 bg-indigo-100 animate-pulse"
+                      : errors[field?.name]
+                      ? "border-destructive"
+                      : "border-gray-300 bg-white"
+                  }`}
+                >
+                  {uploadedFiles.length > 0 ? (
+                    <div className="flex flex-wrap gap-4 items-start justify-start">
+                      {uploadedFiles.map((file, index) => (
+                        <div key={index} className="relative group">
+                          {renderPreview(file)}
+                          {/* <img
+                          src={file.preview}
+                          alt="Uploaded"
+                          className="h-20 w-20 border border-indigo-500 rounded-lg"
+                        /> */}
+                          <Button
+                            type="button"
+                            className="absolute size-5 rounded-full bg-rose-600 hover:bg-rose-700 -right-1 -top-1"
+                            size="icon"
+                            onClick={(event) => handleRemove(event, index)}
+                          >
+                            <X />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex justify-center items-center w-full p-12">
+                      {isDragActive ? (
+                        "Drop the file here"
+                      ) : (
+                        <div className="text-center">
+                          <svg
+                            className={`w-16 ${
+                              errors[field?.name]
+                                ? "text-destructive"
+                                : "text-stone-400"
+                            } mx-auto`}
+                            width="70"
+                            height="46"
+                            viewBox="0 0 70 46"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M6.05172 9.36853L17.2131 7.5083V41.3608L12.3018 42.3947C9.01306 43.0871 5.79705 40.9434 5.17081 37.6414L1.14319 16.4049C0.515988 13.0978 2.73148 9.92191 6.05172 9.36853Z"
+                              fill="currentColor"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              className={`${
+                                errors[field?.name]
+                                  ? "text-destructive"
+                                  : "stroke-neutral-500"
+                              } fill-white`}
+                            ></path>
+                            <path
+                              d="M63.9483 9.36853L52.7869 7.5083V41.3608L57.6982 42.3947C60.9869 43.0871 64.203 40.9434 64.8292 37.6414L68.8568 16.4049C69.484 13.0978 67.2685 9.92191 63.9483 9.36853Z"
+                              fill="currentColor"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              className={`${
+                                errors[field?.name]
+                                  ? "text-destructive"
+                                  : "stroke-neutral-500"
+                              } fill-white`}
+                            ></path>
+                            <rect
+                              x="17.0656"
+                              y="1.62305"
+                              width="35.8689"
+                              height="42.7541"
+                              rx="5"
+                              fill="currentColor"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              className={`${
+                                errors[field?.name]
+                                  ? "text-destructive"
+                                  : "stroke-neutral-500"
+                              } fill-white`}
+                            ></rect>
+                            <path
+                              d="M47.9344 44.3772H22.0655C19.3041 44.3772 17.0656 42.1386 17.0656 39.3772L17.0656 35.9161L29.4724 22.7682L38.9825 33.7121C39.7832 34.6335 41.2154 34.629 42.0102 33.7025L47.2456 27.5996L52.9344 33.7209V39.3772C52.9344 42.1386 50.6958 44.3772 47.9344 44.3772Z"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              className={`${
+                                errors[field?.name]
+                                  ? "text-destructive"
+                                  : "stroke-neutral-500"
+                              }`}
+                            ></path>
+                            <circle
+                              cx="39.5902"
+                              cy="14.9672"
+                              r="4.16393"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              className={`${
+                                errors[field?.name]
+                                  ? "text-destructive"
+                                  : "stroke-neutral-500"
+                              }`}
+                            ></circle>
+                          </svg>
+                          <div
+                            className={`${
+                              errors[field?.name]
+                                ? "text-destructive"
+                                : "text-stone-600"
+                            } leading-6 text-sm justify-center flex-wrap flex mt-4`}
+                          >
+                            <span>
+                              Drop your{" "}
+                              {field.maxFiles > 1 ? "files" : "a file"} here or
+                              click to{" "}
+                              <span
+                                className={`decoration-2 ${
+                                  errors[field?.name]
+                                    ? "text-destructive"
+                                    : "text-indigo-600"
+                                } font-semibold text-pretty`}
+                              >
+                                Upload
+                              </span>
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {console.log(fileRejections)}
+                </div>
+                <div className="mt-1">
+                  {fileRejections.length > 0 && (
+                    <div className="text-red-500 flex items-start text-sm text-pretty">
+                      {fileRejections[0].errors[0].code === "too-many-files"
+                        ? `You have allow only ${field.maxFiles} files and trying to upload ${fileRejections.length} files`
+                        : fileRejections[0].errors[0].message}
+                      {/* {fileRejections.map((rejection, index) => (
+                        <p key={index}>{rejection.errors[0].message}</p>
+                      ))} */}
+                    </div>
+                  )}
+                </div>
+              </>
             )}
           </Dropzone>
         )}
       />
       {errors[field?.name] && (
-        <p className="text-sm text-destructive">
+        <p className="text-sm font-medium text-destructive">
           {errors[field?.name]?.message}
         </p>
       )}
@@ -615,36 +841,13 @@ export const FormImageUpload = ({ field }) => {
   );
 };
 
-const ImagePreview = ({ value, maxFiles }) => {
-  if (maxFiles === 1) {
-    const file = value;
-    return (
-      <Avatar className="w-20 h-20 mx-auto">
-        <AvatarImage src={URL.createObjectURL(file)} alt={file.name} />
-        <AvatarFallback>{file.name.charAt(0).toUpperCase()}</AvatarFallback>
-      </Avatar>
-    );
-  } else {
-    const files = value;
-    return (
-      <div className="grid grid-cols-3 gap-2">
-        {files.map((file, index) => (
-          <div key={index} className="relative w-20 h-20">
-            <Image
-              src={URL.createObjectURL(file)}
-              alt={file.name}
-              layout="fill"
-              objectFit="cover"
-              className="rounded-md"
-            />
-          </div>
-        ))}
-      </div>
-    );
-  }
-};
-
-const Dropzone = ({ children, accept, maxSize, maxFiles, onDrop }) => {
+const Dropzone = ({
+  children,
+  accept = { "image/*": [] },
+  maxSize,
+  maxFiles,
+  onDrop,
+}) => {
   const { getRootProps, getInputProps, isDragActive, fileRejections } =
     useDropzone({
       accept,
@@ -654,9 +857,9 @@ const Dropzone = ({ children, accept, maxSize, maxFiles, onDrop }) => {
     });
 
   return (
-    <div {...getRootProps()}>
+    <div {...getRootProps()} className="">
       <input {...getInputProps()} />
-      {children({ getRootProps, getInputProps, isDragActive, fileRejections })}
+      {children({ isDragActive, fileRejections })}
     </div>
   );
 };
@@ -780,69 +983,139 @@ const FormLabel = ({ name, labelText }) => {
   );
 };
 
-// export const FormImageUpload = ({ field }) => {
-//   const {
-//     control,
-//     formState: { errors },
-//   } = useFormContext();
+export function ProfileBg({ defaultImage }) {
+  const [hideDefault, setHideDefault] = useState(false);
+  const {
+    previewUrl,
+    fileInputRef,
+    handleThumbnailClick,
+    handleFileChange,
+    handleRemove,
+  } = useImageUpload();
 
-//   return (
-//     <div className="space-y-2">
-//       <Label htmlFor={field.name}>{field.labelText}</Label>
-//       <Controller
-//         name={field.name}
-//         control={control}
-//         rules={field.validationOptions}
-//         render={({ field: { onChange, value } }) => (
-//           <Dropzone
-//             onDrop={(acceptedFiles) => {
-//               onChange(acceptedFiles[0]);
-//             }}
-//           >
-//             {({ getRootProps, getInputProps, isDragActive }) => (
-//               <div
-//                 {...getRootProps()}
-//                 className={cn(
-//                   "border-2 border-dashed rounded-md p-4 text-center cursor-pointer",
-//                   isDragActive ? "border-primary" : "border-gray-300"
-//                 )}
-//               >
-//                 <input {...getInputProps()} />
-//                 {value ? (
-//                   <p>File selected: {value.name}</p>
-//                 ) : (
-//                   <p>
-//                     {isDragActive
-//                       ? "Drop the file here"
-//                       : "Drag 'n' drop a file here, or click to select a file"}
-//                   </p>
-//                 )}
-//               </div>
-//             )}
-//           </Dropzone>
-//         )}
-//       />
-//       {errors[field.name] && (
-//         <p className="text-sm text-destructive">
-//           {errors[field.name]?.message}
-//         </p>
-//       )}
-//     </div>
-//   );
-// };
+  const currentImage = previewUrl || (!hideDefault ? defaultImage : null);
 
-// const Dropzone = ({ children }) => {
-//   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-//     accept: {
-//       "image/*": [".jpeg", ".png", ".jpg", ".gif"],
-//     },
-//     maxFiles: 1,
-//   });
+  const handleImageRemove = () => {
+    handleRemove();
+    setHideDefault(true);
+  };
 
-//   return (
-//     <div {...getRootProps()}>
-//       <input {...getInputProps()} />
-//       {children({ getRootProps, getInputProps, isDragActive })}
-//     </div>
-//   );
-// };
+  return (
+    <div className="h-32">
+      <div className="relative flex h-full w-full items-center justify-center overflow-hidden bg-muted">
+        {currentImage && (
+          <img
+            className="h-full w-full object-cover"
+            src={currentImage}
+            alt={
+              previewUrl
+                ? "Preview of uploaded image"
+                : "Default profile background"
+            }
+            width={512}
+            height={96}
+          />
+        )}
+        <div className="absolute inset-0 flex items-center justify-center gap-2">
+          <button
+            type="button"
+            className="z-50 flex size-10 cursor-pointer items-center justify-center rounded-full bg-black/60 text-white outline-offset-2 transition-colors hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring/70"
+            onClick={handleThumbnailClick}
+            aria-label={currentImage ? "Change image" : "Upload image"}
+          >
+            <ImagePlus size={16} strokeWidth={2} aria-hidden="true" />
+          </button>
+          {currentImage && (
+            <button
+              type="button"
+              className="z-50 flex size-10 cursor-pointer items-center justify-center rounded-full bg-black/60 text-white outline-offset-2 transition-colors hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring/70"
+              onClick={handleImageRemove}
+              aria-label="Remove image"
+            >
+              <X size={16} strokeWidth={2} aria-hidden="true" />
+            </button>
+          )}
+        </div>
+      </div>
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        className="hidden"
+        accept="image/*"
+        aria-label="Upload image file"
+      />
+    </div>
+  );
+}
+
+export function AvatarImageProfile({ field }) {
+  const {
+    control,
+    formState: { errors },
+  } = useFormContext();
+
+  return (
+    <div className="space-y-2">
+      <FormLabel name={field.name} labelText={field.labelText} />
+      <Controller
+        name={field.name}
+        control={control}
+        rules={field.validationOptions}
+        render={({ field: { onChange, value } }) => (
+          <Dropzone
+            onDrop={(acceptedFiles) => {
+              onChange(acceptedFiles[0]);
+            }}
+            accept={field.acceptedFileTypes}
+            maxSize={field.maxFileSize}
+            maxFiles={field.maxFiles}
+          >
+            {({ isDragActive, fileRejections }) => (
+              <div className="mt-2 px-6 group max-w-max">
+                <div className="relative flex size-20 items-center justify-center overflow-hidden rounded-full border-4 border-background bg-muted shadow-sm shadow-black/10 group">
+                  {value && (
+                    // <ImagePreview value={value} maxFiles={field.maxFiles} />
+                    <>
+                      <img
+                        src={URL.createObjectURL(value)}
+                        className="h-full w-full object-cover"
+                        width={80}
+                        height={80}
+                        alt="Profile image"
+                      />
+                    </>
+                  )}
+                  <button
+                    type="button"
+                    className="absolute group-hover:flex hidden size-8 cursor-pointer items-center justify-center rounded-full bg-black/60 text-white outline-offset-2 transition-colors hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring/70"
+                    // onClick={handleThumbnailClick}
+                    aria-label="Change profile picture"
+                  >
+                    <ImagePlus size={16} strokeWidth={2} aria-hidden="true" />
+                  </button>
+                </div>
+                {fileRejections?.length > 0 && (
+                  <div className="text-red-500 mt-2">
+                    {fileRejections.map(({ file, errors }) => (
+                      <div key={file.name}>
+                        {errors.map((e) => (
+                          <p key={e.code}>{e.message}</p>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </Dropzone>
+        )}
+      />
+      {errors[field?.name] && (
+        <p className="text-sm text-destructive">
+          {errors[field?.name]?.message}
+        </p>
+      )}
+    </div>
+  );
+}

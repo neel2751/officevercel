@@ -92,12 +92,12 @@ export const MENU = [
     role: ["superAdmin"],
     icon: "Captions",
   },
-  // {
-  //   name: "Company",
-  //   path: "/admin/company",
-  //   role: ["superAdmin", "admin"],
-  //   icon: "Building2",
-  // },
+  {
+    name: "Company",
+    path: "/admin/company",
+    role: ["superAdmin", "admin"],
+    icon: "Building2",
+  },
 ];
 
 export const COMMONMENUITEMS = [

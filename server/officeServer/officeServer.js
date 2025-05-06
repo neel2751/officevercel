@@ -185,10 +185,10 @@ export const getOfficeEmployee = async (filterData) => {
           totalCount: [{ $count: "count" }],
           result: [
             {
-              $skip: Math.abs(skip),
+              $skip: Number(skip) || 0,
             },
             {
-              $limit: Math.abs(validLimit),
+              $limit: Number(validLimit) || 10,
             },
           ],
         },

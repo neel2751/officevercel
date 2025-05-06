@@ -77,6 +77,7 @@ export const LoginUi = () => {
       if (res?.error) {
         toast.error(res.error); // Optionally show a toast notification
       } else {
+        toast.success("Logged in successfully. Please wait..."); // Optionally show a toast notification
         window.location.href = res.url || callBackcheck || "/";
       }
     } catch (err) {
@@ -98,12 +99,12 @@ export const LoginUi = () => {
               width={20}
               className="h-10 w-10"
               // src="/images/cdc.svg"
-              src="https://www.interiorstudioltd.com/images/logo.svg"
+              src="https://res.cloudinary.com/drcjzx0sw/image/upload/v1746444818/hr_jlxx1c.svg"
               alt="CDC"
             />
             <span className="text-gray-800 font-semibold text-lg whitespace-nowrap">
               {/* Creative Design & Construction */}
-              Interior Studio Ltd
+              Hr Management
             </span>
           </div>
           <div className=" flex items-center text-xs text-gray-400 uppercase before:flex-[1_1_0%] before:border-t before:border-gray-200 before:me-6 after:flex-[1_1_0%] after:border-t after:border-gray-200 after:ms-6">

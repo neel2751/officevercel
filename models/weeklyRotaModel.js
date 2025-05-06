@@ -8,7 +8,7 @@ const attendance = new mongoose.Schema({
   employeeName: {
     type: String,
   },
-  schedule: Object,
+  schedule: Array, // if it is not work so make Object again
 });
 
 const weeklyRotaSchema = new mongoose.Schema(

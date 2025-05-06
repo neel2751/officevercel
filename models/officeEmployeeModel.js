@@ -21,7 +21,7 @@ const officeEmployeSchema = new mongoose.Schema(
     immigrationType: { type: String, required: true },
     immigrationCategory: { type: String, required: false },
     employeType: { type: String, required: true },
-    partTimeDays: { type: Number, required: false }, // 1-7
+    dayPerWeek: { type: Number, required: false }, // 1-7
     // hoursPerWeek: { type: Number, required: false },
     // weeksPerYear: { type: Number, required: false },
     isActive: { type: Boolean, default: true },
@@ -32,7 +32,7 @@ const officeEmployeSchema = new mongoose.Schema(
     visaEndDate: { type: Date, required: false },
     joinDate: { type: Date, required: true },
     endDate: { type: Date, required: false },
-    emergencyName: { type: String, required: true },
+    emergencyName: { type: String, required: false },
     emergencyPhoneNumber: { type: Number, required: false },
     emergencyRelation: { type: String, required: false },
     emergencyAddress: { type: String, required: false },

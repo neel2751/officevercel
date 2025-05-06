@@ -79,20 +79,130 @@ export const EMERGENCYFIELD = [
   },
 ];
 
+export const VISAFIELD = [
+  {
+    name: "immigrationType",
+    labelText: " Immigration Type",
+    type: "select",
+    placeholder: "Enter Immigration Type",
+    options: [
+      { value: "British", label: "British" },
+      { value: "Immigrant", label: "Immigrant" },
+    ],
+    validationOptions: {
+      required: "Immigration Type is required",
+    },
+  },
+  {
+    name: "immigrationCategory",
+    labelText: " Immigration  Category",
+    type: "text",
+    showIf: {
+      field: "immigrationType",
+      value: "Immigrant",
+    },
+    // size: true,
+    placeholder: "Enter Immigration  Category",
+    validationOptions: {
+      required: "Immigration  Category is required",
+      minLength: {
+        value: 3,
+        message: "Minimum length should be 3 characters",
+      },
+      pattern: {
+        value: /^(?! )[a-zA-Z0-9]+(?: [a-zA-Z0-9]+)*(?<! )$/,
+        message: "Invalid immigration status format",
+      },
+    },
+  },
+  {
+    name: "joinDate",
+    labelText: "Join Date",
+    type: "date",
+    value: new Date(),
+    placeholder: "Start Date",
+    validationOptions: {
+      required: "Join Date is required",
+    },
+  },
+  {
+    name: "endDate",
+    labelText: "End Date",
+    type: "date",
+    placeholder: "End Date",
+  },
+  {
+    name: "visaStartDate",
+    labelText: "Visa Start Date",
+    type: "date",
+    showIf: {
+      field: "immigrationType",
+      value: "Immigrant",
+    },
+    placeholder: "Select Date",
+    validationOptions: {
+      required: "Visa Start Date is required",
+    },
+  },
+  {
+    name: "visaEndDate",
+    labelText: "Visa End Date",
+    type: "date",
+    showIf: {
+      field: "immigrationType",
+      value: "Immigrant",
+    },
+    placeholder: "Visa End Date",
+    validationOptions: {
+      required: "Visa End Date is required",
+    },
+  },
+];
+
+export const DEPARTMENTFIELD = [
+  {
+    name: "department",
+    labelText: "Role Department",
+    options: [],
+    type: "select",
+    validationOptions: { required: "Role Department is required" },
+  },
+  {
+    name: "roleType",
+    labelText: "Role Type",
+    type: "text",
+    placeholder: "operation, office,business...",
+    validationOptions: {
+      required: "Role Type is required",
+      ...PATTERN,
+    },
+  },
+  {
+    name: "company",
+    labelText: "Company",
+    type: "select",
+    options: [],
+    placeholder: "Select  a company",
+    validationOptions: {
+      required: "Company is required",
+    },
+  },
+];
+
 export const EMPLOYEFIELD = [
-  // {
-  //   name: "profileImage",
-  //   labelText: "Profile Image",
-  //   type: "image",
-  //   placeholder: "Upload Profile Image",
-  //   acceptedFileTypes: ["jpg", "jpeg", "png"],
-  //   maxFileSize: 1024 * 1024 * 5,
-  //   maxFiles: 1,
-  //   size: true,
-  //   validationOptions: {
-  //     required: "Profile Image is required",
-  //   },
-  // },
+  {
+    name: "profileImage",
+    labelText: "Profile Image",
+    type: "image",
+    placeholder: "Upload Profile Image",
+    acceptedFileTypes: { "image/*": [".png", ".jpg", ".jpeg"] },
+    maxFileSize: 1024 * 1024 * 5,
+    maxFiles: 1,
+    size: true,
+    validationOptions: {
+      required: "Profile Image is required",
+    },
+  },
   {
     name: "firstName",
     labelText: "First Name",
@@ -600,45 +710,7 @@ export const OFFICEFIELD = [
       },
     },
   },
-  {
-    name: "department",
-    labelText: "Role Department",
-    options: [],
-    type: "select",
-    validationOptions: { required: "Role Department is required" },
-  },
-  {
-    name: "roleType",
-    labelText: "Role Type",
-    type: "text",
-    placeholder: "operation, office,business...",
-    validationOptions: {
-      required: "Role Type is required",
-      ...PATTERN,
-    },
-  },
-  // {
-  //   name: "company",
-  //   labelText: "Company",
-  //   type: "select",
-  //   placeholder: "Select  a company",
-  //   validationOptions: {
-  //     required: "password is required",
-  //   },
-  // },
-  {
-    name: "immigrationType",
-    labelText: " Immigration Type",
-    type: "select",
-    placeholder: "Enter Immigration Type",
-    options: [
-      { value: "British", label: "British" },
-      { value: "Immigrant", label: "Immigrant" },
-    ],
-    validationOptions: {
-      required: "Immigration Type is required",
-    },
-  },
+  ...DEPARTMENTFIELD,
   {
     name: "employeType",
     labelText: "Employe Type",
@@ -655,12 +727,8 @@ export const OFFICEFIELD = [
     },
   },
   {
-    name: "partTimeDays",
+    name: "dayPerWeek",
     labelText: "Days",
-    showIf: {
-      field: "employeType",
-      value: "Part-Time",
-    },
     type: "text",
     pattern: /d*/,
     inputMode: "numeric",
@@ -744,28 +812,6 @@ export const OFFICEFIELD = [
     },
   },
   {
-    name: "immigrationCategory",
-    labelText: " Immigration  Category",
-    type: "text",
-    showIf: {
-      field: "immigrationType",
-      value: "Immigrant",
-    },
-    size: true,
-    placeholder: "Enter Immigration  Category",
-    validationOptions: {
-      required: "Immigration  Category is required",
-      minLength: {
-        value: 3,
-        message: "Minimum length should be 3 characters",
-      },
-      pattern: {
-        value: /^(?! )[a-zA-Z0-9]+(?: [a-zA-Z0-9]+)*(?<! )$/,
-        message: "Invalid immigration status format",
-      },
-    },
-  },
-  {
     name: "password",
     labelText: "Password",
     type: "password",
@@ -781,48 +827,7 @@ export const OFFICEFIELD = [
       },
     },
   },
-  {
-    name: "joinDate",
-    labelText: "Join Date",
-    type: "date",
-    value: new Date(),
-    placeholder: "Start Date",
-    validationOptions: {
-      required: "Join Date is required",
-    },
-  },
-  {
-    name: "endDate",
-    labelText: "End Date",
-    type: "date",
-    placeholder: "End Date",
-  },
-  {
-    name: "visaStartDate",
-    labelText: "Visa Start Date",
-    type: "date",
-    showIf: {
-      field: "immigrationType",
-      value: "Immigrant",
-    },
-    placeholder: "Select Date",
-    validationOptions: {
-      required: "Visa Start Date is required",
-    },
-  },
-  {
-    name: "visaEndDate",
-    labelText: "Visa End Date",
-    type: "date",
-    showIf: {
-      field: "immigrationType",
-      value: "Immigrant",
-    },
-    placeholder: "Visa End Date",
-    validationOptions: {
-      required: "Visa End Date is required",
-    },
-  },
+  ...VISAFIELD,
   ...EMERGENCYFIELD,
 ];
 
@@ -866,41 +871,55 @@ export const ASSIGNSITEMANAGERFIELD = [
 export const ROLETYPEFIELD = [
   {
     name: "roleTitle",
-    labelText: "Role Name",
+    labelText: "Department Name",
     type: "text",
     helperText: "*This Name will appear be on Site Project.",
-    placeholder: "Enter Role Type",
+    placeholder: "Department Name",
     size: true,
     validationOptions: {
-      required: "Role Type is required",
+      required: "Department Name is required",
       minLength: {
         value: 3,
-        message: "Role Type at least 3 characters",
+        message: "Department Name must be at least 3 characters long",
       },
       maxLength: {
         value: 20,
-        message: "Role Type cannot be more than 20 characters",
+        message: "Department Name cannot be more than 20 characters long",
       },
       ...PATTERN,
     },
   },
   {
     name: "roleDescription",
-    labelText: "Role Description",
+    labelText: "Department Description",
     size: true,
     type: "textarea",
-    helperText: "*Describe Our Role Types",
-    placeholder: "On this site we will be doing like loft conversion...",
+    helperText: "*Describe Departments",
+    placeholder:
+      "prepare financial statements, business plans and budget reports",
   },
 ];
 
 export const COMPANYFIELD = [
   {
+    name: "profileImage",
+    labelText: "Profile Image",
+    type: "image",
+    placeholder: "Upload Profile Image",
+    acceptedFileTypes: { "image/*": [".png", ".jpg", ".jpeg"] },
+    maxFileSize: 1024 * 1024 * 5,
+    maxFiles: 1,
+    size: true,
+    validationOptions: {
+      required: "Profile Image is required",
+    },
+  },
+  {
     name: "name",
     labelText: "Company Name",
     type: "text",
     helperText: "*This Name will appear be on employee table.",
-    placeholder: "Enter  Company Name",
+    placeholder: "Enter Company Name",
     size: true,
     validationOptions: {
       required: " Company Name is required",
@@ -917,11 +936,11 @@ export const COMPANYFIELD = [
   },
   {
     name: "description",
-    labelText: " Company Description",
+    labelText: "Company Description",
     size: true,
     type: "textarea",
     helperText: "*Describe company",
-    placeholder: " Company for construction and building",
+    placeholder: "Company for construction and building",
   },
   // {
   //   name: "emails",
@@ -1041,6 +1060,7 @@ export const LEAVECATEGORYFIELD = [
       required: "Please enter the total leave",
       pattern: {
         // we can't allow to decimal values with not allow zero start with one
+        // value: /^(?:[1-4]?\d|50)$/,
         value: /^(?!0$)(?:[1-4]?\d|50)$/,
         message: "Please enter a valid number",
       },
@@ -1055,45 +1075,30 @@ export const LEAVECATEGORYFIELD = [
     },
   },
   {
-    name: "rule",
-    labelText: "No. of (days/month)",
-    type: "number",
-    placeholder: "Enter no. of days/month",
-    helperText: "Eligible after this no. of days/month",
-    validationOptions: {
-      required: "Please enter the total leave",
-      pattern: {
-        // we can't allow to decimal values with not allow zero start with one
-        value: /^(?!0$)(?:[1-4]?\d|50)$/,
-        message: "Please enter a valid number",
-      },
-      minLength: {
-        value: 1,
-        message: "Please enter a valid number",
-      },
-      maxLength: {
-        value: 2,
-        message: "Please enter a valid number",
-      },
-    },
-  },
-  {
-    name: "ruleType",
-    labelText: "Rule Type",
-    type: "select",
+    name: "isPaid",
+    labelText: "Leave Type",
     options: [
-      { value: "days", label: "Days" },
-      { value: "months", label: "Months" },
+      { label: "Paid", value: "Paid" },
+      { label: "Unpaid", value: "Unpaid" },
     ],
-    validationOptions: {
-      required: "Please enter the total leave",
-    },
+    type: "radio",
+    validationOptions: { required: "Leave Type is required" },
+  },
+  {
+    name: "isHide",
+    labelText: "Leave View",
+    options: [
+      { label: "Hide", value: "Hide" },
+      { label: "Unhide", value: "Unhide" },
+    ],
+    type: "radio",
+    validationOptions: { required: "Leave View is required" },
   },
   {
     name: "note",
     labelText: "Note (optional)",
     type: "textarea",
-    placeholder: "add a note here for your leave category",
+    placeholder: "Add a note here for your leave category",
     size: true,
   },
 ];

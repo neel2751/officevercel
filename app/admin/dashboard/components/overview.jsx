@@ -29,11 +29,11 @@ const chartConfigg = {
   },
   TotalHours: {
     label: "TotalHours",
-    color: "hsl(var(--chart-1))",
+    color: "var(--chart-1)",
   },
   TotalPay: {
     label: "TotalPay",
-    color: "hsl(var(--chart-2))",
+    color: "var(--chart-2)",
   },
 };
 
@@ -55,7 +55,7 @@ export default function Overview({ dayData }) {
 
   return (
     <Card>
-      <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
+      <CardHeader className="flex items-center gap-2 space-y-0 border-b sm:flex-row">
         <div className="grid flex-1 gap-1 text-center sm:text-left">
           <CardTitle>Attendance Chart - Interactive</CardTitle>
           <CardDescription>

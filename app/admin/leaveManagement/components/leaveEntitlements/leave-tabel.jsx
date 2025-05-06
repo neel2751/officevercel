@@ -52,18 +52,20 @@ export default function LeaveEntitlementTable({
                     : "Not Available"}
                 </TableCell>
                 <TableCell>{item?.employeType || "Not Available"}</TableCell>
-                <TableCell>{item?.partTimeDays || "5"} days</TableCell>
+                <TableCell>{item?.dayPerWeek || "5"} days</TableCell>
                 <TableCell>
                   <div className="space-x-3">
-                    {!item?.employeType && (
+                    {(!item?.employeType || !item?.dayPerWeek) && (
                       <EmployeeUpdate item={item} queryKey={queryKey} />
                     )}
                     {item?.employeType && item?.leaveData && (
                       <LeaveSheet item={item} queryKey={queryKey} />
                     )}
-                    {!item?.leaveData && item?.employeType && (
-                      <LeaveScan item={item} queryKey={queryKey} />
-                    )}
+                    {!item?.leaveData &&
+                      item?.employeType &&
+                      item?.dayPerWeek && (
+                        <LeaveScan item={item} queryKey={queryKey} />
+                      )}
                   </div>
                 </TableCell>
               </TableRow>

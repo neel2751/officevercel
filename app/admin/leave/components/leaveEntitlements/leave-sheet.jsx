@@ -110,7 +110,7 @@ export default function LeaveSheet({ item }) {
             </TableBody>
           )}
         </Table>
-        <SheetFooter className="pt-4 border-t">
+        <SheetFooter className="pt-4 border-t text-left">
           <span className="text-xs text-red-600">
             *This feature under development and may not be accurate.
           </span>

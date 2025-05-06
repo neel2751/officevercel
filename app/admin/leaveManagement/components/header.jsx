@@ -1,6 +1,15 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-const SiteNavBar = ({ slug, children, menu, basePath, slugComponentMap }) => {
+const SiteNavBar = ({
+  slug,
+  children,
+  menu,
+  basePath,
+  slugComponentMap,
+  className,
+  className2,
+}) => {
   // Dynamically render the appropriate component for the slug
   function renderSlugComponent(slug) {
     const Component = slugComponentMap[slug]; // Get the component from the map
@@ -47,9 +56,11 @@ const SiteNavBar = ({ slug, children, menu, basePath, slugComponentMap }) => {
           </div>
         </div>
       </nav>
-      <div className="p-4">
+      <div className={cn("p-4", className)}>
         {children}
-        {renderSlugComponent(slug)} {/* Dynamically render based on slug */}
+        <div className={cn("", className2)}>
+          {renderSlugComponent(slug)} {/* Dynamically render based on slug */}
+        </div>
       </div>
     </>
   );

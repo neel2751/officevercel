@@ -8,7 +8,7 @@ const leaveRequestSchema = new mongoose.Schema(
       required: true,
     },
     leaveYear: {
-      type: Number,
+      type: String,
       required: true,
     },
     leaveType: {
@@ -36,6 +36,10 @@ const leaveRequestSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
+    isPaid: {
+      type: Boolean,
+      default: true,
+    },
     leaveDays: {
       type: Number,
       required: true,
@@ -54,6 +58,26 @@ const leaveRequestSchema = new mongoose.Schema(
     },
     adminComment: {
       type: String,
+    },
+    rejectBy: {
+      type: mongoose.Types.ObjectId,
+      ref: "OfficeEmploye",
+    },
+    submitBy: {
+      type: mongoose.Types.ObjectId,
+      ref: "OfficeEmploye",
+    },
+    isDeletd: {
+      type: Boolean,
+      default: false,
+    },
+    addByAdmin: {
+      type: Boolean,
+      default: false,
+    },
+    isHalfDay: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }

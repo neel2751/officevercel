@@ -17,13 +17,19 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { EditIcon, EyeIcon, HistoryIcon, SaveIcon } from "lucide-react";
+import { EyeIcon, HistoryIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useSubmitMutation } from "@/hooks/use-mutate";
-import { editCommonLeave } from "@/server/leaveServer/getLeaveServer";
+import {
+  editCommonLeave,
+  handleCommonLeaveStatus,
+} from "@/server/leaveServer/getLeaveServer";
 import Leavehistory from "./leave-history";
+import { Switch } from "@/components/ui/switch";
+import AddLeaveForEmployee from "./leave-add";
+import LeaveEdit from "./leave-edit";
 
 export default function LeaveSheet({ item, queryKey }) {
   const [initialValues, setInitialValues] = useState(null);
@@ -38,9 +44,14 @@ export default function LeaveSheet({ item, queryKey }) {
     setValue(item?.total);
   }
 
-  const { mutate: updateLeave, isPending } = useSubmitMutation({
+  const { mutate: handleSwitchChange, isPending } = useSubmitMutation({
     mutationFn: async (newValue) =>
-      await editCommonLeave({ value: newValue, initialValues }),
+      await handleCommonLeaveStatus({
+        leaveType: newValue?.leaveType,
+        isHide: newValue?.isHide,
+        employeeId: item?._id,
+        leaveYear: item?.leaveYear,
+      }),
     invalidateKey: queryKey,
     onSuccessMessage: (message) => message,
     onClose: () => {
@@ -49,17 +60,7 @@ export default function LeaveSheet({ item, queryKey }) {
     },
   });
 
-  async function onSubmit() {
-    if (value % 1 !== 0) return toast.warning("No decimal values allowed");
-    if (value < initialValues?.used)
-      return toast.warning("New total cannot be less than used days");
-    const newValue = parseInt(Number(value));
-    if (newValue < 0) return toast.error(" Invalid nunber of days");
-    // TODO: Update the leave balance
-    if (newValue === initialValues?.total)
-      return toast.error("No change in leave balance");
-    updateLeave(newValue);
-  }
+  // In new We have to use nuqs for the open sheet
 
   return (
     <Sheet>
@@ -87,6 +88,7 @@ export default function LeaveSheet({ item, queryKey }) {
               <Button disabled size="sm" className="bg-indigo-700">
                 Export
               </Button>
+              {/* <AddLeaveForEmployee leaveData={item} queryKey={queryKey} /> */}
               <Sheet>
                 <SheetTrigger asChild>
                   <Button size="sm" variant="outline">
@@ -119,8 +121,8 @@ export default function LeaveSheet({ item, queryKey }) {
                 "Total",
                 "Used",
                 "Remaining",
-                "Eligible",
                 "Usage",
+                "Hide",
                 "Action",
               ].map((th, index) => (
                 <TableHead key={index} className="uppercase text-xs">
@@ -147,13 +149,6 @@ export default function LeaveSheet({ item, queryKey }) {
                       ) : (
                         <span>{entitlement?.total}</span>
                       )}
-                      {/* entitlement?.total === 7
-                          ? "days"
-                          : entitlement?.type
-                          ? entitlement?.type
-                          : "days"
-                      )
-                    )} */}
                       {entitlement?.total === 7 ? "days" : entitlement?.type}
                     </div>
                   </TableCell>
@@ -163,9 +158,7 @@ export default function LeaveSheet({ item, queryKey }) {
                   <TableCell>
                     {entitlement?.remaining || 0} {entitlement?.type || "days"}
                   </TableCell>
-                  <TableCell>
-                    {entitlement?.isEligible ? "Eligible" : "Not Eligible"}
-                  </TableCell>
+
                   <TableCell className="w-[200px] flex items-center gap-4">
                     <Progress
                       value={
@@ -182,25 +175,44 @@ export default function LeaveSheet({ item, queryKey }) {
                       : 0}
                     %
                   </TableCell>
+                  <TableCell>
+                    <Switch
+                      checked={entitlement.isHide}
+                      onCheckedChange={() => handleSwitchChange(entitlement)}
+                      disabled={
+                        isPending ||
+                        entitlement?.isDelete ||
+                        entitlement?.used > 0 ||
+                        entitlement?.leaveType === "Maternity Leave" ||
+                        entitlement?.leaveType === "Paternity Leave"
+                      }
+                    />
+                  </TableCell>
                   <TableCell className="space-x-2">
                     {/* To be implemented */}
-                    {initialValues?.leaveType === entitlement?.leaveType ? (
-                      <Button size="icon" variant="outline" onClick={onSubmit}>
-                        <SaveIcon />
+                    {entitlement?.isDelete ? (
+                      <Button size="sm" variant="outline">
+                        <HistoryIcon />
+                        Restore
                       </Button>
                     ) : (
-                      <Button
-                        size="icon"
-                        variant="outline"
-                        onClick={() => onEdit(entitlement, item)}
-                        disabled={
-                          entitlement?.leaveType === "Maternity Leave" ||
-                          entitlement?.leaveType === "Paternity Leave"
-                        }
-                      >
-                        <EditIcon />
-                      </Button>
+                      <LeaveEdit
+                        initialValues={initialValues}
+                        onEdit={onEdit}
+                        entitlement={entitlement}
+                        item={item}
+                        queryKey={queryKey}
+                        setInitialValues={setInitialValues}
+                        setValue={setValue}
+                      />
                     )}
+
+                    {/* <LeaveDelete
+                        leaveType={entitlement?.leaveType}
+                        leaveYear={item?.leaveYear}
+                        employeeId={item._id}
+                        queryKey={queryKey}
+                      /> */}
                   </TableCell>
                 </TableRow>
               ))}
