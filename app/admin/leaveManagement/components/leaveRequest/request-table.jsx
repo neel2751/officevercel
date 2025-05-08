@@ -14,8 +14,14 @@ import {
   getLeaveRequestData,
   getLeaveRequestDataAdmin,
 } from "@/server/leaveServer/getLeaveServer";
-import { differenceInDays, format, isPast } from "date-fns";
-import { ChevronDown, ChevronRight, EditIcon, Trash2Icon } from "lucide-react";
+import { differenceInDays, format, isPast, isToday } from "date-fns";
+import {
+  ChevronDown,
+  ChevronRight,
+  EditIcon,
+  Trash2Icon,
+  UndoIcon,
+} from "lucide-react";
 import LeaveRequestStatus from "./request-status";
 import LeaveForm from "./leave-form";
 import React from "react";
@@ -23,6 +29,13 @@ import Shimmer from "@/components/tableStatus/tableLoader";
 import { formatDates } from "@/lib/formatDate";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { getLeaveYearString } from "@/lib/getLeaveYear";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export function LeaveRequestTable({
   showDialog,
@@ -69,7 +82,9 @@ export function LeaveRequestTable({
             {/* <TableCell>{index + 1}</TableCell> */}
             <TableCell>{item?.employee?.name}</TableCell>
             {/* <TableCell>{item?.employee?.role}</TableCell> */}
-            <TableCell>{item?.leaveType}</TableCell>
+            <TableCell>
+              {item?.isHalfDay ? "Half Day" : item?.leaveType}
+            </TableCell>
             <TableCell>
               {format(item?.leaveSubmitDate || new Date(), "PPP")}
             </TableCell>
@@ -136,23 +151,18 @@ export function LeaveRequestTable({
   );
 }
 
-export function LeaveRequestTableNew({
-  showDialog,
-  setShowDialog,
-  initialValues,
-  handleEdit,
-  handleSubmit,
-  fields,
-}) {
+export function LeaveRequestTableNew({ onEdit }) {
   const queryKey = ["leave-superadmin"];
   const { data, isPending } = useFetchQuery({
     params: {
-      leaveYear: new Date().getFullYear(),
+      leaveYear: getLeaveYearString(new Date()),
     },
     queryKey,
     fetchFn: getLeaveRequestDataAdmin,
   });
   const { newData } = data || {};
+
+  console.log("newData", newData);
   return (
     <div>
       <Table>
@@ -189,12 +199,7 @@ export function LeaveRequestTableNew({
                   key={index}
                   item={item}
                   queryKey={queryKey}
-                  fields={fields}
-                  showDialog={showDialog}
-                  setShowDialog={setShowDialog}
-                  handleSubmit={handleSubmit}
-                  handleEdit={handleEdit}
-                  initialValues={initialValues}
+                  onEdit={onEdit}
                 />
               ))}
           </TableBody>
@@ -204,16 +209,7 @@ export function LeaveRequestTableNew({
   );
 }
 
-const DetailsRow = ({
-  item,
-  queryKey,
-  fields,
-  showDialog,
-  setShowDialog,
-  initialValues,
-  handleSubmit,
-  handleEdit,
-}) => {
+const DetailsRow = ({ item, queryKey, onEdit }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   return (
     <>
@@ -243,8 +239,7 @@ const DetailsRow = ({
             <TableCell>{item?.employee?.name}</TableCell>
           </>
         )}
-        {/* <TableCell>{item?.employee?.role}</TableCell> */}
-        <TableCell>{item?.leaveType}</TableCell>
+        <TableCell>{item?.isHalfDay ? "Half Day" : item?.leaveType}</TableCell>
         <TableCell>
           {format(item?.leaveSubmitDate || new Date(), "PPP")}
         </TableCell>
@@ -257,13 +252,21 @@ const DetailsRow = ({
         </TableCell>
         <TableCell>
           {item?.leaveStatus === "Pending" && item?.employee?.name ? (
-            <LeaveRequestStatus
-              leaveId={item?._id}
-              invalidateKey={queryKey}
-              leaveDate={item?.leaveStartDate}
-            />
+            isPast(new Date(item.leaveStartDate)) ? (
+              // Leave is pending, but the start date has passed — auto mark as rejected
+              <Status title="Expired" />
+            ) : (
+              // Today or future — allow approve & reject
+              <LeaveRequestStatus
+                leaveId={item._id}
+                invalidateKey={queryKey}
+                allowAccept={true}
+                allowReject={true}
+              />
+            )
           ) : (
-            <Status title={item?.leaveStatus} />
+            // Not pending — just show actual status
+            <Status title={item?.leaveStatus ?? "Unknown"} />
           )}
         </TableCell>
         <TableCell>{item?.approvedBy?.name || "-"}</TableCell>
@@ -278,28 +281,41 @@ const DetailsRow = ({
         </TableCell>
         <TableCell>{item?.leaveDays} days</TableCell>
         <TableCell>
-          {isPast(new Date(item?.leaveStartDate)) ||
-            (item?.leaveStatus === "Pending" && (
-              <div className="flex gap-2 items-center">
-                <Button
-                  size="icon"
-                  variant="outline"
-                  onClick={() => handleEdit(item)}
-                >
-                  <EditIcon className="text-indigo-600" />
-                </Button>
-                <LeaveForm
-                  fields={fields}
-                  showDialog={showDialog}
-                  setShowDialog={setShowDialog}
-                  initialValues={initialValues}
-                  handleSubmit={handleSubmit}
-                />
-                <Button size="icon" variant="outline">
-                  <Trash2Icon className="text-rose-600" />
-                </Button>
-              </div>
-            ))}
+          <div className="flex gap-2 items-center">
+            {/* Edit Button and Form: Visible if NOT past, NOT today, AND Pending */}
+            {!isPast(new Date(item?.leaveStartDate)) &&
+              !isToday(new Date(item?.leaveStartDate)) &&
+              item?.leaveStatus === "Pending" && (
+                <>
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    className="hover:bg-indigo-100 hover:border-indigo-600"
+                    onClick={() => onEdit(item)}
+                  >
+                    <EditIcon className="text-indigo-600" />
+                  </Button>
+                </>
+              )}
+
+            {/* Delete Button: Visible if NOT past */}
+            {item?.leaveStatus === "Pending" && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    className="hover:bg-red-100 hover:border-red-600"
+                  >
+                    <UndoIcon className="text-rose-600" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Leave request expired</p>
+                </TooltipContent>
+              </Tooltip>
+            )}
+          </div>
         </TableCell>
       </TableRow>
       <TableRow className="border-none">
@@ -336,15 +352,30 @@ const DetailsRow = ({
                                 {format(lh?.leaveSubmitDate, "PPP")}
                               </TableCell>
                               <TableCell>
-                                {/* Task check with admin status */}
                                 {lh?.leaveStatus === "Pending" &&
-                                item?.employee?.name &&
-                                isPast(lh?.leaveSubmitDate) ? (
-                                  <LeaveRequestStatus
-                                    leaveId={lh?._id}
-                                    invalidateKey={queryKey}
-                                    leaveDate={lh?.leaveStartDate}
-                                  />
+                                item?.employee?.name ? (
+                                  isPast(new Date(lh?.leaveStartDate)) ? (
+                                    <LeaveRequestStatus
+                                      invalidateKey={queryKey}
+                                      leaveId={lh?._id}
+                                      allowAccept={true}
+                                      allowReject={true}
+                                    />
+                                  ) : isToday(new Date(lh.leaveStartDate)) ? (
+                                    <LeaveRequestStatus
+                                      leaveId={lh?._id}
+                                      invalidateKey={queryKey}
+                                      allowAccept={false}
+                                      allowReject={true}
+                                    />
+                                  ) : (
+                                    <LeaveRequestStatus
+                                      leaveId={lh?._id}
+                                      invalidateKey={queryKey}
+                                      allowAccept={true}
+                                      allowReject={true}
+                                    />
+                                  )
                                 ) : isPast(lh?.leaveStartDate) ? (
                                   <Status title={"Rejected"} />
                                 ) : (
@@ -352,20 +383,18 @@ const DetailsRow = ({
                                 )}
                               </TableCell>
 
-                              <TableCell>
-                                {differenceInDays(
-                                  lh?.leaveEndDate,
-                                  lh?.leaveStartDate
-                                )}{" "}
-                                days
-                              </TableCell>
+                              <TableCell>{lh?.leaveDays} days</TableCell>
                               <TableCell>
                                 {formatDates(
                                   lh.leaveStartDate,
                                   lh.leaveEndDate
                                 )}
                               </TableCell>
-                              <TableCell>{lh?.overLappingDays} days</TableCell>
+                              <TableCell>
+                                <Badge className={"bg-indigo-600 text-white"}>
+                                  {lh?.overLappingDays} days
+                                </Badge>
+                              </TableCell>
                             </TableRow>
                           ))
                         : null}

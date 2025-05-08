@@ -7,14 +7,14 @@ import {
 } from "@/components/ui/popover";
 import { useSubmitMutation } from "@/hooks/use-mutate";
 import { handleEmployeeLeaveStatus } from "@/server/leaveServer/getLeaveServer";
-import { isPast } from "date-fns";
 import { CircleCheckIcon, CircleXIcon } from "lucide-react";
 import React from "react";
 
 export default function LeaveRequestStatus({
   invalidateKey,
   leaveId,
-  leaveDate,
+  allowAccept,
+  allowReject,
 }) {
   const [open, setOpen] = React.useState(false);
   const { mutate: handleSubmit } = useSubmitMutation({
@@ -26,7 +26,7 @@ export default function LeaveRequestStatus({
   });
   return (
     <div className="flex items-center gap-3 ml-2">
-      {!isPast(new Date(leaveDate)) && (
+      {allowAccept && (
         <Dialog
           status="Approved"
           onSubmit={handleSubmit}
@@ -36,9 +36,11 @@ export default function LeaveRequestStatus({
           <CircleCheckIcon className="w-5 h-5 text-green-600 cursor-pointer" />
         </Dialog>
       )}
-      <Dialog status="Rejected" onSubmit={handleSubmit}>
-        <CircleXIcon className="w-5 h-5 text-red-600 cursor-pointer" />
-      </Dialog>
+      {allowReject && (
+        <Dialog status="Rejected" onSubmit={handleSubmit}>
+          <CircleXIcon className="w-5 h-5 text-red-600 cursor-pointer" />
+        </Dialog>
+      )}
     </div>
   );
 }

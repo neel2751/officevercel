@@ -58,7 +58,7 @@ const Hero = () => (
     {/* Decorative Background Elements */}
 
     <div className="absolute inset-0 overflow-hidden">
-      <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-slate-50 to-transparent" />
+      <div className="absolute top-0 left-0 w-full h-96 bg-linear-to-b from-slate-50 to-transparent" />
 
       <div className="absolute top-40 -left-48 w-96 h-96 bg-red-50 rounded-full filter blur-3xl opacity-30" />
 
@@ -79,7 +79,7 @@ const Hero = () => (
                 </h1>
 
                 <div className="relative">
-                  <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-red-600 to-red-800 bg-clip-text text-transparent leading-[1.2] tracking-tight pb-3">
+                  <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-linear-to-r from-red-600 to-red-800 bg-clip-text text-transparent leading-[1.2] tracking-tight pb-3">
                     Tomorrow's Legacy
                   </h1>
                 </div>
@@ -165,7 +165,7 @@ const Hero = () => (
                 Your browser does not support the video tag.
               </video>
 
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+              <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent" />
 
               <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 text-center lg:text-left">
                 <h3 className="text-lg md:text-xl font-bold mb-1 text-white">
@@ -367,7 +367,7 @@ const Stats2 = () => (
         {/* Left Column - Image */}
 
         <div className="relative">
-          <div className="aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl">
+          <div className="aspect-4/3 rounded-2xl overflow-hidden shadow-2xl">
             <img
               src="/construction-planning.jpg"
               alt="Construction Planning"
@@ -417,7 +417,7 @@ const Stats2 = () => (
               {/* Feature 1 */}
 
               <div className="flex gap-4">
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   <div className="bg-blue-50 p-3 rounded-xl">
                     <ClipboardCheck className="h-6 w-6 text-blue-600" />
                   </div>
@@ -438,7 +438,7 @@ const Stats2 = () => (
               {/* Feature 2 */}
 
               <div className="flex gap-4">
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   <div className="bg-red-50 p-3 rounded-xl">
                     <ShieldCheck className="h-6 w-6 text-red-600" />
                   </div>
@@ -460,7 +460,7 @@ const Stats2 = () => (
               {/* Feature 3 */}
 
               <div className="flex gap-4">
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   <div className="bg-green-50 p-3 rounded-xl">
                     <Users className="h-6 w-6 text-green-600" />
                   </div>
@@ -590,10 +590,10 @@ const services = [
   },
 ];
 const Services = () => (
-  <section className="relative z-10 bg-gradient-to-b from-white via-gray-50 to-white py-24 sm:py-32">
+  <section className="relative z-10 bg-linear-to-b from-white via-gray-50 to-white py-24 sm:py-32">
     {/* Background Elements */}
 
-    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-red-500/5 via-transparent to-transparent" />
+    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,var(--tw-gradient-stops))] from-red-500/5 via-transparent to-transparent" />
 
     <div className="relative mx-auto max-w-[90rem] px-4 sm:px-6 lg:px-8">
       {/* Header Section */}
@@ -653,9 +653,9 @@ const Services = () => (
 
     {/* Decorative Elements */}
 
-    <div className="absolute -bottom-6 left-0 right-0 h-24 bg-gradient-to-b from-transparent to-white" />
+    <div className="absolute -bottom-6 left-0 right-0 h-24 bg-linear-to-b from-transparent to-white" />
 
-    <div className="absolute bottom-0 left-1/2 h-px w-1/2 bg-gradient-to-r from-transparent via-red-600/20 to-transparent" />
+    <div className="absolute bottom-0 left-1/2 h-px w-1/2 bg-linear-to-r from-transparent via-red-600/20 to-transparent" />
   </section>
 );
 const ServiceCard = ({
@@ -668,8 +668,8 @@ const ServiceCard = ({
 }) => (
   <a href={href} className="group relative block">
     <div className="relative h-full overflow-hidden rounded-2xl bg-white transition-all duration-500 hover:-translate-y-2 hover:shadow-xl hover:shadow-red-600/20">
-      <div className="relative aspect-[16/10] w-full overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent transition-opacity duration-300 group-hover:opacity-0" />
+      <div className="relative aspect-16/10 w-full overflow-hidden">
+        <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent transition-opacity duration-300 group-hover:opacity-0" />
 
         <img
           src={imageUrl}
@@ -716,7 +716,7 @@ const ServiceCard = ({
 
 const PortfolioShowcase = () => (
   <a href="/portfolio" className="group relative block">
-    <div className="relative h-full overflow-hidden rounded-2xl bg-gradient-to-br from-red-600 to-red-800">
+    <div className="relative h-full overflow-hidden rounded-2xl bg-linear-to-br from-red-600 to-red-800">
       <div className="absolute inset-0 opacity-10">
         <div
           className="h-full w-full"
@@ -767,7 +767,7 @@ const PortfolioShowcase = () => (
         </div>
       </div>
 
-      <div className="absolute inset-0 bg-gradient-to-t from-red-900/50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+      <div className="absolute inset-0 bg-linear-to-t from-red-900/50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
     </div>
   </a>
 );
@@ -927,7 +927,7 @@ const Projects = () => {
 
       {/* Decorative Elements */}
 
-      <div className="absolute bottom-0 left-1/2 h-px w-1/2 bg-gradient-to-r from-transparent via-red-600/20 to-transparent" />
+      <div className="absolute bottom-0 left-1/2 h-px w-1/2 bg-linear-to-r from-transparent via-red-600/20 to-transparent" />
     </section>
   );
 };
@@ -941,7 +941,7 @@ const ProjectCard = ({ project }) => (
         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
       />
 
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 transition-opacity duration-500 group-hover:opacity-80" />
+      <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent opacity-60 transition-opacity duration-500 group-hover:opacity-80" />
     </div>
 
     <div className="absolute bottom-0 left-0 right-0 p-6 text-white transition-transform duration-500 group-hover:-translate-y-2">
@@ -1121,10 +1121,10 @@ const Features = () => {
     },
   ];
   return (
-    <section className="relative z-10 bg-gradient-to-b from-white via-gray-50 to-white py-24 sm:py-32">
+    <section className="relative z-10 bg-linear-to-b from-white via-gray-50 to-white py-24 sm:py-32">
       {/* Background Elements */}
 
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-red-500/5 via-transparent to-transparent" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,var(--tw-gradient-stops))] from-red-500/5 via-transparent to-transparent" />
 
       <div className="relative mx-auto max-w-[90rem] px-4 sm:px-6 lg:px-8">
         {/* Header Section */}
@@ -1171,9 +1171,9 @@ const Features = () => {
 
       {/* Decorative Elements */}
 
-      <div className="absolute -bottom-6 left-0 right-0 h-24 bg-gradient-to-b from-transparent to-white" />
+      <div className="absolute -bottom-6 left-0 right-0 h-24 bg-linear-to-b from-transparent to-white" />
 
-      <div className="absolute bottom-0 left-1/2 h-px w-1/2 bg-gradient-to-r from-transparent via-red-600/20 to-transparent" />
+      <div className="absolute bottom-0 left-1/2 h-px w-1/2 bg-linear-to-r from-transparent via-red-600/20 to-transparent" />
     </section>
   );
 };
@@ -1308,7 +1308,7 @@ const ReviewsSection = () => {
               {/* Gradient border with better mobile performance */}
 
               <div
-                className="absolute -inset-[1px] rounded-2xl bg-gradient-to-r from-red-500 via-blue-500 to-red-500 opacity-40
+                className="absolute -inset-[1px] rounded-2xl bg-linear-to-r from-red-500 via-blue-500 to-red-500 opacity-40
       
       blur-sm group-hover:opacity-100 transition-opacity duration-300"
                 aria-hidden="true"
@@ -1604,7 +1604,7 @@ const ContactUs = () => {
   ];
 
   return (
-    <section className="relative min-h-screen w-full overflow-hidden bg-gradient-to-b from-gray-50 to-white py-8 sm:py-12 md:py-16 lg:py-24">
+    <section className="relative min-h-screen w-full overflow-hidden bg-linear-to-b from-gray-50 to-white py-8 sm:py-12 md:py-16 lg:py-24">
       {/* Mobile-optimized background */}
 
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -1628,16 +1628,16 @@ const ContactUs = () => {
 
         <div className="mx-auto max-w-2xl text-center animate-on-scroll">
           <div className="inline-flex items-center space-x-2">
-            <span className="h-px w-6 sm:w-8 bg-gradient-to-r from-red-500 to-red-600"></span>
+            <span className="h-px w-6 sm:w-8 bg-linear-to-r from-red-500 to-red-600"></span>
 
             <span className="text-sm font-medium uppercase tracking-wider text-red-600">
               Contact Us
             </span>
 
-            <span className="h-px w-6 sm:w-8 bg-gradient-to-r from-red-600 to-red-500"></span>
+            <span className="h-px w-6 sm:w-8 bg-linear-to-r from-red-600 to-red-500"></span>
           </div>
 
-          <h2 className="mt-4 sm:mt-6 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-transparent">
+          <h2 className="mt-4 sm:mt-6 bg-linear-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-transparent">
             Let's Build Something Amazing
           </h2>
 
@@ -1650,7 +1650,7 @@ const ContactUs = () => {
         <div className="mx-auto mt-8 sm:mt-12 lg:mt-16 grid max-w-5xl grid-cols-1 gap-4 sm:gap-6 lg:gap-10 lg:grid-cols-2">
           {/* Mobile-optimized contact info */}
 
-          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-gray-900 to-gray-800 p-4 sm:p-6 lg:p-8 text-white shadow-2xl animate-on-scroll">
+          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-linear-to-br from-gray-900 to-gray-800 p-4 sm:p-6 lg:p-8 text-white shadow-2xl animate-on-scroll">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.1),transparent)] opacity-40" />
 
             <div className="relative space-y-4 sm:space-y-6 lg:space-y-8">
@@ -1810,7 +1810,7 @@ const ContactUs = () => {
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="group relative w-full min-h-[44px] sm:min-h-[48px] overflow-hidden rounded-lg bg-gradient-to-r from-red-600 to-red-500 px-4 sm:px-8 py-2.5 sm:py-4 text-base sm:text-lg text-white shadow-xl transition-all hover:from-red-500 hover:to-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 active:scale-[0.98] disabled:opacity-70"
+                className="group relative w-full min-h-[44px] sm:min-h-[48px] overflow-hidden rounded-lg bg-linear-to-r from-red-600 to-red-500 px-4 sm:px-8 py-2.5 sm:py-4 text-base sm:text-lg text-white shadow-xl transition-all hover:from-red-500 hover:to-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 active:scale-[0.98] disabled:opacity-70"
               >
                 <span className="relative flex items-center justify-center">
                   {isSubmitting ? (
@@ -1851,10 +1851,10 @@ const Footer = () => {
   };
 
   return (
-    <footer className="relative bg-gradient-to-b from-white to-gray-50">
+    <footer className="relative bg-linear-to-b from-white to-gray-50">
       {/* Top Decorative Line */}
 
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-gray-200 via-red-500 to-gray-200"></div>
+      <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-gray-200 via-red-500 to-gray-200"></div>
 
       {/* Main Footer Content */}
 
@@ -1881,7 +1881,7 @@ const Footer = () => {
 
             <div className="space-y-4">
               <div className="flex items-center space-x-3 group cursor-pointer transition-all duration-300 hover:translate-x-1">
-                <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 group-hover:bg-gray-100">
+                <div className="shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 group-hover:bg-gray-100">
                   <Phone className="h-4 w-4 text-red-500" />
                 </div>
 
@@ -1898,7 +1898,7 @@ const Footer = () => {
               </div>
 
               <div className="flex items-center space-x-3 group cursor-pointer transition-all duration-300 hover:translate-x-1">
-                <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 group-hover:bg-gray-100">
+                <div className="shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 group-hover:bg-gray-100">
                   <Mail className="h-4 w-4 text-red-500" />
                 </div>
 
@@ -1915,7 +1915,7 @@ const Footer = () => {
               </div>
 
               <div className="flex items-center space-x-3 group cursor-pointer transition-all duration-300 hover:translate-x-1">
-                <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 group-hover:bg-gray-100">
+                <div className="shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 group-hover:bg-gray-100">
                   <MapPin className="h-4 w-4 text-red-500" />
                 </div>
 
@@ -1931,7 +1931,7 @@ const Footer = () => {
               </div>
 
               <div className="flex items-center space-x-3 group cursor-pointer transition-all duration-300 hover:translate-x-1">
-                <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 group-hover:bg-gray-100">
+                <div className="shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 group-hover:bg-gray-100">
                   <Clock className="h-4 w-4 text-red-500" />
                 </div>
 
@@ -2175,9 +2175,9 @@ const AboutHero = () => {
       {/* Decorative Elements */}
 
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 right-0 w-1/3 h-screen bg-gradient-to-l from-gray-50 to-transparent" />
+        <div className="absolute top-0 right-0 w-1/3 h-screen bg-linear-to-l from-gray-50 to-transparent" />
 
-        <div className="absolute bottom-0 left-0 w-1/2 h-screen bg-gradient-to-t from-gray-50 to-transparent opacity-50" />
+        <div className="absolute bottom-0 left-0 w-1/2 h-screen bg-linear-to-t from-gray-50 to-transparent opacity-50" />
       </div>
 
       <div className="container relative mx-auto px-4 sm:px-6 lg:px-8">
@@ -2252,7 +2252,7 @@ const AboutHero = () => {
               onMouseLeave={() => setIsHovered(false)}
             >
               <div
-                className="absolute inset-0 bg-gradient-to-br from-black/5 via-transparent to-black/20
+                className="absolute inset-0 bg-linear-to-br from-black/5 via-transparent to-black/20
     
     group-hover:opacity-50 transition-opacity duration-500"
               />
@@ -2279,7 +2279,7 @@ const AboutHero = () => {
         </div>
       </div>
 
-      <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white to-transparent" />
+      <div className="absolute bottom-0 left-0 w-full h-32 bg-linear-to-t from-white to-transparent" />
     </section>
   );
 };
@@ -2412,7 +2412,7 @@ const ImageBanner = () => (
 
       {/* Gradient Overlay */}
 
-      <div className="absolute inset-0 bg-gradient-to-r from-rose-900/95 via-rose-900/85 to-rose-800/95" />
+      <div className="absolute inset-0 bg-linear-to-r from-rose-900/95 via-rose-900/85 to-rose-800/95" />
     </div>
 
     {/* Content Section */}
@@ -2508,7 +2508,7 @@ const NeelHeroSection = () => (
       <div className="preview flex min-h-[350px] w-full justify-center p-2 sm:p-10 items-center">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4  relative z-10 py-10 max-w-7xl mx-auto">
           <div className="flex flex-col lg:border-r py-10 relative group/feature lg:border-l lg:border-b dark:border-neutral-800">
-            <div className="opacity-0 group-hover/feature:opacity-100 transition duration-200 absolute inset-0 h-full w-full bg-gradient-to-t from-neutral-100 dark:from-neutral-800 to-transparent pointer-events-none"></div>
+            <div className="opacity-0 group-hover/feature:opacity-100 transition duration-200 absolute inset-0 h-full w-full bg-linear-to-t from-neutral-100 dark:from-neutral-800 to-transparent pointer-events-none"></div>
             <div className="mb-4 relative z-10 px-10 text-neutral-600 dark:text-neutral-400">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -2538,7 +2538,7 @@ const NeelHeroSection = () => (
             </p>
           </div>
           <div className="flex flex-col lg:border-r py-10 relative group/feature lg:border-b dark:border-neutral-800">
-            <div className="opacity-0 group-hover/feature:opacity-100 transition duration-200 absolute inset-0 h-full w-full bg-gradient-to-t from-neutral-100 dark:from-neutral-800 to-transparent pointer-events-none"></div>
+            <div className="opacity-0 group-hover/feature:opacity-100 transition duration-200 absolute inset-0 h-full w-full bg-linear-to-t from-neutral-100 dark:from-neutral-800 to-transparent pointer-events-none"></div>
             <div className="mb-4 relative z-10 px-10 text-neutral-600 dark:text-neutral-400">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -2566,7 +2566,7 @@ const NeelHeroSection = () => (
             </p>
           </div>
           <div className="flex flex-col lg:border-r py-10 relative group/feature lg:border-b dark:border-neutral-800">
-            <div className="opacity-0 group-hover/feature:opacity-100 transition duration-200 absolute inset-0 h-full w-full bg-gradient-to-t from-neutral-100 dark:from-neutral-800 to-transparent pointer-events-none"></div>
+            <div className="opacity-0 group-hover/feature:opacity-100 transition duration-200 absolute inset-0 h-full w-full bg-linear-to-t from-neutral-100 dark:from-neutral-800 to-transparent pointer-events-none"></div>
             <div className="mb-4 relative z-10 px-10 text-neutral-600 dark:text-neutral-400">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -2596,7 +2596,7 @@ const NeelHeroSection = () => (
             </p>
           </div>
           <div className="flex flex-col lg:border-r py-10 relative group/feature lg:border-b dark:border-neutral-800">
-            <div className="opacity-0 group-hover/feature:opacity-100 transition duration-200 absolute inset-0 h-full w-full bg-gradient-to-t from-neutral-100 dark:from-neutral-800 to-transparent pointer-events-none"></div>
+            <div className="opacity-0 group-hover/feature:opacity-100 transition duration-200 absolute inset-0 h-full w-full bg-linear-to-t from-neutral-100 dark:from-neutral-800 to-transparent pointer-events-none"></div>
             <div className="mb-4 relative z-10 px-10 text-neutral-600 dark:text-neutral-400">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -2624,7 +2624,7 @@ const NeelHeroSection = () => (
             </p>
           </div>
           <div className="flex flex-col lg:border-r py-10 relative group/feature lg:border-l dark:border-neutral-800">
-            <div className="opacity-0 group-hover/feature:opacity-100 transition duration-200 absolute inset-0 h-full w-full bg-gradient-to-b from-neutral-100 dark:from-neutral-800 to-transparent pointer-events-none"></div>
+            <div className="opacity-0 group-hover/feature:opacity-100 transition duration-200 absolute inset-0 h-full w-full bg-linear-to-b from-neutral-100 dark:from-neutral-800 to-transparent pointer-events-none"></div>
             <div className="mb-4 relative z-10 px-10 text-neutral-600 dark:text-neutral-400">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -2657,7 +2657,7 @@ const NeelHeroSection = () => (
             </p>
           </div>
           <div className="flex flex-col lg:border-r py-10 relative group/feature dark:border-neutral-800">
-            <div className="opacity-0 group-hover/feature:opacity-100 transition duration-200 absolute inset-0 h-full w-full bg-gradient-to-b from-neutral-100 dark:from-neutral-800 to-transparent pointer-events-none"></div>
+            <div className="opacity-0 group-hover/feature:opacity-100 transition duration-200 absolute inset-0 h-full w-full bg-linear-to-b from-neutral-100 dark:from-neutral-800 to-transparent pointer-events-none"></div>
             <div className="mb-4 relative z-10 px-10 text-neutral-600 dark:text-neutral-400">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -2687,7 +2687,7 @@ const NeelHeroSection = () => (
             </p>
           </div>
           <div className="flex flex-col lg:border-r py-10 relative group/feature dark:border-neutral-800">
-            <div className="opacity-0 group-hover/feature:opacity-100 transition duration-200 absolute inset-0 h-full w-full bg-gradient-to-b from-neutral-100 dark:from-neutral-800 to-transparent pointer-events-none"></div>
+            <div className="opacity-0 group-hover/feature:opacity-100 transition duration-200 absolute inset-0 h-full w-full bg-linear-to-b from-neutral-100 dark:from-neutral-800 to-transparent pointer-events-none"></div>
             <div className="mb-4 relative z-10 px-10 text-neutral-600 dark:text-neutral-400">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -2724,7 +2724,7 @@ const NeelHeroSection = () => (
             </p>
           </div>
           <div className="flex flex-col lg:border-r py-10 relative group/feature dark:border-neutral-800">
-            <div className="opacity-0 group-hover/feature:opacity-100 transition duration-200 absolute inset-0 h-full w-full bg-gradient-to-b from-neutral-100 dark:from-neutral-800 to-transparent pointer-events-none"></div>
+            <div className="opacity-0 group-hover/feature:opacity-100 transition duration-200 absolute inset-0 h-full w-full bg-linear-to-b from-neutral-100 dark:from-neutral-800 to-transparent pointer-events-none"></div>
             <div className="mb-4 relative z-10 px-10 text-neutral-600 dark:text-neutral-400">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -2758,7 +2758,7 @@ const NeelHeroSection = () => (
 );
 
 const NeelCTASection = () => (
-  <section className="relative z-20 mx-auto my-20 grid w-full max-w-7xl grid-cols-1 justify-start bg-gradient-to-br from-gray-100 to-white dark:from-neutral-900 dark:to-neutral-950 md:my-40 md:grid-cols-3 border-dashed border">
+  <section className="relative z-20 mx-auto my-20 grid w-full max-w-7xl grid-cols-1 justify-start bg-linear-to-br from-gray-100 to-white dark:from-neutral-900 dark:to-neutral-950 md:my-40 md:grid-cols-3 border-dashed border">
     <div className="p-8 md:col-span-2 md:p-14">
       <h2 className="text-left text-xl font-medium tracking-tight text-neutral-500 dark:text-neutral-200 md:text-3xl">
         Want a professional, extraordinary&nbsp;

@@ -38,7 +38,7 @@ export const ComboboxDemo = React.memo(function ComboboxDemo({
     onChange(value?.filter((val) => val !== employeeValue));
   };
   return (
-    <Popover open={open} onOpenChange={handleOpenChange} className="z-[80]">
+    <Popover open={open} onOpenChange={handleOpenChange} className="z-80">
       <PopoverTrigger asChild>
         <Button
           variant="outline"

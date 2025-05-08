@@ -22,8 +22,7 @@ export default function Gretting() {
         <div className="h-2 w-2 rounded-full bg-green-700 animate-pulse"></div>
       )}
       <CardTitle>
-        {/* Good {timeOfDay}, {session?.user?.name} 👋 */}
-        Good {timeOfDay}, Interior Studio 👋
+        Good {timeOfDay}, {session?.user?.name} 👋
       </CardTitle>
     </div>
   );

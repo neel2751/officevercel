@@ -27,12 +27,12 @@ const TableSheet = ({ data, tableName, tableDesc, title, description }) => {
             <div className="flex items-center justify-center flex-col text-center">
               <Avatar className="border border-neutral-200 p-0.5 shadow">
                 {/* Replace With CDC Logo */}
-                <AvatarImage src="https://www.interiorstudioltd.com/images/logo.svg" />
-                <AvatarFallback>Interior Studio</AvatarFallback>
+                <AvatarImage src="https://res.cloudinary.com/drcjzx0sw/image/upload/v1746444818/hr_jlxx1c.svg" />
+                <AvatarFallback>Hr Management</AvatarFallback>
               </Avatar>
               <div className="mt-2">
                 <h3 className="text-lg text-gray-800 font-semibold">
-                  {tableName ?? "CDC"}
+                  {tableName ?? "HR"}
                 </h3>
                 <p className="text-xs text-gray-500">{tableDesc}</p>
               </div>

@@ -5,8 +5,8 @@ import { Toaster } from "@/components/ui/sonner";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Interior Studio Software",
-  description: "Created by Interior Studio Software",
+  title: "HR Management",
+  description: "Hr Management System",
 };
 
 export default function RootLayout({ children }) {

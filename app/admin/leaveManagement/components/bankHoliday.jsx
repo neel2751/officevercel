@@ -1,8 +1,8 @@
 import {
-  Card,
-  CardDescription,
-  CardHeader,
   CardTitle,
+  Card,
+  CardHeader,
+  CardDescription,
 } from "@/components/ui/card";
 import { useBankHoliday } from "@/lib/holiday";
 import { format, getYear, isPast } from "date-fns";
@@ -38,7 +38,7 @@ export const BankHoliday = () => {
             <CardTitle
               className={`${
                 getYear(new Date()) === Number(year)
-                  ? "text-white bg-gradient-to-tr from-indigo-700 via-indigo-800 to-indigo-900 max-w-max py-0.5 px-2 rounded-sm text-center text-xs"
+                  ? "text-white bg-linear-to-tr from-indigo-700 via-indigo-800 to-indigo-900 max-w-max py-0.5 px-2 rounded-sm text-center text-xs"
                   : "text-neutral-600 my-2 text-sm"
               }`}
             >
@@ -51,7 +51,7 @@ export const BankHoliday = () => {
                   <li key={index}>
                     <Card className="group cursor-pointer">
                       <CardHeader
-                        className={`sm:ps-24 p-4 rounded-md overflow-hidden relative ${
+                        className={`sm:ps-24 rounded-md relative ${
                           isPast(new Date(holiday?.date))
                             ? "opacity-40"
                             : nextBankHoliday?.date === holiday?.date
@@ -87,7 +87,7 @@ export const BankHoliday = () => {
                             </CardDescription>
                           </div>
                           {nextBankHoliday.date === holiday?.date && (
-                            <StarIcon className="size-3 top-2 absolute right-2 fill-indigo-600 text-indigo-600" />
+                            <StarIcon className="size-3 top-4 absolute right-2 fill-indigo-600 text-indigo-600" />
                             // <div className="text-xl">🌟 </div>
                           )}
                         </div>

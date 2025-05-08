@@ -10,13 +10,13 @@ const leaveCategorySchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    rule: {
-      type: Number,
-      required: true,
-    },
-    ruleType: {
+    isPaid: {
       type: String,
-      required: true,
+      default: false,
+    },
+    isHide: {
+      type: String,
+      default: true,
     },
     note: {
       type: String,

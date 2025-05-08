@@ -111,7 +111,7 @@ export default function LeaveSheet({ item }) {
           )}
         </Table>
         <SheetFooter className="pt-4 border-t">
-          <span className="text-xs text-red-600">
+          <span className="text-xs text-indigo-600">
             *This feature under development and may not be accurate.
           </span>
         </SheetFooter>

@@ -18,12 +18,14 @@ import {
 } from "@/components/ui/table";
 
 import { format, formatDistanceStrict, isPast } from "date-fns";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Eye, Trash2 } from "lucide-react";
 import React from "react";
 import EmployeeForm from "./employeeForm";
 import { useCommonContext } from "@/context/commonContext";
 import { TableStatus } from "@/components/tableStatus/status";
 import EmployeeSheet from "./employeeSheet";
+import Link from "next/link";
+import { encryptId } from "@/lib/algo";
 
 const EmployeTabel = () => {
   const {
@@ -148,6 +150,15 @@ const EmployeTabel = () => {
                     >
                       <Trash2 className="text-rose-600" />
                     </Button>
+                    {/* <Button asChild size="icon" variant="outline">
+                      <Link
+                        href={`/admin/officeEmployee/${encryptId(
+                          item?._id
+                        )}/overview`}
+                      >
+                        <Eye />
+                      </Link>
+                    </Button> */}
                   </div>
                 )}
               </TableCell>

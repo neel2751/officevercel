@@ -1,11 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CalendarCheck, CircleSlash, OctagonPause, Siren } from "lucide-react";
 
-export const CardInfo = ({ id, title, value, color, icon, description }) => {
+export const CardInfo = ({ title, value, color, icon, description }) => {
   return (
     <>
-      <Card x-chunk={`dashboard-01-chunk-${id}`}>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className={`text-sm font-medium ${color}`}>
             {title || "No Title"}
           </CardTitle>

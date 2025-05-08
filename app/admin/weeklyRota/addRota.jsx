@@ -1,12 +1,10 @@
 "use client";
-
 import { useState, useEffect, useMemo } from "react";
 import { format, startOfWeek, addWeeks, subWeeks } from "date-fns";
 import { Button } from "@/components/ui/button";
-
 import { CheckCheck, ChevronLeft, ChevronRight } from "lucide-react";
 import { useFetchQuery } from "@/hooks/use-query";
-import { getOfficeEmployeeAttendance } from "@/server/officeAttendanceServer/officeAttendance";
+import { getOfficeEmployeeAttendanceWithLeave } from "@/server/officeAttendanceServer/officeAttendance";
 import WeekRotaTable from "@/components/weekRotaTable/weekRotaTable";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -15,7 +13,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { SelectDatePicker } from "./components/dateSelect";
 
@@ -23,18 +20,14 @@ export function AddWeeklyRota() {
   const [currentWeek, setCurrentWeek] = useState(
     startOfWeek(new Date(), { weekStartsOn: 1 })
   );
-
   const [isOpen, setIsOpen] = useState(false);
-
   const queryKey = [
     "officeAttendance",
     { date: format(currentWeek, "yyyy-MM-dd") },
   ];
-
   const handleOnClose = () => {
     setIsOpen(false);
   };
-
   const {
     data: queryData,
     isLoading,
@@ -44,7 +37,7 @@ export function AddWeeklyRota() {
       date: format(currentWeek, "yyyy-MM-dd"),
     },
     queryKey,
-    fetchFn: getOfficeEmployeeAttendance,
+    fetchFn: getOfficeEmployeeAttendanceWithLeave,
   });
 
   const { newData = [] } = queryData || {};

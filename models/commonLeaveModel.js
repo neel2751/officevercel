@@ -8,13 +8,15 @@ const commonLeaveSchema = new mongoose.Schema(
       required: true,
     },
     leaveYear: {
-      type: Number,
+      type: String,
       required: true,
     },
     leaveData: {
       type: Object,
       required: true,
     },
+    submitedBy: mongoose.Types.ObjectId,
+    submitedDate: Date,
     leaveHistory: {
       type: Array,
       default: [],

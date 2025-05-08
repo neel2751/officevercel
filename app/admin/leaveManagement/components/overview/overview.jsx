@@ -6,7 +6,7 @@ export default function Overview() {
       <LeaveCount />
       {/* <div className="max-w-4xl w-full mb-20">
         <div className="mt-8">
-          <div className="sm:ps-16 p-4 bg-gradient-to-r from-[#ffedd5] via-[#e9d5ff] via-70% to-[#c7d2fe] rounded-md overflow-hidden mb-5 relative">
+          <div className="sm:ps-16 p-4 bg-linear-to-r from-[#ffedd5] via-[#e9d5ff] via-70% to-[#c7d2fe] rounded-md overflow-hidden mb-5 relative">
             <div className="flex items-center gap-x-3">
               <div className="hidden sm:block -start-4 -bottom-2 absolute">
                 <div className="text-7xl">🏕️</div>
@@ -26,7 +26,7 @@ export default function Overview() {
       </div> */}
       {/* <div className="max-w-xl w-full">
         <div className="mt-8">
-          <div className="p-4 bg-gradient-to-r from-[#08332d] via-[#46733f] via-70% to-[#7fad50] rounded-md  mb-5 relative flex">
+          <div className="p-4 bg-linear-to-r from-[#08332d] via-[#46733f] via-70% to-[#7fad50] rounded-md  mb-5 relative flex">
             <div className="max-w-xs space-">
               <h4 className="text-white font-semibold text-xl tracking-tight">
                 Here's happening in your Interior Studio 👋

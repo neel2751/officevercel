@@ -47,76 +47,124 @@ const WeekRotaTable = ({
     queryKey: ["selectProjects"],
   });
 
-  const findMostCommonCategory = (schedule) => {
-    const values = Object.values(schedule || {});
-    const frequency = values.reduce((acc, value) => {
-      acc[value] = (acc[value] || 0) + 1;
+  const findMostCommonCategory = (schedule = []) => {
+    const frequency = schedule.reduce((acc, dayEntry) => {
+      const category = dayEntry?.category;
+      if (category) {
+        acc[category] = (acc[category] || 0) + 1;
+      }
       return acc;
     }, {});
 
     return Object.keys(frequency).reduce(
       (a, b) => (frequency[a] > frequency[b] ? a : b),
-      "OFFICE"
+      "OFFICE" // default fallback if no category found
     );
   };
 
-  const handleScheduleChange = (employeeId, day, field, value) => {
-    // we have to return on sunday because we using the OFF on the day of the week
-    if (day === "Sunday") return;
+  const handleScheduleChange = (employeeId, day, field, value, date) => {
+    if (day === "Sunday") return; // Skip Sunday edits
+
     setSchedules((prevSchedules) =>
       prevSchedules.map((schedule) => {
         if (schedule.employeeId === employeeId) {
-          const updatedDaySchedule = {
-            ...schedule?.schedule[day],
-            [field]: value,
-          };
+          const existingDayIndex = schedule.schedule.findIndex(
+            (daySchedule) => daySchedule.day === day
+          );
+
+          let updatedScheduleArray = [...schedule.schedule];
+
+          if (existingDayIndex !== -1) {
+            // If day exists, update the field
+            updatedScheduleArray[existingDayIndex] = {
+              ...updatedScheduleArray[existingDayIndex],
+              date,
+              day,
+              [field]: value,
+            };
+          } else {
+            // If day is missing, add it
+            updatedScheduleArray.push({
+              day,
+              [field]: value,
+              date,
+              category: field === "category" ? value : "OFFICE",
+              startTime: field === "startTime" ? value : "09:00",
+              endTime: field === "endTime" ? value : "17:00",
+            });
+          }
+
           return {
             ...schedule,
-            schedule: {
-              ...schedule.schedule,
-              [day]: updatedDaySchedule,
-            },
+            schedule: updatedScheduleArray,
           };
         }
+
         return schedule;
       })
     );
   };
 
   const autoFillSchedule = (employeeId) => {
+    console.log(employeeId);
+
     setSchedules((prevSchedules) =>
       prevSchedules.map((schedule) => {
-        if (schedule.employeeId === employeeId) {
-          const currentSchedule = { ...schedule.schedule };
-          const days = [
-            "Monday",
-            "Tuesday",
-            "Wednesday",
-            "Thursday",
-            "Friday",
-            "Saturday",
-            "Sunday",
-          ];
-          const mostCommonCategory = findMostCommonCategory(schedule.schedule);
+        if (schedule.employeeId !== employeeId) return schedule;
 
-          days.forEach((day) => {
-            if (!currentSchedule[day]) {
-              day === "Sunday"
-                ? (currentSchedule[day] = {
-                    category: "OFF",
-                    startTime: "00:00",
-                    endTime: "00:00",
-                  })
-                : (currentSchedule[day] = {
-                    category: mostCommonCategory,
-                    startTime: "09:00",
-                    endTime: "17:00",
-                  });
-            }
-          });
-          return { ...schedule, schedule: currentSchedule };
-        }
-        return schedule;
+        // Convert the schedule array to a map for easier access by day
+        const scheduleMap = new Map(
+          schedule.schedule.map((entry) => [entry.day, entry])
+        );
+
+        const mostCommonCategory = findMostCommonCategory(schedule.schedule);
+        const days = [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+          "Sunday",
+        ];
+
+        const updatedSchedule = days.map((day) => {
+          const existingDay = scheduleMap.get(day);
+
+          // If it's Sunday, always return OFF
+          if (day === "Sunday") {
+            return {
+              day,
+              category: "OFF",
+              startTime: "00:00",
+              endTime: "00:00",
+            };
+          }
+
+          // If the day already exists and is OFF or HOLIDAY, return as is
+          if (
+            existingDay?.category === "OFF" ||
+            existingDay?.category === "Holiday"
+          ) {
+            return existingDay;
+          }
+
+          // Otherwise, create a new entry with default values
+          return {
+            ...existingDay,
+            day,
+            category: "OFFICE",
+            startTime: "09:00",
+            endTime: "17:00",
+          };
+        });
+
+        console.log(updatedSchedule);
+
+        return {
+          ...schedule,
+          schedule: updatedSchedule,
+        };
       })
     );
   };
@@ -137,86 +185,76 @@ const WeekRotaTable = ({
   });
 
   const submitSchedules = () => {
-    // console.log("Before Submiting...", schedules);
-    // Validation: Ensure all schedules are complete
+    if (!schedules.length) {
+      toast.warning("No schedules to submit");
+      return;
+    }
+
     let hasErrors = false;
+
     const updatedSchedules = schedules.map((schedule) => {
       const missingDays = [];
 
-      // Check each day's schedule
-      [
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-        "Sunday",
-      ].forEach((day) => {
-        const daySchedule = schedule.schedule[day];
+      schedule.schedule.forEach((daySchedule) => {
+        const { day, category, startTime, endTime, site } = daySchedule;
 
-        // Skip validation for Sunday
-        if (day === "Sunday") {
-          return;
-        }
+        // Skip validation for Sunday and HOLIDAY
+        if (day === "Sunday" || category === "Holiday") return;
 
-        // Check if category exists
-        if (!daySchedule || !daySchedule.category) {
+        if (!category) {
           missingDays.push(`${day} (missing category)`);
           return;
         }
 
-        if (daySchedule.category === "OFFICE/SITE" && !daySchedule.site) {
-          missingDays.push(`${day} (SITE requires a location)`);
+        if (category === "OFFICE/SITE" && !site) {
+          missingDays.push(`${day} (missing site for OFFICE/SITE)`);
           return;
         }
 
-        // Validate time fields
-        const { startTime, endTime } = daySchedule;
-        if (!startTime || !endTime) {
-          missingDays.push(`${day} (missing time)`);
-          return;
-        }
+        if (category !== "OFF") {
+          if (!startTime || !endTime) {
+            missingDays.push(`${day} (missing time)`);
+            return;
+          }
 
-        // Ensure startTime < endTime
-        if (startTime >= endTime) {
-          missingDays.push(`${day} (invalid time range)`);
+          if (startTime >= endTime) {
+            missingDays.push(`${day} (invalid time range)`);
+          }
         }
       });
 
-      // Update schedule with validation result
-      if (missingDays.length > 0) {
-        hasErrors = true;
-      }
+      if (missingDays.length > 0) hasErrors = true;
 
-      return { ...schedule, hasError: missingDays.length > 0, missingDays };
+      return {
+        ...schedule,
+        hasError: missingDays.length > 0,
+        missingDays,
+      };
     });
 
     setSchedules(updatedSchedules);
 
     if (hasErrors) {
-      //   // Create a detailed error message
       const errorMessage = updatedSchedules
-        .filter((schedule) => schedule.hasError)
+        .filter((s) => s.hasError)
         .map(
-          (schedule) =>
-            `Employee: ${
-              schedule.employeeName
-            }, Missing Days: ${schedule.missingDays.join(", ")}`
+          (s) =>
+            `Employee: ${s.employeeName}\nMissing/Invalid: ${s.missingDays.join(
+              ", "
+            )}`
         )
-        .join("\n");
-      toast.error("Some employees have missing schedule days.");
-      return; // Stop submission if validation fails
-    }
-    // we can also check if the schedule is valid (e.g., no two consecutive days are
-    // assigned to the same category)
+        .join("\n\n");
 
-    // In a real application, this would send the data to a server
-    setSchedules((prevSchedules) =>
-      prevSchedules.map((schedule) => ({ ...schedule, status: "Submitted" }))
+      toast.error("Some schedules have issues. Please fix and try again.");
+      console.warn("Validation Errors:\n", errorMessage);
+      return;
+    }
+
+    // Success: Update status and submit
+    setSchedules((prev) =>
+      prev.map((schedule) => ({ ...schedule, status: "Submitted" }))
     );
-    if (schedules.length <= 0) return toast.warning(" No schedules to submit");
-    handleSubmit(schedules);
+    handleSubmit(updatedSchedules);
   };
 
   return (
@@ -251,43 +289,54 @@ const WeekRotaTable = ({
           <Shimmer length={9} />
         ) : (
           <TableBody>
-            {schedules?.map((schedule) => {
-              // const employee = mockEmployees.find(
-              //   (emp) => emp.id === schedule.employeeId
-              // );
-              return (
-                <TableRow
-                  key={schedule?.employeeId}
-                  style={{
-                    border: schedule.hasError ? "1px solid red" : "none",
-                  }}
-                >
-                  <TableCell>{schedule?.employeeName}</TableCell>
-                  {[
-                    "Monday",
-                    "Tuesday",
-                    "Wednesday",
-                    "Thursday",
-                    "Friday",
-                    "Saturday",
-                    "Sunday",
-                  ].map((day) => (
+            {schedules?.map((schedule) => (
+              <TableRow
+                key={schedule?.employeeId}
+                style={{
+                  border: schedule.hasError ? "1px solid red" : "none",
+                }}
+              >
+                <TableCell>{schedule?.employeeName}</TableCell>
+
+                {[
+                  "Monday",
+                  "Tuesday",
+                  "Wednesday",
+                  "Thursday",
+                  "Friday",
+                  "Saturday",
+                  "Sunday",
+                ].map((day) => {
+                  const daySchedule =
+                    schedule.schedule.find((d) => d.day === day) || {}; // fallback for missing day
+
+                  const isHoliday = daySchedule.category === "Holiday";
+                  const isOff =
+                    day === "Sunday" || daySchedule.category === "OFF";
+                  const isOfficeSite = daySchedule.category === "OFFICE/SITE";
+                  if (isHoliday) {
+                    return (
+                      <TableCell key={day}>
+                        <Badge className={"w-full justify-center bg-red-600"}>
+                          Holiday
+                        </Badge>
+                      </TableCell>
+                    );
+                  }
+
+                  return (
                     <TableCell key={day}>
                       <div className="space-y-2">
                         <Select
-                          disabled={day === "Sunday"}
-                          value={
-                            // every sunday  is a day off
-                            day === "Sunday"
-                              ? "OFF"
-                              : schedule?.schedule[day]?.category || ""
-                          }
+                          disabled={day === "Sunday" || isHoliday}
+                          value={daySchedule.category || ""}
                           onValueChange={(value) =>
                             handleScheduleChange(
                               schedule.employeeId,
                               day,
                               "category",
-                              value
+                              value,
+                              schedule.date
                             )
                           }
                         >
@@ -305,20 +354,11 @@ const WeekRotaTable = ({
                             ))}
                           </SelectContent>
                         </Select>
+
                         <Input
                           type="time"
-                          disabled={
-                            day === "Sunday" ||
-                            (schedule?.schedule[day]?.category &&
-                              schedule?.schedule[day]?.category === "OFF")
-                          }
-                          value={
-                            schedule?.schedule[day]?.category === "OFF"
-                              ? "00:00"
-                              : day === "Sunday"
-                              ? "00:00"
-                              : schedule.schedule[day]?.startTime || ""
-                          }
+                          disabled={isOff || isHoliday}
+                          value={isOff ? "00:00" : daySchedule.startTime || ""}
                           onChange={(e) =>
                             handleScheduleChange(
                               schedule.employeeId,
@@ -329,23 +369,14 @@ const WeekRotaTable = ({
                           }
                           className="w-full"
                         />
+
                         <Input
                           type="time"
-                          disabled={
-                            day === "Sunday" ||
-                            (schedule?.schedule[day]?.category &&
-                              schedule?.schedule[day]?.category === "OFF")
-                          }
-                          value={
-                            schedule?.schedule[day]?.category === "OFF"
-                              ? "00:00"
-                              : day === "Sunday"
-                              ? "00:00"
-                              : schedule?.schedule[day]?.endTime || ""
-                          }
+                          disabled={isOff || isHoliday}
+                          value={isOff ? "00:00" : daySchedule.endTime || ""}
                           onChange={(e) =>
                             handleScheduleChange(
-                              schedule?.employeeId,
+                              schedule.employeeId,
                               day,
                               "endTime",
                               e.target.value
@@ -353,13 +384,13 @@ const WeekRotaTable = ({
                           }
                           className="w-full"
                         />
-                        {schedule?.schedule[day]?.category ===
-                          "OFFICE/SITE" && (
+
+                        {isOfficeSite && (
                           <Select
-                            value={schedule?.schedule[day]?.site || ""}
+                            value={daySchedule.site || ""}
                             onValueChange={(value) =>
                               handleScheduleChange(
-                                schedule?.employeeId,
+                                schedule.employeeId,
                                 day,
                                 "site",
                                 value
@@ -371,11 +402,8 @@ const WeekRotaTable = ({
                             </SelectTrigger>
                             <SelectContent>
                               {siteProjects?.map((site) => (
-                                <SelectItem
-                                  key={site?.value}
-                                  value={site?.label}
-                                >
-                                  {site?.label}
+                                <SelectItem key={site.value} value={site.label}>
+                                  {site.label}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -383,19 +411,19 @@ const WeekRotaTable = ({
                         )}
                       </div>
                     </TableCell>
-                  ))}
-                  <TableCell>
-                    <Button
-                      disabled={isPending || categories?.length === 0}
-                      type="button"
-                      onClick={() => autoFillSchedule(schedule?.employeeId)}
-                    >
-                      {categories.length > 0 ? "Auto Fill" : "No Categories"}
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
+                  );
+                })}
+                <TableCell>
+                  <Button
+                    disabled={isPending || categories.length === 0}
+                    type="button"
+                    onClick={() => autoFillSchedule(schedule.employeeId)}
+                  >
+                    {categories.length > 0 ? "Auto Fill" : "No Categories"}
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         )}
       </Table>

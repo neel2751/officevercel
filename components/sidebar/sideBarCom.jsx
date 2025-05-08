@@ -52,7 +52,9 @@ const SideBarHeaderCom = () => {
                 <div className="flex aspect-square size-8 items-center border border-neutral-200 p-1 justify-center rounded-lg text-sidebar-primary-foreground">
                   <Image
                     // src="/images/cdc.svg"
-                    src={"https://www.interiorstudioltd.com/images/logo.svg"}
+                    src={
+                      "https://res.cloudinary.com/drcjzx0sw/image/upload/v1746444818/hr_jlxx1c.svg"
+                    }
                     alt="Logo"
                     width={30}
                     height={30}
@@ -60,9 +62,7 @@ const SideBarHeaderCom = () => {
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   {/* <span className="truncate font-semibold">CDC</span> */}
-                  <span className="truncate font-semibold">
-                    Interior Studio
-                  </span>
+                  <span className="truncate font-semibold">Hr Management</span>
                   <span className="truncate text-xs">
                     {/* Creative Design & Construction */}
                   </span>
@@ -159,46 +159,48 @@ const SideBarFooterCom = () => {
                 size="lg"
                 className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
               >
-                <Avatar className="h-8 w-8 rounded-lg">
+                <Avatar className="h-8 w-8 rounded-lg border p-1">
                   <AvatarImage
                     // src={session?.user?.image || "/images/cdc.svg"}
-                    src={"https://www.interiorstudioltd.com/images/logo.svg"}
-                    alt={session?.user?.name || "CDC"}
+                    src={
+                      "https://res.cloudinary.com/drcjzx0sw/image/upload/v1746444818/hr_jlxx1c.svg"
+                    }
+                    alt={session?.user?.name || "HR"}
                   />
                   <AvatarFallback className="rounded-lg">N</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">
-                    {session?.user?.name || "Interior Studio"}
-                    {/* Interior Studio */}
+                    {session?.user?.name || "Hr Management"}
                   </span>
                   <span className="truncate text-xs">
-                    {/* {session?.user?.email || "info@cdc.construction"} */}
-                    SuperAdmin
+                    {session?.user?.role || "hr"}
                   </span>
                 </div>
                 <ChevronsUpDown className="ml-auto size-4" />
               </SidebarMenuButton>
             </DropdownMenuTrigger>
             <DropdownMenuContent
-              className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+              className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
               side="bottom"
               align="end"
               sideOffset={4}
             >
               <DropdownMenuLabel className="p-0 font-normal">
                 <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                  <Avatar className="h-8 w-8 rounded-lg">
+                  <Avatar className="h-8 w-8 rounded-lg p-1 border">
                     <AvatarImage
                       // src={session?.user?.image || "/images/cdc.svg"}
-                      src={"https://www.interiorstudioltd.com/images/logo.svg"}
-                      alt={session?.user?.name || "CDC"}
+                      src={
+                        "https://res.cloudinary.com/drcjzx0sw/image/upload/v1746444818/hr_jlxx1c.svg"
+                      }
+                      alt={session?.user?.name || "HR"}
                     />
                     <AvatarFallback className="rounded-lg">N</AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-semibold">
-                      {session?.user?.name || "CDC"} -{" "}
+                      {session?.user?.name || "HR"} -{" "}
                       <span className="text-xs lowercase text-neutral-700">
                         {session?.user?.role || "None"}
                       </span>

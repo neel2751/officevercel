@@ -112,6 +112,9 @@ const Employee = ({ searchParams }) => {
     setIsEdit(true);
   };
   const onSubmit = (data) => {
+    console.log(data);
+    return;
+
     if (data?.visaEndDate && !isFuture(new Date(data.eVisaExp))) {
       return toast.error("Visa Expiry should be greater than start date");
     }
@@ -181,7 +184,7 @@ const Employee = ({ searchParams }) => {
           totalCount,
         }}
       >
-        <div>
+        <div className="overflow-hidden">
           <Card>
             <CardHeader>
               <div className="mb-4">
@@ -190,42 +193,46 @@ const Employee = ({ searchParams }) => {
               <div className="flex items-center justify-between">
                 <SearchDebounce />
                 <div className="flex gap-2">
-                  <SelectFilter
-                    value={filter.employeType}
-                    frameworks={[
-                      { label: "All", value: "" },
-                      {
-                        label: "Monthly",
-                        value: "Monthly",
-                      },
-                      {
-                        label: "Weekly",
-                        value: "Weekly",
-                      },
-                    ]}
-                    placeholder={
-                      filter.employeType === "" ? "All" : "Select Type"
-                    }
-                    onChange={(e) => setFilter({ ...filter, employeType: e })}
-                    noData="No Data found"
-                  />
-                  <SelectFilter
-                    value={filter.type}
-                    frameworks={[
-                      { label: "All", value: "" },
-                      {
-                        label: "British",
-                        value: "British",
-                      },
-                      {
-                        label: "Immigrant",
-                        value: "Immigrant",
-                      },
-                    ]}
-                    placeholder={filter.type === "" ? "All" : "Select Type"}
-                    onChange={(e) => setFilter({ ...filter, type: e })}
-                    noData="No Data found"
-                  />
+                  <div>
+                    <SelectFilter
+                      value={filter.employeType}
+                      frameworks={[
+                        { label: "All", value: "" },
+                        {
+                          label: "Monthly",
+                          value: "Monthly",
+                        },
+                        {
+                          label: "Weekly",
+                          value: "Weekly",
+                        },
+                      ]}
+                      placeholder={
+                        filter.employeType === "" ? "All" : "Select Type"
+                      }
+                      onChange={(e) => setFilter({ ...filter, employeType: e })}
+                      noData="No Data found"
+                    />
+                  </div>
+                  <div>
+                    <SelectFilter
+                      value={filter.type}
+                      frameworks={[
+                        { label: "All", value: "" },
+                        {
+                          label: "British",
+                          value: "British",
+                        },
+                        {
+                          label: "Immigrant",
+                          value: "Immigrant",
+                        },
+                      ]}
+                      placeholder={filter.type === "" ? "All" : "Select Type"}
+                      onChange={(e) => setFilter({ ...filter, type: e })}
+                      noData="No Data found"
+                    />
+                  </div>
                   <Button onClick={handleOpen}>
                     <Plus />
                     Add

@@ -31,12 +31,8 @@ export default function EmployeeUpdate({ item, queryKey }) {
       },
     },
     {
-      name: "partTimeDays",
+      name: "dayPerWeek",
       labelText: "Days",
-      showIf: {
-        field: "employeType",
-        value: "Part-Time",
-      },
       type: "number",
       pattern: /d*/,
       inputMode: "numeric",

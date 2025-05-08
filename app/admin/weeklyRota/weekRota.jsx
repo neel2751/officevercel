@@ -15,14 +15,15 @@ import {
 import AddCategory from "./components/addCategory";
 import { SelectDatePicker } from "./components/dateSelect";
 import { useFetchQuery } from "@/hooks/use-query";
-import { getOfficeEmployeeAttendance } from "@/server/officeAttendanceServer/officeAttendance";
+import {
+  getOfficeEmployeeAttendance,
+  getOfficeEmployeeAttendanceWithLeave,
+} from "@/server/officeAttendanceServer/officeAttendance";
 import WeekRotaTable from "@/components/weekRotaTable/weekRotaTable";
 import { Badge } from "@/components/ui/badge";
 
 export function WeeklyRota() {
-  const [currentWeek, setCurrentWeek] = useState(
-    startOfWeek(new Date(), { weekStartsOn: 1 })
-  );
+  const [currentWeek, setCurrentWeek] = useState(startOfWeek(new Date()));
   const queryKey = [
     "officeAttendance",
     { date: format(currentWeek, "yyyy-MM-dd") },
@@ -36,7 +37,7 @@ export function WeeklyRota() {
     params: {
       date: format(currentWeek, "yyyy-MM-dd"),
     },
-    fetchFn: getOfficeEmployeeAttendance,
+    fetchFn: getOfficeEmployeeAttendanceWithLeave,
     queryKey,
   });
 

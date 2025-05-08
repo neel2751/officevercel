@@ -11,7 +11,7 @@ export const useFetchQuery = ({
   }
   return useQuery({
     queryKey: queryKey,
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       const response = await fetchFn(params);
       const parsedData = JSON.parse(response?.data);
       return {
@@ -41,8 +41,8 @@ export const useFetchQuery = ({
 export const useFetchSelectQuery = ({ queryKey, fetchFn }) => {
   return useQuery({
     queryKey: queryKey,
-    queryFn: async () => {
-      const response = await fetchFn();
+    queryFn: async ({ signal }) => {
+      const response = await fetchFn(signal);
       const parsedData = JSON.parse(response?.data);
       return parsedData || [];
     },
@@ -93,4 +93,9 @@ export const usePreFetchQuery = ({ params, queryKey, fetchFn }) => {
       }
     },
   });
+};
+
+export const useInvalidateQuery = (queryKey) => {
+  const queryClient = useQueryClient();
+  return queryClient.invalidateQueries(queryKey);
 };
