@@ -150,7 +150,7 @@ const EmployeTabel = () => {
                     >
                       <Trash2 className="text-rose-600" />
                     </Button>
-                    <Button asChild size="icon" variant="outline">
+                    {/* <Button asChild size="icon" variant="outline">
                       <Link
                         href={`/admin/officeEmployee/${encryptId(
                           item?._id
@@ -158,7 +158,7 @@ const EmployeTabel = () => {
                       >
                         <Eye />
                       </Link>
-                    </Button>
+                    </Button> */}
                   </div>
                 )}
               </TableCell>

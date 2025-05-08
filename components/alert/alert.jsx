@@ -7,7 +7,7 @@ export default function Alert({ label, open, onClose, onConfirm, isPending }) {
     <div
       className={`${
         open ? "flex" : "hidden"
-      } size-full fixed top-0 start-0 justify-center items-center  z-[80] bg-gray-800/80 overflow-x-hidden overflow-y-auto`}
+      } size-full fixed top-0 start-0 justify-center items-center  z-80 bg-gray-800/80 overflow-x-hidden overflow-y-auto`}
     >
       <div
         className={`duration-500 ease-out transition-all ${
@@ -31,14 +31,14 @@ export default function Alert({ label, open, onClose, onConfirm, isPending }) {
             <div className="flex gap-x-4 md:gap-x-7">
               {/* <!-- Icon --> */}
               <span
-                className={`flex-shrink-0 inline-flex justify-center items-center size-[46px] sm:w-[62px] sm:h-[62px] rounded-full border-4 ${
+                className={`shrink-0 inline-flex justify-center items-center size-[46px] sm:w-[62px] sm:h-[62px] rounded-full border-4 ${
                   label?.type === "Delete"
                     ? " border-rose-50 bg-rose-100 text-rose-500"
                     : "border-amber-50 bg-amber-100 text-amber-600"
                 }`}
               >
                 <svg
-                  className="flex-shrink-0 size-5"
+                  className="shrink-0 size-5"
                   xmlns="http://www.w3.org/2000/svg"
                   width="16"
                   height="16"

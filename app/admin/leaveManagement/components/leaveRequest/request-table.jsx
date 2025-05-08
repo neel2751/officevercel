@@ -15,7 +15,13 @@ import {
   getLeaveRequestDataAdmin,
 } from "@/server/leaveServer/getLeaveServer";
 import { differenceInDays, format, isPast, isToday } from "date-fns";
-import { ChevronDown, ChevronRight, EditIcon, Trash2Icon } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronRight,
+  EditIcon,
+  Trash2Icon,
+  UndoIcon,
+} from "lucide-react";
 import LeaveRequestStatus from "./request-status";
 import LeaveForm from "./leave-form";
 import React from "react";
@@ -25,6 +31,11 @@ import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getLeaveYearString } from "@/lib/getLeaveYear";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export function LeaveRequestTable({
   showDialog,
@@ -241,32 +252,21 @@ const DetailsRow = ({ item, queryKey, onEdit }) => {
         </TableCell>
         <TableCell>
           {item?.leaveStatus === "Pending" && item?.employee?.name ? (
-            isPast(new Date(item?.leaveStartDate)) ? (
-              <LeaveRequestStatus
-                invalidateKey={queryKey}
-                leaveId={item?._id}
-                allowAccept={true}
-                allowReject={true}
-              />
-            ) : isToday(new Date(item.leaveStartDate)) ? (
-              <LeaveRequestStatus
-                leaveId={item?._id}
-                invalidateKey={queryKey}
-                allowAccept={false}
-                allowReject={true}
-              />
+            isPast(new Date(item.leaveStartDate)) ? (
+              // Leave is pending, but the start date has passed — auto mark as rejected
+              <Status title="Expired" />
             ) : (
+              // Today or future — allow approve & reject
               <LeaveRequestStatus
-                leaveId={item?._id}
+                leaveId={item._id}
                 invalidateKey={queryKey}
                 allowAccept={true}
                 allowReject={true}
               />
             )
-          ) : isPast(item?.leaveStartDate) ? (
-            <Status title={"Rejected"} />
           ) : (
-            <Status title={item?.leaveStatus} />
+            // Not pending — just show actual status
+            <Status title={item?.leaveStatus ?? "Unknown"} />
           )}
         </TableCell>
         <TableCell>{item?.approvedBy?.name || "-"}</TableCell>
@@ -299,15 +299,21 @@ const DetailsRow = ({ item, queryKey, onEdit }) => {
               )}
 
             {/* Delete Button: Visible if NOT past */}
-            {(item?.leaveStatus === "Pending" ||
-              isPast(item?.leaveStartDate)) && (
-              <Button
-                size="icon"
-                variant="outline"
-                className="hover:bg-red-100 hover:border-red-600"
-              >
-                <Trash2Icon className="text-rose-600" />
-              </Button>
+            {item?.leaveStatus === "Pending" && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    className="hover:bg-red-100 hover:border-red-600"
+                  >
+                    <UndoIcon className="text-rose-600" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Leave request expired</p>
+                </TooltipContent>
+              </Tooltip>
             )}
           </div>
         </TableCell>

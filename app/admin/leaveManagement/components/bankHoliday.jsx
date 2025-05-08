@@ -38,7 +38,7 @@ export const BankHoliday = () => {
             <CardTitle
               className={`${
                 getYear(new Date()) === Number(year)
-                  ? "text-white bg-gradient-to-tr from-indigo-700 via-indigo-800 to-indigo-900 max-w-max py-0.5 px-2 rounded-sm text-center text-xs"
+                  ? "text-white bg-linear-to-tr from-indigo-700 via-indigo-800 to-indigo-900 max-w-max py-0.5 px-2 rounded-sm text-center text-xs"
                   : "text-neutral-600 my-2 text-sm"
               }`}
             >

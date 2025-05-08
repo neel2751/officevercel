@@ -155,7 +155,7 @@ export function GlobalForm({
             ))}
           </div>
         ))}
-        <div className="mt-8">
+        <div className="mt-7">
           <Button disabled={isLoading} type="submit">
             {isLoading ? (
               <>

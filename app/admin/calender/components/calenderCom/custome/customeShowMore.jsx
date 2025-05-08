@@ -48,7 +48,7 @@ const CustomeShowMore = ({ showMore }) => {
           +{showMore?.count} more
         </Badge>
       </HoverCardTrigger>
-      <HoverCardContent className="z-[80] space-y-4 min-h-min">
+      <HoverCardContent className="z-80 space-y-4 min-h-min">
         {/* <ScrollArea className="h-72 space-y-4"> */}
         {showMore.remainingEvents.map((item) => {
           const Icon = item?.type ? eventTypeIcons[item.type] : LogsIcon;

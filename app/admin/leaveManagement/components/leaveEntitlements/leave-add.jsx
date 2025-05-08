@@ -7,13 +7,11 @@ import { useSelectAllLeaveCategories } from "@/hooks/useSelect/useSelect";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { CardDescription, CardTitle } from "@/components/ui/card";
 
 // Add the leave entitlement for one employee
 export default function AddLeaveForEmployee({ leaveData, queryKey }) {
@@ -50,25 +48,25 @@ export default function AddLeaveForEmployee({ leaveData, queryKey }) {
   ];
   return (
     <>
-      <Dialog>
-        <DialogTrigger asChild>
+      <Popover>
+        <PopoverTrigger asChild>
           <Button size="icon" variant="outline">
             <Plus />
           </Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add Leave Entitlement</DialogTitle>
-            <DialogDescription>Select the leave type to add</DialogDescription>
-          </DialogHeader>
-          <GlobalForm
-            fields={field}
-            btnName={"Add New"}
-            onSubmit={addLeave}
-            isLoading={isPending}
-          />
-        </DialogContent>
-      </Dialog>
+        </PopoverTrigger>
+        <PopoverContent className={"w-80"}>
+          <CardTitle>Add Leave Entitlement</CardTitle>
+          <CardDescription>Select the leave type to add</CardDescription>
+          <div className="mt-3">
+            <GlobalForm
+              fields={field}
+              btnName={"Add New"}
+              onSubmit={addLeave}
+              isLoading={isPending}
+            />
+          </div>
+        </PopoverContent>
+      </Popover>
     </>
   );
 }

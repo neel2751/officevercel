@@ -897,7 +897,7 @@ export const FormMultiInput = ({ field }) => {
     <div className="space-y-4">
       {fields.map((item, index) => (
         <div key={item?.id} className="flex items-center space-x-2">
-          <div className="flex-grow">
+          <div className="grow">
             <Controller
               name={`${field?.name}.${index}`}
               control={control}

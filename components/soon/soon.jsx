@@ -16,7 +16,7 @@ const Soon = () => {
         <CardHeader>
           <CardTitle>
             Leave Management System{" "}
-            <span className="bg-gradient-to-tr from-indigo-600 to-rose-500 bg-clip-text text-transparent">
+            <span className="bg-linear-to-tr from-indigo-600 to-rose-500 bg-clip-text text-transparent">
               (Comming Soon)
             </span>
           </CardTitle>

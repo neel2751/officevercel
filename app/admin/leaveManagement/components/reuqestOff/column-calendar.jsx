@@ -279,7 +279,7 @@ export function ColumnCalendar({ employee, onRequestSubmit }) {
           <div className="p-4 border-t">
             <Button
               onClick={() => setIsDialogOpen(true)}
-              className="bg-gradient-to-b from-indigo-700 to-indigo-900 text-white"
+              className="bg-linear-to-b from-indigo-700 to-indigo-900 text-white"
             >
               Request {calculateTotalHours().toFixed(1)} hours off
             </Button>
