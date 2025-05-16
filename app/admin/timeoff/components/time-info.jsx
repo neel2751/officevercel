@@ -6,6 +6,7 @@ import { Calendar } from "lucide-react";
 
 export default function TimeInfo() {
   const currentTime = useTime();
+  const formattedTime = format(currentTime, "hh:mm:ss a"); // 'hh' for 12-hour format, 'a' for AM/PM
 
   return (
     <Card>
@@ -14,9 +15,7 @@ export default function TimeInfo() {
         <Calendar className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">
-          {currentTime.toLocaleTimeString()}
-        </div>
+        <div className="text-2xl font-bold">{formattedTime}</div>
         <p className="text-xs text-muted-foreground">
           {format(currentTime, "PPP")}
         </p>

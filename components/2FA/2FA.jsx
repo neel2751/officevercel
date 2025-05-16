@@ -18,77 +18,82 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogClose,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { useFetchQuery } from "@/hooks/use-query";
-import { generate2FA, verify2FA } from "@/server/2FAServer/TwoAuthserver";
-import { toast } from "sonner";
 import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSeparator,
-  InputOTPSlot,
-} from "../ui/input-otp";
+  check2FA,
+  enable2FA,
+  onEnableChange,
+} from "@/server/2FAServer/TwoAuthserver";
+import { toast } from "sonner";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "../ui/input-otp";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import Image from "next/image";
+import { Separator } from "../ui/separator";
+import { useSubmitMutation } from "@/hooks/use-mutate";
+import Alert from "../alert/alert";
 
-export function TwoFactorAuthCard({
-  onEnableChange,
-  className,
-  defaultEnabled = false,
-}) {
-  const [enabled, setEnabled] = useState(defaultEnabled);
-  const [loading, setLoading] = useState(false);
+export function TwoFactorAuthCard({ className }) {
+  // const [enabled, setEnabled] = useState(defaultEnabled);
   const [code, setCode] = useState("");
+  const [secret, setSecret] = useState("");
+  const [qrCodeUrl, setQrCodeUrl] = useState("");
   const [showSetupDialog, setShowSetupDialog] = useState(false);
-  const { data } = useFetchQuery({
-    fetchFn: generate2FA,
-    queryKey: ["generate2FA"],
+
+  const queryKey = ["generate2FA"];
+
+  const { data: check } = useFetchQuery({
+    fetchFn: check2FA,
+    queryKey,
   });
-  const { qrCodeUrl, secret } = data?.newData || {};
+  const { isEnabled: enabled } = check?.newData || {};
 
-  const handleToggleChange = async (checked) => {
-    setLoading(true);
+  const { mutate: submit2FA, isPending } = useSubmitMutation({
+    mutationFn: async () => await enable2FA(code, secret),
+    invalidateKey: queryKey,
+    onSuccessMessage: (message) => toast.success(message),
+    onClose: () => {
+      setSecret("");
+      setQrCodeUrl("");
+      setCode("");
+      setShowSetupDialog(false);
+    },
+  });
+  const { mutate: disable2FA } = useSubmitMutation({
+    mutationFn: async () => await onEnableChange(false),
+    invalidateKey: queryKey,
+    onSuccessMessage: (message) => toast.success(message),
+    onClose: () => {
+      setSecret("");
+      setQrCodeUrl("");
+      setCode("");
+      setShowSetupDialog(false);
+    },
+  });
 
-    try {
-      // In a real app, this would call an API endpoint to enable/disable 2FA
-      const result = onEnableChange ? await onEnableChange(checked) : true;
-
-      if (result) {
-        if (checked) {
-          // If enabling 2FA, show the setup dialog
-          setShowSetupDialog(true);
-          // Don't update the state yet - we'll do that after setup is complete
-        } else {
-          // If disabling 2FA, update the state immediately
-          setEnabled(false);
-        }
+  const handleToggleChange = async (check) => {
+    if (check) {
+      const result = await onEnableChange(true);
+      if (!result.success) return toast.error(result.message);
+      const data = JSON.parse(result?.data);
+      const { isEnabled, isVerified, secret, qrCodeUrl } = data;
+      if (!isEnabled || !isVerified) {
+        setSecret(secret);
+        setQrCodeUrl(qrCodeUrl);
+        setShowSetupDialog(true);
       } else {
-        throw new Error("Failed to update two-factor authentication status");
+        toast.success("2FA is already enabled");
       }
-    } catch (err) {
-      console.error("Error toggling 2FA:", err);
-      // Revert the toggle if there was an error
-      setEnabled(!checked);
-    } finally {
-      setLoading(false);
+    } else {
+      disable2FA();
     }
   };
 
   const onComplete = async () => {
-    // TODO: Verify the code with the server
-    console.log("Verification code submitted:", code);
-    const response = await verify2FA(code, secret);
-    if (response.success) {
-      setEnabled(true);
-      toast.success("Two-factor authentication enabled successfully");
-    } else {
-      toast.error("Invalid verification code");
-    }
+    submit2FA(code, secret);
   };
 
   const copySecretKey = () => {
@@ -98,9 +103,29 @@ export function TwoFactorAuthCard({
 
   return (
     <>
+      <Card className={"max-w-2xl mx-auto bg-gray-100"}>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="space-y-2">
+              <CardTitle>
+                Add an extra layer of security to your account
+              </CardTitle>
+              <CardDescription className={"tracking-tight"}>
+                Two-factor authentication (2FA) adds an extra layer of security
+                to your account. When enabled, you'll need to enter a
+                verification code from your authenticator app in addition to
+                your password.
+              </CardDescription>
+            </div>
+            <Button variant={"ghost"} className={"text-blue-600"}>
+              Add more secure 2FA
+            </Button>
+          </div>
+        </CardHeader>
+      </Card>
       <Card
         className={cn(
-          "w-full max-w-md transition-all duration-300",
+          "w-full max-w-md transition-all duration-300 mx-auto mt-2.5",
           enabled ? "border-primary shadow-md" : "border-muted",
           className
         )}
@@ -114,10 +139,10 @@ export function TwoFactorAuthCard({
               )}
             />
             <div>
-              <CardTitle className="text-xl">
+              <CardTitle className="text-base tracking-tight">
                 Two-Factor Authentication
               </CardTitle>
-              <CardDescription className="mt-1">
+              <CardDescription className="mt-1 tracking-tight">
                 Add an extra layer of security to your account
               </CardDescription>
             </div>
@@ -137,18 +162,18 @@ export function TwoFactorAuthCard({
         <CardContent className="pb-2">
           <div className="flex items-center justify-between">
             <Label htmlFor="toggle-2fa" className="text-sm font-medium">
-              {enabled ? "2FA is active" : "2FA is inactive"}
+              {enabled ? "2FA is Active" : "2FA is Inactive"}
             </Label>
             <Switch
               id="toggle-2fa"
               checked={enabled}
               onCheckedChange={handleToggleChange}
-              disabled={loading}
+              disabled={isPending}
               aria-label="Toggle two-factor authentication"
             />
           </div>
         </CardContent>
-        <CardFooter className="pt-2 text-sm text-muted-foreground">
+        <CardFooter className=" text-sm text-muted-foreground">
           {enabled ? (
             <p>
               Your account is protected with two-factor authentication. You'll
@@ -164,14 +189,13 @@ export function TwoFactorAuthCard({
           )}
         </CardFooter>
       </Card>
-
       <Dialog open={showSetupDialog} onOpenChange={setShowSetupDialog}>
         <DialogContent className="w-full max-w-2xl max-h-screen overflow-y-auto bg-white rounded-lg shadow-lg p-6 sm:max-w-md md:max-w-lg lg:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-xl">
+            <DialogTitle className={"tracking-tight text-base"}>
               Setup Authenticator App
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className={"tracking-tight"}>
               Each time you log in, in addition to your password, you'll use an
               authenticator app to generate a one-time code.
             </DialogDescription>
@@ -180,34 +204,45 @@ export function TwoFactorAuthCard({
           <div className="space-y-6">
             <div>
               <h3 className="text-sm font-medium flex items-center gap-2">
-                <span className="inline-flex items-center justify-center rounded-full bg-primary/10 text-primary h-5 w-5 text-xs">
-                  1
+                <span className="inline-flex items-center justify-center rounded-full bg-stone-200 text-primary h-5 p-2 text-xs">
+                  Step 1
                 </span>
                 Scan QR code
               </h3>
-              <p className="text-sm text-muted-foreground mt-1">
+              <CardDescription className="tracking-tight mt-1">
                 Scan the QR code below or manually enter the secret key into
                 your authenticator app.
-              </p>
+              </CardDescription>
 
               <div className="mt-4 flex flex-col items-center space-y-4">
-                <div className="border p-4 rounded-md bg-white">
-                  <Image
-                    src={qrCodeUrl}
-                    alt="QR Code for 2FA setup"
-                    className="w-48 h-48 object-contain"
-                    width={192}
-                    height={192}
-                  />
+                <div className="border p-0.5 rounded-md bg-white">
+                  {qrCodeUrl ? (
+                    <Image
+                      src={qrCodeUrl}
+                      alt="QR Code for 2FA setup"
+                      className="w-48 h-48 object-contain"
+                      width={192}
+                      height={192}
+                    />
+                  ) : (
+                    <div className="w-64 h-64 bg-gradient-to-tl from-blue-500 to-blue-300 animate-pulse rounded-md mb-8"></div>
+                  )}
                 </div>
-
-                <div className="w-full">
-                  <p className="text-sm text-muted-foreground mb-1">
+                <div className="relative w-full text-center text-sm">
+                  <div
+                    className="absolute inset-0 flex items-center"
+                    aria-hidden="true"
+                  >
+                    <div className="w-full border-t border-gray-200" />
+                  </div>
+                  <span className="relative z-10 bg-white px-2 text-muted-foreground tracking-tight">
                     Can't scan QR code?
-                  </p>
+                  </span>
+                </div>
+                <div className="w-full">
                   <p className="text-sm mb-1">Enter this secret instead:</p>
                   <div className="flex items-center space-x-2">
-                    <div className="bg-muted p-2 rounded text-sm font-mono w-full">
+                    <div className="bg-stone-100 p-1.5 rounded text-sm w-full pl-3">
                       {secret}
                     </div>
                     <Button
@@ -222,23 +257,23 @@ export function TwoFactorAuthCard({
                 </div>
               </div>
             </div>
-
+            <Separator />
             <div>
               <h3 className="text-sm font-medium flex items-center gap-2">
-                <span className="inline-flex items-center justify-center rounded-full bg-primary/10 text-primary h-5 w-5 text-xs">
-                  2
+                <span className="inline-flex items-center justify-center rounded-full bg-stone-200 text-primary h-5 p-2 text-xs">
+                  Step 2
                 </span>
                 Get verification Code
               </h3>
-              <p className="text-sm text-muted-foreground mt-1">
+              <CardDescription className="tracking-tight mt-1">
                 Enter the 6-digit code you see in your authenticator app.
-              </p>
+              </CardDescription>
 
               <div className="mt-4">
                 <Label htmlFor="code-input-0" className="sr-only">
                   Enter verification code
                 </Label>
-                <div className="flex justify-center gap-2">
+                <div className="flex gap-2">
                   <InputOTP
                     maxLength={6}
                     pattern={REGEXP_ONLY_DIGITS}
@@ -247,33 +282,19 @@ export function TwoFactorAuthCard({
                     onChange={(value) => setCode(value)}
                     onComplete={onComplete}
                   >
-                    <InputOTPGroup>
-                      <InputOTPSlot index={0} />
-                      <InputOTPSlot index={1} />
-                      <InputOTPSlot index={2} />
-                    </InputOTPGroup>
-                    <InputOTPSeparator className="text-neutral-400" />
-                    <InputOTPGroup>
-                      <InputOTPSlot index={3} />
-                      <InputOTPSlot index={4} />
-                      <InputOTPSlot index={5} />
-                    </InputOTPGroup>
+                    {Array.from({ length: 6 }).map((_, index) => (
+                      <InputOTPGroup key={index}>
+                        <InputOTPSlot index={index} />
+                      </InputOTPGroup>
+                    ))}
                   </InputOTP>
                 </div>
               </div>
             </div>
           </div>
-
-          <DialogFooter className="flex">
-            <DialogClose asChild>
-              <Button variant="outline" onClick={() => setEnabled(false)}>
-                Cancel
-              </Button>
-            </DialogClose>
-            <Button>Confirm</Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
+      {/* TO DO : Set the alert while disable */}
     </>
   );
 }

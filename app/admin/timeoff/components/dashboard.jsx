@@ -1,8 +1,5 @@
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import { Clock, Users } from "lucide-react";
 import TimeInfo from "./time-info";
 import SiteInfo from "./site-info";
-import TimeTracker from "./time-tracker";
 import EmployeeTableTimeOff from "./employee-table";
 
 export default function Dashboard() {
@@ -12,7 +9,6 @@ export default function Dashboard() {
         <TimeInfo />
         <SiteInfo />
       </div>
-      <TimeTracker />
       <EmployeeTableTimeOff />
     </div>
   );

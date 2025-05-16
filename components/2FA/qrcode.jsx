@@ -1,5 +1,90 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import { getQRCodeToken } from "@/server/2FAServer/qrcodeServer";
+import React, { useEffect, useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
+import { Button } from "../ui/button";
+import { RefreshCw } from "lucide-react";
+
+export default function QRCode() {
+  const [qr, setQr] = useState("");
+  const [expiresIn, setExpiresIn] = useState(50);
+  const [expired, setExpired] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const fetchQr = async () => {
+    // add the fake delay
+    setLoading(true);
+    const response = await getQRCodeToken(expiresIn);
+    if (response.success) {
+      const data = JSON.parse(response.data);
+      setQr(data.qrData);
+      setExpiresIn(50);
+      setExpired(false);
+      setLoading(false);
+    }
+  };
+  // ✅ Fetch QR automatically on first load
+  useEffect(() => {
+    fetchQr(); // ← this wasn't firing properly before!
+  }, []);
+
+  useEffect(() => {
+    if (!qr || expired) return;
+
+    const timer = setInterval(() => {
+      setExpiresIn((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          setExpired(true);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [qr, expired]);
+
+  return (
+    <Card className="max-w-md mx-auto">
+      <CardHeader>
+        <CardTitle>Here is your QR code</CardTitle>
+        <CardDescription>
+          Scan the QR code using your mobile device to verify your identity.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="flex flex-col items-center justify-center pb-4">
+          {qr && !expired && (
+            <img src={qr} alt="QR Code" className="w-64 h-64 mb-4" />
+          )}
+
+          {expired && (
+            <CardTitle className="text-red-500 text-sm mb-2">
+              QR code expired
+            </CardTitle>
+          )}
+
+          {!expired ? (
+            <p className="text-gray-500 text-sm">Expires in {expiresIn}s</p>
+          ) : (
+            <Button size="sm" onClick={fetchQr} disabled={loading}>
+              <RefreshCw className={`${loading ? "animate-spin" : ""}`} />
+              Refresh Code
+            </Button>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 import {
   Clock,
   Coffee,
@@ -7,12 +92,10 @@ import {
   Save,
   X,
   Edit2,
-  Plus,
   Search,
   Trash2,
   UserPlus,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Dialog,
@@ -22,7 +105,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-const TimeTrackingDashboard = () => {
+export const TimeTrackingDashboard = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [employees, setEmployees] = useState([
     {
@@ -677,5 +760,3 @@ const TimeTrackingDashboard = () => {
     </div>
   );
 };
-
-export default TimeTrackingDashboard;
