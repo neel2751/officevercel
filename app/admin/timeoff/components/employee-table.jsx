@@ -2,11 +2,6 @@
 import TableHeaderCom from "@/components/tableStatus/tableHeader";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
-import {
-  countLeaveNewFirstTime,
-  storeCommonLeave,
-  storeCommonLeaveNew,
-} from "@/server/leaveServer/countLeaveServer";
 import fetchEmployeeWithHoliday from "@/server/timeOffServer/timeOffServer";
 import { BellElectric, Clock, Coffee } from "lucide-react";
 import { useState } from "react";
@@ -20,14 +15,9 @@ export default function EmployeeTableTimeOff() {
     }
   };
 
-  const handleLeaveCount = async () => {
-    const newData = await storeCommonLeaveNew();
-  };
-
   return (
     <>
       <Button onClick={handleButton}>Test</Button>
-      <Button onClick={handleLeaveCount}>Count Leave</Button>
       <Table>
         <TableHeaderCom
           tableHead={[

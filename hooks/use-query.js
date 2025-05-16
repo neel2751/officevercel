@@ -97,5 +97,5 @@ export const usePreFetchQuery = ({ params, queryKey, fetchFn }) => {
 
 export const useInvalidateQuery = (queryKey) => {
   const queryClient = useQueryClient();
-  return queryClient.invalidateQueries(queryKey);
+  return queryClient.invalidateQueries({ queryKey });
 };

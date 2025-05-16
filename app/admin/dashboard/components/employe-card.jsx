@@ -15,11 +15,13 @@ import {
   Plus,
 } from "lucide-react";
 import CardName from "../../_components/name";
+import QRCodeSocket from "@/components/2FA/qrcodesocket";
 
 export default function EmployeCard() {
   return (
     <div className="container mx-auto p-4 space-y-4">
       <CardName />
+      <QRCodeSocket />
       <div className="grid grid-cols-2 gap-4">
         <div className=" border border-neutral-200 rounded-lg divide-y">
           <div className="px-4 py-2">
